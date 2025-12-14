@@ -1,5 +1,6 @@
 import * as readline from 'readline';
 import { NestFactory } from '@nestjs/core';
+import type { INestApplicationContext } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { getModelToken } from '@nestjs/mongoose';
@@ -26,7 +27,7 @@ function question(rl: readline.Interface, query: string): Promise<string> {
 }
 
 function questionPassword(query: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const stdin = process.stdin;
     const stdout = process.stdout;
 
@@ -77,6 +78,7 @@ function questionPassword(query: string): Promise<string> {
           break;
         default:
           // Only accept printable characters (skip control characters)
+          // eslint-disable-next-line no-case-declarations
           const code = char.charCodeAt(0);
           if (code >= 32 && code !== 127) {
             password += char;
@@ -183,7 +185,7 @@ async function collectInputs(): Promise<AdminInputs> {
 }
 
 async function createAdmin() {
-  let app: any;
+  let app: INestApplicationContext | undefined;
 
   try {
     // Collect user inputs
@@ -194,8 +196,8 @@ async function createAdmin() {
     // Initialize NestJS application context
     app = await NestFactory.createApplicationContext(AppModule);
 
-    const userModel = app.get(getModelToken(User.name)) as Model<UserDocument>;
-    const authService = app.get(AuthService);
+    const userModel = app.get<Model<UserDocument>>(getModelToken(User.name));
+    const authService = app.get<AuthService>(AuthService);
 
     // Check if admin already exists
     const existingAdmin = await userModel
@@ -234,8 +236,11 @@ async function createAdmin() {
     console.log(`   Name: ${inputs.name}`);
     console.log('\n💡 You can now login with these credentials.');
   } catch (error) {
-    console.error('\n❌ Error creating admin user:', error.message);
-    if (error.code === 11000) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorCode = (error as { code?: number })?.code;
+
+    console.error('\n❌ Error creating admin user:', errorMessage);
+    if (errorCode === 11000) {
       console.error('   This email is already registered in the system.');
     }
     process.exit(1);
@@ -246,4 +251,7 @@ async function createAdmin() {
   }
 }
 
-createAdmin();
+createAdmin().catch(error => {
+  console.error('Unhandled error:', error);
+  process.exit(1);
+});
