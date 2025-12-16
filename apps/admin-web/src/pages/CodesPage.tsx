@@ -35,7 +35,12 @@ export function CodesPage() {
   const loadCodes = async () => {
     try {
       setLoading(true);
-      const response = await apiRequest<{ data: Code[]; total: number; page: number; limit: number }>('/codes?page=1&limit=100');
+      const response = await apiRequest<{
+        data: Code[];
+        total: number;
+        page: number;
+        limit: number;
+      }>('/codes?page=1&limit=100');
       setCodes(response.data || []);
     } catch (error) {
       console.error('Failed to load codes:', error);
@@ -52,7 +57,8 @@ export function CodesPage() {
         type: formData.type,
         usageLimit: parseInt(formData.usageLimit),
       };
-      if (formData.discountPercentage) payload.discountPercentage = parseFloat(formData.discountPercentage);
+      if (formData.discountPercentage)
+        payload.discountPercentage = parseFloat(formData.discountPercentage);
       if (formData.discountAmount) payload.discountAmount = parseFloat(formData.discountAmount);
       if (formData.expiryDate) payload.expiryDate = formData.expiryDate;
       if (formData.description) payload.description = formData.description;
@@ -63,7 +69,15 @@ export function CodesPage() {
         body: JSON.stringify(payload),
       });
       setShowForm(false);
-      setFormData({ code: '', type: 'DISCOUNT', discountPercentage: '', discountAmount: '', expiryDate: '', usageLimit: '1', description: '' });
+      setFormData({
+        code: '',
+        type: 'DISCOUNT',
+        discountPercentage: '',
+        discountAmount: '',
+        expiryDate: '',
+        usageLimit: '1',
+        description: '',
+      });
       loadCodes();
     } catch (error) {
       console.error('Failed to create code:', error);
@@ -108,7 +122,7 @@ export function CodesPage() {
                 type="text"
                 required
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                 className="w-full p-2 border rounded"
                 placeholder="PROMO2024"
               />
@@ -117,7 +131,7 @@ export function CodesPage() {
               <label className="block mb-1">Type *</label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={e => setFormData({ ...formData, type: e.target.value })}
                 className="w-full p-2 border rounded"
               >
                 <option value="DISCOUNT">Discount</option>
@@ -130,7 +144,7 @@ export function CodesPage() {
               <input
                 type="number"
                 value={formData.discountPercentage}
-                onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
+                onChange={e => setFormData({ ...formData, discountPercentage: e.target.value })}
                 className="w-full p-2 border rounded"
                 min="0"
                 max="100"
@@ -141,7 +155,7 @@ export function CodesPage() {
               <input
                 type="number"
                 value={formData.discountAmount}
-                onChange={(e) => setFormData({ ...formData, discountAmount: e.target.value })}
+                onChange={e => setFormData({ ...formData, discountAmount: e.target.value })}
                 className="w-full p-2 border rounded"
                 min="0"
               />
@@ -151,7 +165,7 @@ export function CodesPage() {
               <input
                 type="date"
                 value={formData.expiryDate}
-                onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
                 className="w-full p-2 border rounded"
               />
             </div>
@@ -161,7 +175,7 @@ export function CodesPage() {
                 type="number"
                 required
                 value={formData.usageLimit}
-                onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
+                onChange={e => setFormData({ ...formData, usageLimit: e.target.value })}
                 className="w-full p-2 border rounded"
                 min="1"
               />
@@ -170,13 +184,16 @@ export function CodesPage() {
               <label className="block mb-1">Description</label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
                 className="w-full p-2 border rounded"
                 rows={3}
               />
             </div>
           </div>
-          <button type="submit" className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+          <button
+            type="submit"
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
             Create Code
           </button>
         </form>
@@ -203,20 +220,30 @@ export function CodesPage() {
                 </td>
               </tr>
             ) : (
-              codes.map((code) => (
+              codes.map(code => (
                 <tr key={code._id}>
                   <td className="border p-2 font-mono">{code.code}</td>
                   <td className="border p-2">{code.type}</td>
                   <td className="border p-2">
-                    {code.discountPercentage ? `${code.discountPercentage}%` : code.discountAmount ? `$${code.discountAmount}` : '-'}
+                    {code.discountPercentage
+                      ? `${code.discountPercentage}%`
+                      : code.discountAmount
+                        ? `$${code.discountAmount}`
+                        : '-'}
                   </td>
                   <td className="border p-2">
-                    <span className={`px-2 py-1 rounded text-xs ${code.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${code.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
+                    >
                       {code.status}
                     </span>
                   </td>
-                  <td className="border p-2">{code.usageCount} / {code.usageLimit}</td>
-                  <td className="border p-2">{code.expiryDate ? new Date(code.expiryDate).toLocaleDateString() : '-'}</td>
+                  <td className="border p-2">
+                    {code.usageCount} / {code.usageLimit}
+                  </td>
+                  <td className="border p-2">
+                    {code.expiryDate ? new Date(code.expiryDate).toLocaleDateString() : '-'}
+                  </td>
                   <td className="border p-2">
                     <button
                       onClick={() => handleDelete(code._id)}

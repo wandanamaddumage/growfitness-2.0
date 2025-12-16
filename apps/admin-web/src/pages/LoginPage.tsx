@@ -33,9 +33,7 @@ export function LoginPage() {
         <h1 className="text-2xl font-bold mb-6 text-center">Grow Fitness Admin</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {error && (
-            <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-              {error}
-            </div>
+            <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">{error}</div>
           )}
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-2">
@@ -73,4 +71,3 @@ export function LoginPage() {
     </div>
   );
 }
-

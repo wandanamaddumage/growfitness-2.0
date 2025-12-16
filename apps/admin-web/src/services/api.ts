@@ -40,10 +40,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return (await response.text()) as unknown as T;
 }
 
-export async function apiRequest<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
+export async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('accessToken');
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -72,4 +69,3 @@ export const api = {
     }),
   delete: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
 };
-

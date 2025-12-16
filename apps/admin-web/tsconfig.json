@@ -1,5 +1,5 @@
 {
-  "extends": "@grow-fitness/tsconfig/react.json",
+  "extends": "../../tooling/tsconfig/react.json",
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -26,4 +26,3 @@
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
-

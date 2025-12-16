@@ -42,7 +42,7 @@ export function Sidebar() {
         <p className="text-sm text-muted-foreground">Admin Portal</p>
       </div>
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => {
+        {menuItems.map(item => {
           const Icon = item.icon;
           return (
             <NavLink
@@ -66,4 +66,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
