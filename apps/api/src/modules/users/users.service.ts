@@ -51,9 +51,7 @@ export class UsersService {
   }
 
   async findParentById(id: string) {
-    const parent = await this.userModel
-      .findOne({ _id: id, role: UserRole.PARENT })
-      .exec();
+    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -101,7 +99,7 @@ export class UsersService {
 
     // Create kids
     const kids = await Promise.all(
-      createParentDto.kids.map((kidData) => {
+      createParentDto.kids.map(kidData => {
         const kid = new this.kidModel({
           ...kidData,
           parentId: parent._id,
@@ -129,9 +127,7 @@ export class UsersService {
   }
 
   async updateParent(id: string, updateParentDto: UpdateParentDto, actorId: string) {
-    const parent = await this.userModel
-      .findOne({ _id: id, role: UserRole.PARENT })
-      .exec();
+    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -180,9 +176,7 @@ export class UsersService {
   }
 
   async deleteParent(id: string, actorId: string) {
-    const parent = await this.userModel
-      .findOne({ _id: id, role: UserRole.PARENT })
-      .exec();
+    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -226,9 +220,7 @@ export class UsersService {
   }
 
   async findCoachById(id: string) {
-    const coach = await this.userModel
-      .findOne({ _id: id, role: UserRole.COACH })
-      .exec();
+    const coach = await this.userModel.findOne({ _id: id, role: UserRole.COACH }).exec();
 
     if (!coach) {
       throw new NotFoundException({
@@ -279,9 +271,7 @@ export class UsersService {
   }
 
   async updateCoach(id: string, updateCoachDto: UpdateCoachDto, actorId: string) {
-    const coach = await this.userModel
-      .findOne({ _id: id, role: UserRole.COACH })
-      .exec();
+    const coach = await this.userModel.findOne({ _id: id, role: UserRole.COACH }).exec();
 
     if (!coach) {
       throw new NotFoundException({
@@ -329,9 +319,7 @@ export class UsersService {
   }
 
   async deactivateCoach(id: string, actorId: string) {
-    const coach = await this.userModel
-      .findOne({ _id: id, role: UserRole.COACH })
-      .exec();
+    const coach = await this.userModel.findOne({ _id: id, role: UserRole.COACH }).exec();
 
     if (!coach) {
       throw new NotFoundException({
@@ -353,4 +341,3 @@ export class UsersService {
     return { message: 'Coach deactivated successfully' };
   }
 }
-

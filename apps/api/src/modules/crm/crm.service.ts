@@ -59,7 +59,10 @@ export class CrmService {
   }
 
   async findById(id: string) {
-    const contact = await this.crmContactModel.findById(id).populate('parentId', 'email phone parentProfile').exec();
+    const contact = await this.crmContactModel
+      .findById(id)
+      .populate('parentId', 'email phone parentProfile')
+      .exec();
 
     if (!contact) {
       throw new NotFoundException({
@@ -164,4 +167,3 @@ export class CrmService {
     return { message: 'CRM contact deleted successfully' };
   }
 }
-

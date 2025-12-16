@@ -1,9 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FreeSessionRequest, FreeSessionRequestDocument } from '../../infra/database/schemas/free-session-request.schema';
-import { RescheduleRequest, RescheduleRequestDocument } from '../../infra/database/schemas/reschedule-request.schema';
-import { ExtraSessionRequest, ExtraSessionRequestDocument } from '../../infra/database/schemas/extra-session-request.schema';
+import {
+  FreeSessionRequest,
+  FreeSessionRequestDocument,
+} from '../../infra/database/schemas/free-session-request.schema';
+import {
+  RescheduleRequest,
+  RescheduleRequestDocument,
+} from '../../infra/database/schemas/reschedule-request.schema';
+import {
+  ExtraSessionRequest,
+  ExtraSessionRequestDocument,
+} from '../../infra/database/schemas/extra-session-request.schema';
 import { RequestStatus } from '@grow-fitness/shared-types';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
@@ -283,7 +292,11 @@ export class RequestsService {
   }
 
   // Update/PATCH methods
-  async updateFreeSessionRequest(id: string, updateData: { status?: RequestStatus; selectedSessionId?: string }, actorId: string) {
+  async updateFreeSessionRequest(
+    id: string,
+    updateData: { status?: RequestStatus; selectedSessionId?: string },
+    actorId: string
+  ) {
     const request = await this.freeSessionRequestModel.findById(id).exec();
 
     if (!request) {
@@ -313,7 +326,11 @@ export class RequestsService {
     return request;
   }
 
-  async updateRescheduleRequest(id: string, updateData: { status?: RequestStatus; newDateTime?: Date; reason?: string }, actorId: string) {
+  async updateRescheduleRequest(
+    id: string,
+    updateData: { status?: RequestStatus; newDateTime?: Date; reason?: string },
+    actorId: string
+  ) {
     const request = await this.rescheduleRequestModel.findById(id).exec();
 
     if (!request) {
@@ -349,7 +366,11 @@ export class RequestsService {
     return request;
   }
 
-  async updateExtraSessionRequest(id: string, updateData: { status?: RequestStatus; preferredDateTime?: Date }, actorId: string) {
+  async updateExtraSessionRequest(
+    id: string,
+    updateData: { status?: RequestStatus; preferredDateTime?: Date },
+    actorId: string
+  ) {
     const request = await this.extraSessionRequestModel.findById(id).exec();
 
     if (!request) {
@@ -379,4 +400,3 @@ export class RequestsService {
     return request;
   }
 }
-

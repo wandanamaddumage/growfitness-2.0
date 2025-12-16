@@ -52,4 +52,3 @@ export class DashboardService {
     return this.auditService.getRecentLogs(10);
   }
 }
-

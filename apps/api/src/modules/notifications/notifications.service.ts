@@ -70,4 +70,3 @@ export class NotificationService {
     console.log('Invoice update notification:', data);
   }
 }
-

@@ -37,7 +37,12 @@ export class ReportsService {
     }
 
     const [data, total] = await Promise.all([
-      this.reportModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(pagination.limit).exec(),
+      this.reportModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pagination.limit)
+        .exec(),
       this.reportModel.countDocuments(query).exec(),
     ]);
 
@@ -123,4 +128,3 @@ export class ReportsService {
     return { message: 'Report deleted successfully' };
   }
 }
-

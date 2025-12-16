@@ -11,4 +11,3 @@ import { AuditLog, AuditLogSchema } from '../../infra/database/schemas/audit-log
   exports: [AuditService],
 })
 export class AuditModule {}
-

@@ -8,4 +8,3 @@ import { WhatsAppProvider } from './providers/whatsapp.provider';
   exports: [NotificationService],
 })
 export class NotificationsModule {}
-

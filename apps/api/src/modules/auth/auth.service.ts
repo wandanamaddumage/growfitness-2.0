@@ -125,4 +125,3 @@ export class AuthService {
     return argon2.hash(password);
   }
 }
-

@@ -30,9 +30,8 @@ describe('Auth (e2e)', () => {
     return request(app.getHttpServer())
       .get('/api/health')
       .expect(200)
-      .expect((res) => {
+      .expect(res => {
         expect(res.body).toHaveProperty('status', 'ok');
       });
   });
 });
-

@@ -12,4 +12,3 @@ import { AuditModule } from '../audit/audit.module';
   providers: [DashboardService],
 })
 export class DashboardModule {}
-

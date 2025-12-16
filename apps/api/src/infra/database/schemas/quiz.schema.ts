@@ -54,4 +54,3 @@ export const QuizSchema = SchemaFactory.createForClass(Quiz);
 // Indexes
 QuizSchema.index({ targetAudience: 1 });
 QuizSchema.index({ isActive: 1 });
-

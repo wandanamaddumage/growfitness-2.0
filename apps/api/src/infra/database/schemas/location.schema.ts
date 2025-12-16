@@ -31,4 +31,3 @@ export const LocationSchema = SchemaFactory.createForClass(Location);
 
 // Indexes
 LocationSchema.index({ isActive: 1 });
-

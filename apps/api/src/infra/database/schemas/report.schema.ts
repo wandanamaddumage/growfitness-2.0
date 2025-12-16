@@ -57,4 +57,3 @@ ReportSchema.index({ type: 1 });
 ReportSchema.index({ status: 1 });
 ReportSchema.index({ startDate: 1, endDate: 1 });
 ReportSchema.index({ createdAt: -1 });
-

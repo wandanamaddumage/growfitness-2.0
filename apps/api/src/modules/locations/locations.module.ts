@@ -15,4 +15,3 @@ import { AuditModule } from '../audit/audit.module';
   exports: [LocationsService],
 })
 export class LocationsModule {}
-

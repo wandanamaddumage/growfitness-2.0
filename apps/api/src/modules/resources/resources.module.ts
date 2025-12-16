@@ -6,10 +6,12 @@ import { Resource, ResourceSchema } from '../../infra/database/schemas/resource.
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Resource.name, schema: ResourceSchema }]), AuditModule],
+  imports: [
+    MongooseModule.forFeature([{ name: Resource.name, schema: ResourceSchema }]),
+    AuditModule,
+  ],
   controllers: [ResourcesController],
   providers: [ResourcesService],
   exports: [ResourcesService],
 })
 export class ResourcesModule {}
-

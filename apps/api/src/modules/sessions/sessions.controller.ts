@@ -1,5 +1,22 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { SessionsService } from './sessions.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -92,13 +109,34 @@ export class SessionsController {
       properties: {
         type: { type: 'string', enum: ['INDIVIDUAL', 'GROUP'], description: 'Session type' },
         coachId: { type: 'string', description: 'Coach ID', example: '507f1f77bcf86cd799439011' },
-        locationId: { type: 'string', description: 'Location ID', example: '507f1f77bcf86cd799439011' },
-        dateTime: { type: 'string', format: 'date-time', description: 'Session date and time (ISO format)' },
+        locationId: {
+          type: 'string',
+          description: 'Location ID',
+          example: '507f1f77bcf86cd799439011',
+        },
+        dateTime: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Session date and time (ISO format)',
+        },
         duration: { type: 'number', description: 'Duration in minutes', example: 60, minimum: 1 },
-        capacity: { type: 'number', description: 'Maximum capacity (for group sessions)', example: 10, minimum: 1 },
-        kids: { type: 'array', items: { type: 'string' }, description: 'Array of kid IDs (for group sessions)' },
+        capacity: {
+          type: 'number',
+          description: 'Maximum capacity (for group sessions)',
+          example: 10,
+          minimum: 1,
+        },
+        kids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of kid IDs (for group sessions)',
+        },
         kidId: { type: 'string', description: 'Kid ID (for individual sessions)' },
-        isFreeSession: { type: 'boolean', description: 'Whether this is a free session', default: false },
+        isFreeSession: {
+          type: 'boolean',
+          description: 'Whether this is a free session',
+          default: false,
+        },
       },
       required: ['type', 'coachId', 'locationId', 'dateTime', 'duration'],
     },
@@ -116,12 +154,20 @@ export class SessionsController {
       properties: {
         coachId: { type: 'string', description: 'Coach ID' },
         locationId: { type: 'string', description: 'Location ID' },
-        dateTime: { type: 'string', format: 'date-time', description: 'Session date and time (ISO format)' },
+        dateTime: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Session date and time (ISO format)',
+        },
         duration: { type: 'number', description: 'Duration in minutes', minimum: 1 },
         capacity: { type: 'number', description: 'Maximum capacity', minimum: 1 },
         kids: { type: 'array', items: { type: 'string' }, description: 'Array of kid IDs' },
         kidId: { type: 'string', description: 'Kid ID' },
-        status: { type: 'string', enum: ['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'], description: 'Session status' },
+        status: {
+          type: 'string',
+          enum: ['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'],
+          description: 'Session status',
+        },
       },
     },
   })

@@ -42,7 +42,12 @@ export class ResourcesService {
     }
 
     const [data, total] = await Promise.all([
-      this.resourceModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(pagination.limit).exec(),
+      this.resourceModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pagination.limit)
+        .exec(),
       this.resourceModel.countDocuments(query).exec(),
     ]);
 
@@ -127,4 +132,3 @@ export class ResourcesService {
     return { message: 'Resource deleted successfully' };
   }
 }
-

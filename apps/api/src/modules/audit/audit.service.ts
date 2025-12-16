@@ -14,9 +14,7 @@ export interface AuditLogData {
 
 @Injectable()
 export class AuditService {
-  constructor(
-    @InjectModel(AuditLog.name) private auditLogModel: Model<AuditLogDocument>
-  ) {}
+  constructor(@InjectModel(AuditLog.name) private auditLogModel: Model<AuditLogDocument>) {}
 
   /**
    * Helper method to populate actorId field, handling both valid ObjectId and malformed object cases
@@ -42,7 +40,11 @@ export class AuditService {
             userId = log.actorId.toString();
           }
         }
-      } else if (log.actorId && typeof log.actorId === 'string' && Types.ObjectId.isValid(log.actorId)) {
+      } else if (
+        log.actorId &&
+        typeof log.actorId === 'string' &&
+        Types.ObjectId.isValid(log.actorId)
+      ) {
         userId = log.actorId;
       }
 
@@ -79,7 +81,10 @@ export class AuditService {
 
     // Ensure actorId is a valid ObjectId
     if (!Types.ObjectId.isValid(actorId)) {
-      throw new HttpException('Invalid actorId format: must be a valid ObjectId', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid actorId format: must be a valid ObjectId',
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const auditLog = new this.auditLogModel({
@@ -131,7 +136,7 @@ export class AuditService {
       const page = pagination.page || 1;
       const limit = pagination.limit || 10;
       const skip = (page - 1) * limit;
-      
+
       // Fetch data and handle malformed actorId entries
       const rawData = await this.auditLogModel
         .find(query)
@@ -142,9 +147,7 @@ export class AuditService {
         .exec();
 
       // Transform data to handle malformed actorId entries (where actorId might be an object)
-      const transformedData = await Promise.all(
-        rawData.map((log) => this.populateActorId(log))
-      );
+      const transformedData = await Promise.all(rawData.map(log => this.populateActorId(log)));
 
       const total = await this.auditLogModel.countDocuments(query).exec();
 
@@ -170,9 +173,7 @@ export class AuditService {
         .exec();
 
       // Transform data to handle malformed actorId entries
-      const transformedData = await Promise.all(
-        rawData.map((log) => this.populateActorId(log))
-      );
+      const transformedData = await Promise.all(rawData.map(log => this.populateActorId(log)));
 
       return transformedData;
     } catch (error) {
@@ -183,4 +184,3 @@ export class AuditService {
     }
   }
 }
-

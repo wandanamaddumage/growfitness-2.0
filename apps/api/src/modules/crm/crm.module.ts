@@ -6,10 +6,12 @@ import { CrmContact, CrmContactSchema } from '../../infra/database/schemas/crm-c
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: CrmContact.name, schema: CrmContactSchema }]), AuditModule],
+  imports: [
+    MongooseModule.forFeature([{ name: CrmContact.name, schema: CrmContactSchema }]),
+    AuditModule,
+  ],
   controllers: [CrmController],
   providers: [CrmService],
   exports: [CrmService],
 })
 export class CrmModule {}
-

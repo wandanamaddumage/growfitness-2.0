@@ -9,7 +9,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { BannersService } from './banners.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -17,7 +24,13 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '@grow-fitness/shared-types';
-import { CreateBannerDto, UpdateBannerDto, ReorderBannersDto, CreateBannerSchema, UpdateBannerSchema } from '@grow-fitness/shared-schemas';
+import {
+  CreateBannerDto,
+  UpdateBannerDto,
+  ReorderBannersDto,
+  CreateBannerSchema,
+  UpdateBannerSchema,
+} from '@grow-fitness/shared-schemas';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
@@ -66,10 +79,24 @@ export class BannersController {
     schema: {
       type: 'object',
       properties: {
-        imageUrl: { type: 'string', format: 'uri', description: 'Banner image URL', example: 'https://example.com/banner.jpg' },
+        imageUrl: {
+          type: 'string',
+          format: 'uri',
+          description: 'Banner image URL',
+          example: 'https://example.com/banner.jpg',
+        },
         active: { type: 'boolean', description: 'Whether the banner is active', default: true },
-        order: { type: 'number', description: 'Display order (lower numbers appear first)', example: 0, minimum: 0 },
-        targetAudience: { type: 'string', enum: ['PARENT', 'COACH', 'ALL'], description: 'Target audience for the banner' },
+        order: {
+          type: 'number',
+          description: 'Display order (lower numbers appear first)',
+          example: 0,
+          minimum: 0,
+        },
+        targetAudience: {
+          type: 'string',
+          enum: ['PARENT', 'COACH', 'ALL'],
+          description: 'Target audience for the banner',
+        },
       },
       required: ['imageUrl', 'order', 'targetAudience'],
     },
@@ -92,7 +119,11 @@ export class BannersController {
         imageUrl: { type: 'string', format: 'uri', description: 'Banner image URL' },
         active: { type: 'boolean', description: 'Whether the banner is active' },
         order: { type: 'number', description: 'Display order', minimum: 0 },
-        targetAudience: { type: 'string', enum: ['PARENT', 'COACH', 'ALL'], description: 'Target audience' },
+        targetAudience: {
+          type: 'string',
+          enum: ['PARENT', 'COACH', 'ALL'],
+          description: 'Target audience',
+        },
       },
     },
   })

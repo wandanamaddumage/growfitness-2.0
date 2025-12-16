@@ -9,7 +9,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { LocationsService } from './locations.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -66,12 +73,16 @@ export class LocationsController {
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Location name', example: 'Main Gym' },
-        address: { type: 'string', description: 'Full address', example: '123 Main St, City, State 12345' },
+        address: {
+          type: 'string',
+          description: 'Full address',
+          example: '123 Main St, City, State 12345',
+        },
         geo: {
           type: 'object',
           properties: {
             lat: { type: 'number', description: 'Latitude', example: 40.7128 },
-            lng: { type: 'number', description: 'Longitude', example: -74.0060 },
+            lng: { type: 'number', description: 'Longitude', example: -74.006 },
           },
           description: 'Geographic coordinates (optional)',
         },

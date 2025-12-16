@@ -20,4 +20,3 @@ export class EmailProvider {
     // In production, integrate with actual email service (SendGrid, AWS SES, etc.)
   }
 }
-

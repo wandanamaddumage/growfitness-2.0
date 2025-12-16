@@ -55,7 +55,11 @@ export class CodesService {
 
   async create(createCodeDto: CreateCodeDto, actorId: string) {
     // Validate discount fields
-    if (createCodeDto.type === 'DISCOUNT' && !createCodeDto.discountPercentage && !createCodeDto.discountAmount) {
+    if (
+      createCodeDto.type === 'DISCOUNT' &&
+      !createCodeDto.discountPercentage &&
+      !createCodeDto.discountAmount
+    ) {
       throw new BadRequestException({
         errorCode: ErrorCode.VALIDATION_ERROR,
         message: 'Discount percentage or amount is required for discount codes',
@@ -132,4 +136,3 @@ export class CodesService {
     return { message: 'Code deleted successfully' };
   }
 }
-

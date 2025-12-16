@@ -31,4 +31,3 @@ AuditLogSchema.index({ actorId: 1 });
 AuditLogSchema.index({ timestamp: -1 });
 AuditLogSchema.index({ entityType: 1 });
 AuditLogSchema.index({ entityId: 1 });
-

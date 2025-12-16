@@ -1,5 +1,22 @@
-import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { RequestsService } from './requests.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -45,12 +62,20 @@ export class RequestsController {
     schema: {
       type: 'object',
       properties: {
-        sessionId: { type: 'string', description: 'Session ID to select (optional)', example: '507f1f77bcf86cd799439011' },
+        sessionId: {
+          type: 'string',
+          description: 'Session ID to select (optional)',
+          example: '507f1f77bcf86cd799439011',
+        },
       },
     },
   })
   @ApiResponse({ status: 200, description: 'Free session request selected successfully' })
-  selectFreeSessionRequest(@Param('id', ObjectIdValidationPipe) id: string, @Body('sessionId') sessionId: string, @CurrentUser('sub') actorId: string) {
+  selectFreeSessionRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @Body('sessionId') sessionId: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.selectFreeSessionRequest(id, actorId, sessionId);
   }
 
@@ -60,7 +85,11 @@ export class RequestsController {
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['PENDING', 'SELECTED', 'DENIED'], description: 'Request status' },
+        status: {
+          type: 'string',
+          enum: ['PENDING', 'SELECTED', 'DENIED'],
+          description: 'Request status',
+        },
         selectedSessionId: { type: 'string', description: 'Selected session ID' },
       },
     },
@@ -79,7 +108,10 @@ export class RequestsController {
   @ApiOperation({ summary: 'Delete a free session request' })
   @ApiResponse({ status: 200, description: 'Free session request deleted successfully' })
   @ApiResponse({ status: 404, description: 'Request not found' })
-  deleteFreeSessionRequest(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  deleteFreeSessionRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.deleteFreeSessionRequest(id, actorId);
   }
 
@@ -112,7 +144,10 @@ export class RequestsController {
   @Post('reschedules/:id/deny')
   @ApiOperation({ summary: 'Deny a reschedule request' })
   @ApiResponse({ status: 200, description: 'Reschedule request denied successfully' })
-  denyRescheduleRequest(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  denyRescheduleRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.denyRescheduleRequest(id, actorId);
   }
 
@@ -122,8 +157,16 @@ export class RequestsController {
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['PENDING', 'APPROVED', 'DENIED'], description: 'Request status' },
-        newDateTime: { type: 'string', format: 'date-time', description: 'New date and time (ISO format)' },
+        status: {
+          type: 'string',
+          enum: ['PENDING', 'APPROVED', 'DENIED'],
+          description: 'Request status',
+        },
+        newDateTime: {
+          type: 'string',
+          format: 'date-time',
+          description: 'New date and time (ISO format)',
+        },
         reason: { type: 'string', description: 'Reason for reschedule' },
       },
     },
@@ -135,17 +178,24 @@ export class RequestsController {
     @Body() updateData: { status?: RequestStatus; newDateTime?: string; reason?: string },
     @CurrentUser('sub') actorId: string
   ) {
-    return this.requestsService.updateRescheduleRequest(id, {
-      ...updateData,
-      newDateTime: updateData.newDateTime ? new Date(updateData.newDateTime) : undefined,
-    }, actorId);
+    return this.requestsService.updateRescheduleRequest(
+      id,
+      {
+        ...updateData,
+        newDateTime: updateData.newDateTime ? new Date(updateData.newDateTime) : undefined,
+      },
+      actorId
+    );
   }
 
   @Delete('reschedules/:id')
   @ApiOperation({ summary: 'Delete a reschedule request' })
   @ApiResponse({ status: 200, description: 'Reschedule request deleted successfully' })
   @ApiResponse({ status: 404, description: 'Request not found' })
-  deleteRescheduleRequest(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  deleteRescheduleRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.deleteRescheduleRequest(id, actorId);
   }
 
@@ -178,7 +228,10 @@ export class RequestsController {
   @Post('extra-sessions/:id/deny')
   @ApiOperation({ summary: 'Deny an extra session request' })
   @ApiResponse({ status: 200, description: 'Extra session request denied successfully' })
-  denyExtraSessionRequest(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  denyExtraSessionRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.denyExtraSessionRequest(id, actorId);
   }
 
@@ -188,8 +241,16 @@ export class RequestsController {
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['PENDING', 'APPROVED', 'DENIED'], description: 'Request status' },
-        preferredDateTime: { type: 'string', format: 'date-time', description: 'Preferred date and time (ISO format)' },
+        status: {
+          type: 'string',
+          enum: ['PENDING', 'APPROVED', 'DENIED'],
+          description: 'Request status',
+        },
+        preferredDateTime: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Preferred date and time (ISO format)',
+        },
       },
     },
   })
@@ -200,17 +261,26 @@ export class RequestsController {
     @Body() updateData: { status?: RequestStatus; preferredDateTime?: string },
     @CurrentUser('sub') actorId: string
   ) {
-    return this.requestsService.updateExtraSessionRequest(id, {
-      ...updateData,
-      preferredDateTime: updateData.preferredDateTime ? new Date(updateData.preferredDateTime) : undefined,
-    }, actorId);
+    return this.requestsService.updateExtraSessionRequest(
+      id,
+      {
+        ...updateData,
+        preferredDateTime: updateData.preferredDateTime
+          ? new Date(updateData.preferredDateTime)
+          : undefined,
+      },
+      actorId
+    );
   }
 
   @Delete('extra-sessions/:id')
   @ApiOperation({ summary: 'Delete an extra session request' })
   @ApiResponse({ status: 200, description: 'Extra session request deleted successfully' })
   @ApiResponse({ status: 404, description: 'Request not found' })
-  deleteExtraSessionRequest(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  deleteExtraSessionRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.requestsService.deleteExtraSessionRequest(id, actorId);
   }
 }

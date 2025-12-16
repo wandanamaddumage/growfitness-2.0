@@ -30,4 +30,3 @@ import { User, UserSchema } from '../../infra/database/schemas/user.schema';
   exports: [AuthService, JwtStrategy, PassportModule],
 })
 export class AuthModule {}
-

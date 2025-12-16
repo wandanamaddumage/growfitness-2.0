@@ -32,4 +32,3 @@ import { NotificationsModule } from '../notifications/notifications.module';
   exports: [RequestsService],
 })
 export class RequestsModule {}
-

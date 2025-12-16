@@ -184,7 +184,10 @@ export class KidsController {
   @ApiOperation({ summary: 'Unlink kid from parent' })
   @ApiResponse({ status: 200, description: 'Kid unlinked from parent successfully' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
-  unlinkFromParent(@Param('id', ObjectIdValidationPipe) kidId: string, @CurrentUser('sub') actorId: string) {
+  unlinkFromParent(
+    @Param('id', ObjectIdValidationPipe) kidId: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.kidsService.unlinkFromParent(kidId, actorId);
   }
 }

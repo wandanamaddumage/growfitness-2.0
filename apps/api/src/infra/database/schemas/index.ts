@@ -13,4 +13,3 @@ export * from './resource.schema';
 export * from './quiz.schema';
 export * from './crm-contact.schema';
 export * from './report.schema';
-

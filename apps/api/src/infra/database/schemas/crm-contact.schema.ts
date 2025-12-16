@@ -61,4 +61,3 @@ CrmContactSchema.index({ status: 1 });
 CrmContactSchema.index({ followUpDate: 1 });
 CrmContactSchema.index({ email: 1 });
 CrmContactSchema.index({ phone: 1 });
-

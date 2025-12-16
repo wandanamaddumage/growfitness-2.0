@@ -147,7 +147,10 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Parent deleted successfully' })
   @ApiResponse({ status: 404, description: 'Parent not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
-  deleteParent(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  deleteParent(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.usersService.deleteParent(id, actorId);
   }
 
@@ -246,7 +249,10 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Coach deactivated successfully' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
-  deactivateCoach(@Param('id', ObjectIdValidationPipe) id: string, @CurrentUser('sub') actorId: string) {
+  deactivateCoach(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
     return this.usersService.deactivateCoach(id, actorId);
   }
 }

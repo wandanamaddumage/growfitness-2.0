@@ -51,4 +51,3 @@ export const CodeSchema = SchemaFactory.createForClass(Code);
 // Note: code field already has unique: true which creates an index
 CodeSchema.index({ status: 1 });
 CodeSchema.index({ expiryDate: 1 });
-

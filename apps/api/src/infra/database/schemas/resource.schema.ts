@@ -48,4 +48,3 @@ ResourceSchema.index({ type: 1 });
 ResourceSchema.index({ targetAudience: 1 });
 ResourceSchema.index({ isActive: 1 });
 ResourceSchema.index({ tags: 1 });
-
