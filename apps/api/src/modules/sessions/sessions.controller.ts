@@ -26,6 +26,7 @@ import { UserRole, SessionStatus } from '@grow-fitness/shared-types';
 import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
+import { GetSessionsQueryDto } from './dto/get-sessions-query.dto';
 
 @ApiTags('sessions')
 @ApiBearerAuth('JWT-auth')
@@ -75,21 +76,18 @@ export class SessionsController {
     description: 'Filter sessions until this date (ISO format)',
   })
   @ApiResponse({ status: 200, description: 'List of sessions' })
-  findAll(
-    @Query() pagination: PaginationDto,
-    @Query('coachId') coachId?: string,
-    @Query('locationId') locationId?: string,
-    @Query('status') status?: SessionStatus,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string
-  ) {
-    return this.sessionsService.findAll(pagination, {
-      coachId,
-      locationId,
-      status,
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
-    });
+  findAll(@Query() query: GetSessionsQueryDto) {
+    const { page, limit, search, coachId, locationId, status, startDate, endDate } = query;
+    return this.sessionsService.findAll(
+      { page, limit, search },
+      {
+        coachId,
+        locationId,
+        status,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+      }
+    );
   }
 
   @Get(':id')

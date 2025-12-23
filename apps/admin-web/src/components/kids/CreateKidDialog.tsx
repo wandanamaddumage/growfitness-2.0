@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -35,32 +36,45 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
   const { toast } = useToast();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
-    usersService.getParents(1, 1000)
+    usersService.getParents(1, 100)
   );
+
+  const defaultValues = {
+    name: '',
+    gender: '',
+    birthDate: '',
+    goal: '',
+    currentlyInSports: false,
+    medicalConditions: [],
+    sessionType: SessionType.INDIVIDUAL,
+    parentId: '',
+  };
 
   const form = useForm<CreateKidDto>({
     resolver: zodResolver(CreateKidSchema),
-    defaultValues: {
-      name: '',
-      gender: '',
-      birthDate: '',
-      goal: '',
-      currentlyInSports: false,
-      medicalConditions: [],
-      sessionType: SessionType.INDIVIDUAL,
-      parentId: '',
-    },
+    defaultValues,
   });
 
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open]);
+
   const createMutation = useApiMutation((data: CreateKidDto) => kidsService.createKid(data), {
-    invalidateQueries: [['kids']],
+    invalidateQueries: [['kids'], ['kids', 'all']],
     onSuccess: () => {
       toast.success('Kid created successfully');
-      form.reset();
-      onOpenChange(false);
+      form.reset(defaultValues);
+      setTimeout(() => {
+        onOpenChange(false);
+      }, 100);
     },
     onError: error => {
-      toast.error('Failed to create kid', error.message);
+      toast.error('Failed to create kid', error.message || 'An error occurred');
     },
   });
 
@@ -77,13 +91,14 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Kid</DialogTitle>
           <DialogDescription>Add a new kid to the system</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Parent" required error={form.formState.errors.parentId?.message}>
             <Select
               value={form.watch('parentId')}
@@ -93,7 +108,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
                 <SelectValue placeholder="Select parent" />
               </SelectTrigger>
               <SelectContent>
-                {parentsData?.data.map(parent => (
+                {(parentsData?.data || []).map(parent => (
                   <SelectItem key={parent._id} value={parent._id}>
                     {parent.parentProfile?.name || parent.email}
                   </SelectItem>
@@ -168,15 +183,16 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
             </label>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Kid'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Kid'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

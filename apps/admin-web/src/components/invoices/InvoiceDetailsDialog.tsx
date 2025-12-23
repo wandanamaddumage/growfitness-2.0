@@ -25,7 +25,8 @@ export function InvoiceDetailsDialog({ open, onOpenChange, invoice }: InvoiceDet
           <DialogDescription>View invoice information</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-4">
           <div>
             <h3 className="text-sm font-medium text-muted-foreground">Type</h3>
             <p className="text-sm font-medium">{formatInvoiceType(invoice.type)}</p>
@@ -67,6 +68,7 @@ export function InvoiceDetailsDialog({ open, onOpenChange, invoice }: InvoiceDet
                 </div>
               ))}
             </div>
+          </div>
           </div>
         </div>
       </DialogContent>

@@ -72,7 +72,8 @@ export function UpdatePaymentStatusDialog({
           <DialogDescription>Update invoice payment status</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Status" required error={form.formState.errors.status?.message}>
             <Select
               value={form.watch('status')}
@@ -99,15 +100,16 @@ export function UpdatePaymentStatusDialog({
             </CustomFormField>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? 'Updating...' : 'Update'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Updating...' : 'Update'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

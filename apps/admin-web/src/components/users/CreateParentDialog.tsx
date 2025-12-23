@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -63,18 +63,50 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
     name: 'kids',
   });
 
+  const defaultValues = {
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    password: '',
+    kids: [
+      {
+        name: '',
+        gender: '',
+        birthDate: '',
+        goal: '',
+        currentlyInSports: false,
+        medicalConditions: [],
+        sessionType: SessionType.INDIVIDUAL,
+      },
+    ],
+  };
+
+  // Reset form and step when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+      setStep(1);
+    } else {
+      form.reset(defaultValues);
+      setStep(1);
+    }
+  }, [open]);
+
   const createMutation = useApiMutation(
     (data: CreateParentDto) => usersService.createParent(data),
     {
-      invalidateQueries: [['users', 'parents']],
+      invalidateQueries: [['users', 'parents'], ['users', 'parents', 'all']],
       onSuccess: () => {
         toast.success('Parent created successfully');
-        form.reset();
+        form.reset(defaultValues);
         setStep(1);
-        onOpenChange(false);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       },
       onError: error => {
-        toast.error('Failed to create parent', error.message);
+        toast.error('Failed to create parent', error.message || 'An error occurred');
       },
     }
   );
@@ -99,7 +131,7 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {step === 1 ? 'Create Parent - Step 1' : 'Create Parent - Step 2'}
@@ -109,7 +141,8 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {step === 1 ? (
             <>
               <CustomFormField label="Name" required error={form.formState.errors.name?.message}>
@@ -280,7 +313,8 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
               </Button>
             </div>
           </div>
-        </form>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

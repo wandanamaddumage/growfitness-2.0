@@ -27,6 +27,7 @@ import { KidDetailsDialog } from '@/components/kids/KidDetailsDialog';
 import { LinkParentDialog } from '@/components/kids/LinkParentDialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
+import { ErrorState } from '@/components/common/ErrorState';
 
 export function KidsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
@@ -42,7 +43,7 @@ export function KidsPage() {
   const { confirm, confirmState } = useConfirm();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
-    usersService.getParents(1, 1000)
+    usersService.getParents(1, 100)
   );
 
   const { data, isLoading, error } = useApiQuery(
@@ -170,13 +171,16 @@ export function KidsPage() {
         <FilterBar>
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Parent:</label>
-            <Select value={parentIdFilter} onValueChange={setParentIdFilter}>
+            <Select
+              value={parentIdFilter || 'all'}
+              onValueChange={value => setParentIdFilter(value === 'all' ? '' : value)}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All parents" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All parents</SelectItem>
-                {parentsData?.data.map(parent => (
+                <SelectItem value="all">All parents</SelectItem>
+                {(parentsData?.data || []).map(parent => (
                   <SelectItem key={parent._id} value={parent._id}>
                     {parent.parentProfile?.name || parent.email}
                   </SelectItem>
@@ -188,14 +192,16 @@ export function KidsPage() {
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Session Type:</label>
             <Select
-              value={sessionTypeFilter}
-              onValueChange={value => setSessionTypeFilter(value as SessionType | '')}
+              value={sessionTypeFilter || 'all'}
+              onValueChange={value =>
+                setSessionTypeFilter(value === 'all' ? '' : (value as SessionType))
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value="all">All types</SelectItem>
                 <SelectItem value={SessionType.INDIVIDUAL}>Individual</SelectItem>
                 <SelectItem value={SessionType.GROUP}>Group</SelectItem>
               </SelectContent>
@@ -204,7 +210,7 @@ export function KidsPage() {
         </FilterBar>
 
         {error ? (
-          <div>Error loading kids</div>
+          <ErrorState title="Failed to load kids" onRetry={() => window.location.reload()} />
         ) : (
           <>
             <DataTable

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -31,15 +32,26 @@ interface CreateBannerDialogProps {
 export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogProps) {
   const { toast } = useToast();
 
+  const defaultValues = {
+    imageUrl: '',
+    active: true,
+    order: 0,
+    targetAudience: BannerTargetAudience.ALL,
+  };
+
   const form = useForm<CreateBannerDto>({
     resolver: zodResolver(CreateBannerSchema),
-    defaultValues: {
-      imageUrl: '',
-      active: true,
-      order: 0,
-      targetAudience: BannerTargetAudience.ALL,
-    },
+    defaultValues,
   });
+
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open]);
 
   const createMutation = useApiMutation(
     (data: CreateBannerDto) => bannersService.createBanner(data),
@@ -47,11 +59,13 @@ export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogPro
       invalidateQueries: [['banners']],
       onSuccess: () => {
         toast.success('Banner created successfully');
-        form.reset();
-        onOpenChange(false);
+        form.reset(defaultValues);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       },
       onError: error => {
-        toast.error('Failed to create banner', error.message);
+        toast.error('Failed to create banner', error.message || 'An error occurred');
       },
     }
   );
@@ -68,7 +82,8 @@ export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogPro
           <DialogDescription>Add a new promotional banner</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField
             label="Image URL"
             required
@@ -103,15 +118,16 @@ export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogPro
             </Select>
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Banner'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Banner'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

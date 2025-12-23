@@ -7,40 +7,44 @@ interface DashboardStatsCardsProps {
 }
 
 export function DashboardStatsCards({ stats }: DashboardStatsCardsProps) {
+  // Handle field name variations from API
+  const freeSessionRequests = stats.freeSessionRequests ?? stats.freeSessionRequestsCount ?? 0;
+  const rescheduleRequests = stats.rescheduleRequests ?? stats.rescheduleRequestsCount ?? 0;
+
   const cards = [
     {
       title: 'Total Parents',
-      value: stats.totalParents,
+      value: stats.totalParents ?? 0,
       icon: Users,
       description: 'Registered parents',
     },
     {
       title: 'Total Coaches',
-      value: stats.totalCoaches,
+      value: stats.totalCoaches ?? 0,
       icon: Users,
       description: 'Active coaches',
     },
     {
       title: 'Total Kids',
-      value: stats.totalKids,
+      value: stats.totalKids ?? 0,
       icon: Baby,
       description: 'Registered kids',
     },
     {
       title: "Today's Sessions",
-      value: stats.todaysSessions,
+      value: stats.todaysSessions ?? 0,
       icon: Calendar,
       description: 'Sessions scheduled today',
     },
     {
       title: 'Free Session Requests',
-      value: stats.freeSessionRequests,
+      value: freeSessionRequests,
       icon: FileText,
       description: 'Pending requests',
     },
     {
       title: 'Reschedule Requests',
-      value: stats.rescheduleRequests,
+      value: rescheduleRequests,
       icon: FileText,
       description: 'Pending approvals',
     },
@@ -57,7 +61,9 @@ export function DashboardStatsCards({ stats }: DashboardStatsCardsProps) {
               <Icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
+              <div className="text-2xl font-bold">
+                {typeof card.value === 'number' ? card.value.toLocaleString() : card.value ?? '0'}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
             </CardContent>
           </Card>

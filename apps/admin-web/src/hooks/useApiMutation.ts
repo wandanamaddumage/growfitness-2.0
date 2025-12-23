@@ -14,20 +14,22 @@ export function useApiMutation<TData, TVariables, TError = ApiError>(
 ): UseMutationResult<TData, TError, TVariables> {
   const queryClient = useQueryClient();
 
+  const { invalidateQueries, onSuccess, ...restOptions } = options || {};
+
   return useMutation<TData, TError, TVariables>({
     mutationFn,
+    ...restOptions,
     onSuccess: (data, variables, context) => {
       // Invalidate specified queries
-      if (options?.invalidateQueries) {
-        options.invalidateQueries.forEach(queryKey => {
+      if (invalidateQueries) {
+        invalidateQueries.forEach(queryKey => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
       // Call original onSuccess if provided
-      if (options?.onSuccess) {
-        options.onSuccess(data, variables, context as any);
+      if (onSuccess) {
+        onSuccess(data, variables, context as any);
       }
     },
-    ...options,
   });
 }

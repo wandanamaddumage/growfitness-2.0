@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -23,25 +24,38 @@ interface CreateLocationDialogProps {
 export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialogProps) {
   const { toast } = useToast();
 
+  const defaultValues = {
+    name: '',
+    address: '',
+  };
+
   const form = useForm<CreateLocationDto>({
     resolver: zodResolver(CreateLocationSchema),
-    defaultValues: {
-      name: '',
-      address: '',
-    },
+    defaultValues,
   });
+
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open]);
 
   const createMutation = useApiMutation(
     (data: CreateLocationDto) => locationsService.createLocation(data),
     {
-      invalidateQueries: [['locations']],
+      invalidateQueries: [['locations'], ['locations', 'all']],
       onSuccess: () => {
         toast.success('Location created successfully');
-        form.reset();
-        onOpenChange(false);
+        form.reset(defaultValues);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       },
       onError: error => {
-        toast.error('Failed to create location', error.message);
+        toast.error('Failed to create location', error.message || 'An error occurred');
       },
     }
   );
@@ -58,7 +72,8 @@ export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialo
           <DialogDescription>Add a new training location</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Name" required error={form.formState.errors.name?.message}>
             <Input {...form.register('name')} />
           </CustomFormField>
@@ -67,15 +82,16 @@ export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialo
             <Input {...form.register('address')} />
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Location'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Location'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

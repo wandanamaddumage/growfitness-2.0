@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -20,30 +21,46 @@ interface CreateCoachDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const defaultValues = {
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+};
+
 export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps) {
   const { toast } = useToast();
 
   const form = useForm<CreateCoachDto>({
     resolver: zodResolver(CreateCoachSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-    },
+    defaultValues,
   });
 
-  const createMutation = useApiMutation((data: CreateCoachDto) => usersService.createCoach(data), {
-    invalidateQueries: [['users', 'coaches']],
-    onSuccess: () => {
-      toast.success('Coach created successfully');
-      form.reset();
-      onOpenChange(false);
-    },
-    onError: error => {
-      toast.error('Failed to create coach', error.message);
-    },
-  });
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open, form]);
+
+  const createMutation = useApiMutation(
+    (data: CreateCoachDto) => usersService.createCoach(data),
+    {
+      invalidateQueries: [['users', 'coaches']],
+      onSuccess: () => {
+        toast.success('Coach created successfully');
+        form.reset(defaultValues);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
+      },
+      onError: error => {
+        toast.error('Failed to create coach', error.message || 'An error occurred');
+      },
+    }
+  );
 
   const onSubmit = (data: CreateCoachDto) => {
     createMutation.mutate(data);
@@ -57,7 +74,8 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
           <DialogDescription>Add a new coach to the system</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Name" required error={form.formState.errors.name?.message}>
             <Input {...form.register('name')} />
           </CustomFormField>
@@ -78,15 +96,16 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
             <Input type="password" {...form.register('password')} />
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Coach'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Coach'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

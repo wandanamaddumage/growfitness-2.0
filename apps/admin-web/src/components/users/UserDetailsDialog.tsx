@@ -1,3 +1,4 @@
+import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Dialog,
   DialogContent,
@@ -5,10 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { User } from '@grow-fitness/shared-types';
 import { formatDate } from '@/lib/formatters';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { Separator } from '@/components/ui/separator';
+import { User } from '@grow-fitness/shared-types';
 
 interface UserDetailsDialogProps {
   open: boolean;
@@ -28,46 +27,46 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
           <DialogDescription>View user information</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
-            <p className="text-sm font-medium">
-              {isParent ? user.parentProfile?.name : isCoach ? user.coachProfile?.name : 'N/A'}
-            </p>
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-            <p className="text-sm">{user.email}</p>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
-            <p className="text-sm">{user.phone}</p>
-          </div>
-
-          {isParent && user.parentProfile?.location && (
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Location</h3>
-              <p className="text-sm">{user.parentProfile.location}</p>
+              <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
+              <p className="text-sm font-medium">
+                {isParent ? user.parentProfile?.name : isCoach ? user.coachProfile?.name : 'N/A'}
+              </p>
             </div>
-          )}
 
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Role</h3>
-            <p className="text-sm">{user.role}</p>
-          </div>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
+              <p className="text-sm">{user.email}</p>
+            </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
-            <StatusBadge status={user.status} />
-          </div>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
+              <p className="text-sm">{user.phone}</p>
+            </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
-            <p className="text-sm">{formatDate(user.createdAt)}</p>
+            {isParent && user.parentProfile?.location && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">Location</h3>
+                <p className="text-sm">{user.parentProfile.location}</p>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Role</h3>
+              <p className="text-sm">{user.role}</p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+              <StatusBadge status={user.status} />
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
+              <p className="text-sm">{formatDate(user.createdAt)}</p>
+            </div>
           </div>
         </div>
       </DialogContent>

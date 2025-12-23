@@ -11,6 +11,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import { formatDate } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { ErrorState } from '@/components/common/ErrorState';
 
 export function FreeSessionRequestsTable() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
@@ -97,7 +98,7 @@ export function FreeSessionRequestsTable() {
   return (
     <div className="space-y-4">
       {error ? (
-        <div>Error loading requests</div>
+        <ErrorState title="Failed to load free session requests" onRetry={() => window.location.reload()} />
       ) : (
         <>
           <DataTable

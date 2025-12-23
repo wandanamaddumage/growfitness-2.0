@@ -120,10 +120,12 @@ export function CoachesTable() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <SearchInput placeholder="Search coaches..." onSearch={setSearch} className="max-w-sm" />
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Coach
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Coach
+          </Button>
+        </div>
       </div>
 
       {error ? (

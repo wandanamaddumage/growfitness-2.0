@@ -32,7 +32,7 @@ export function LinkParentDialog({ open, onOpenChange, kid }: LinkParentDialogPr
   const { toast } = useToast();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
-    usersService.getParents(1, 1000)
+    usersService.getParents(1, 100)
   );
 
   const linkMutation = useApiMutation(
@@ -66,14 +66,15 @@ export function LinkParentDialog({ open, onOpenChange, kid }: LinkParentDialogPr
           <DialogDescription>Link {kid.name} to a parent</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-4">
           <CustomFormField label="Parent" required>
             <Select value={parentId} onValueChange={setParentId}>
               <SelectTrigger>
                 <SelectValue placeholder="Select parent" />
               </SelectTrigger>
               <SelectContent>
-                {parentsData?.data.map(parent => (
+                {(parentsData?.data || []).map(parent => (
                   <SelectItem key={parent._id} value={parent._id}>
                     {parent.parentProfile?.name || parent.email}
                   </SelectItem>
@@ -82,13 +83,14 @@ export function LinkParentDialog({ open, onOpenChange, kid }: LinkParentDialogPr
             </Select>
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={linkMutation.isPending}>
-              {linkMutation.isPending ? 'Linking...' : 'Link'}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} disabled={linkMutation.isPending}>
+                {linkMutation.isPending ? 'Linking...' : 'Link'}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -27,6 +27,7 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { CreateInvoiceDialog } from '@/components/invoices/CreateInvoiceDialog';
 import { UpdatePaymentStatusDialog } from '@/components/invoices/UpdatePaymentStatusDialog';
 import { InvoiceDetailsDialog } from '@/components/invoices/InvoiceDetailsDialog';
+import { ErrorState } from '@/components/common/ErrorState';
 
 export function InvoicesPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
@@ -132,14 +133,14 @@ export function InvoicesPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
-          </Button>
+        <div className="flex items-center justify-end gap-2">
           <Button variant="outline" onClick={handleExportCSV}>
             <Download className="h-4 w-4 mr-2" />
             Export CSV
+          </Button>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Invoice
           </Button>
         </div>
 
@@ -147,14 +148,16 @@ export function InvoicesPage() {
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Type:</label>
             <Select
-              value={typeFilter}
-              onValueChange={value => setTypeFilter(value as InvoiceType | '')}
+              value={typeFilter || 'all'}
+              onValueChange={value =>
+                setTypeFilter(value === 'all' ? '' : (value as InvoiceType))
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value="all">All types</SelectItem>
                 <SelectItem value={InvoiceType.PARENT_INVOICE}>Parent Invoice</SelectItem>
                 <SelectItem value={InvoiceType.COACH_PAYOUT}>Coach Payout</SelectItem>
               </SelectContent>
@@ -164,14 +167,16 @@ export function InvoicesPage() {
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Status:</label>
             <Select
-              value={statusFilter}
-              onValueChange={value => setStatusFilter(value as InvoiceStatus | '')}
+              value={statusFilter || 'all'}
+              onValueChange={value =>
+                setStatusFilter(value === 'all' ? '' : (value as InvoiceStatus))
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value={InvoiceStatus.PENDING}>Pending</SelectItem>
                 <SelectItem value={InvoiceStatus.PAID}>Paid</SelectItem>
                 <SelectItem value={InvoiceStatus.OVERDUE}>Overdue</SelectItem>
@@ -181,7 +186,7 @@ export function InvoicesPage() {
         </FilterBar>
 
         {error ? (
-          <div>Error loading invoices</div>
+          <ErrorState title="Failed to load invoices" onRetry={() => window.location.reload()} />
         ) : (
           <>
             <DataTable

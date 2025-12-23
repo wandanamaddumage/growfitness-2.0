@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Kid } from '@grow-fitness/shared-types';
 import { formatDate } from '@/lib/formatters';
 import { formatSessionType } from '@/lib/formatters';
-import { Separator } from '@/components/ui/separator';
 
 interface KidDetailsDialogProps {
   open: boolean;
@@ -20,13 +19,14 @@ interface KidDetailsDialogProps {
 export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Kid Details</DialogTitle>
           <DialogDescription>View kid profile information</DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="w-full">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <Tabs defaultValue="details" className="w-full">
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="sessions">Sessions</TabsTrigger>
@@ -39,8 +39,6 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                 <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
                 <p className="text-sm font-medium">{kid.name}</p>
               </div>
-
-              <Separator />
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Gender</h3>
@@ -84,6 +82,7 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
             <p className="text-sm text-muted-foreground">Achievements will be displayed here</p>
           </TabsContent>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

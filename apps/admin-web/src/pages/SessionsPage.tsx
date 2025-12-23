@@ -21,6 +21,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import { formatDateTime, formatSessionType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { ErrorState } from '@/components/common/ErrorState';
 import { CreateSessionDialog } from '@/components/sessions/CreateSessionDialog';
 import { EditSessionDialog } from '@/components/sessions/EditSessionDialog';
 import { SessionDetailsDialog } from '@/components/sessions/SessionDetailsDialog';
@@ -40,15 +41,15 @@ export function SessionsPage() {
   const { confirm, confirmState } = useConfirm();
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
-    usersService.getCoaches(1, 1000)
+    usersService.getCoaches(1, 100)
   );
 
   const { data: locationsData } = useApiQuery(['locations', 'all'], () =>
-    locationsService.getLocations(1, 1000)
+    locationsService.getLocations(1, 100)
   );
 
   const { data, isLoading, error } = useApiQuery(
-    ['sessions', page, pageSize, coachFilter, locationFilter, statusFilter],
+    ['sessions', page.toString(), pageSize.toString(), coachFilter, locationFilter, statusFilter],
     () =>
       sessionsService.getSessions(page, pageSize, {
         coachId: coachFilter || undefined,
@@ -150,7 +151,7 @@ export function SessionsPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end">
           <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Session
@@ -160,13 +161,16 @@ export function SessionsPage() {
         <FilterBar>
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Coach:</label>
-            <Select value={coachFilter} onValueChange={setCoachFilter}>
+            <Select
+              value={coachFilter || 'all'}
+              onValueChange={value => setCoachFilter(value === 'all' ? '' : value)}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All coaches" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All coaches</SelectItem>
-                {coachesData?.data.map(coach => (
+                <SelectItem value="all">All coaches</SelectItem>
+                {(coachesData?.data || []).map(coach => (
                   <SelectItem key={coach._id} value={coach._id}>
                     {coach.coachProfile?.name || coach.email}
                   </SelectItem>
@@ -177,13 +181,16 @@ export function SessionsPage() {
 
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Location:</label>
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
+            <Select
+              value={locationFilter || 'all'}
+              onValueChange={value => setLocationFilter(value === 'all' ? '' : value)}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All locations" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All locations</SelectItem>
-                {locationsData?.data.map(location => (
+                <SelectItem value="all">All locations</SelectItem>
+                {(locationsData?.data || []).map(location => (
                   <SelectItem key={location._id} value={location._id}>
                     {location.name}
                   </SelectItem>
@@ -195,14 +202,16 @@ export function SessionsPage() {
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground">Status:</label>
             <Select
-              value={statusFilter}
-              onValueChange={value => setStatusFilter(value as SessionStatus | '')}
+              value={statusFilter || 'all'}
+              onValueChange={value =>
+                setStatusFilter(value === 'all' ? '' : (value as SessionStatus))
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value={SessionStatus.SCHEDULED}>Scheduled</SelectItem>
                 <SelectItem value={SessionStatus.CONFIRMED}>Confirmed</SelectItem>
                 <SelectItem value={SessionStatus.CANCELLED}>Cancelled</SelectItem>
@@ -213,7 +222,7 @@ export function SessionsPage() {
         </FilterBar>
 
         {error ? (
-          <div>Error loading sessions</div>
+          <ErrorState title="Failed to load sessions" onRetry={() => window.location.reload()} />
         ) : (
           <>
             <DataTable

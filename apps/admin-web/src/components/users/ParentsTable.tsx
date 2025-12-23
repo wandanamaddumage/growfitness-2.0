@@ -125,10 +125,12 @@ export function ParentsTable() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <SearchInput placeholder="Search parents..." onSearch={setSearch} className="max-w-sm" />
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Parent
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Parent
+          </Button>
+        </div>
       </div>
 
       {error ? (

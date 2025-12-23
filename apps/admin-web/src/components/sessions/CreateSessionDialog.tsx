@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -37,29 +38,40 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
   const { toast } = useToast();
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
-    usersService.getCoaches(1, 1000)
+    usersService.getCoaches(1, 100)
   );
 
   const { data: locationsData } = useApiQuery(['locations', 'all'], () =>
-    locationsService.getLocations(1, 1000)
+    locationsService.getLocations(1, 100)
   );
 
-  const { data: kidsData } = useApiQuery(['kids', 'all'], () => kidsService.getKids(1, 1000));
+  const { data: kidsData } = useApiQuery(['kids', 'all'], () => kidsService.getKids(1, 100));
+
+  const defaultValues = {
+    type: SessionType.GROUP,
+    coachId: '',
+    locationId: '',
+    dateTime: '',
+    duration: 60,
+    capacity: 10,
+    kids: [],
+    kidId: undefined,
+    isFreeSession: false,
+  };
 
   const form = useForm<CreateSessionDto>({
     resolver: zodResolver(CreateSessionSchema),
-    defaultValues: {
-      type: SessionType.GROUP,
-      coachId: '',
-      locationId: '',
-      dateTime: '',
-      duration: 60,
-      capacity: 10,
-      kids: [],
-      kidId: undefined,
-      isFreeSession: false,
-    },
+    defaultValues,
   });
+
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open]);
 
   const createMutation = useApiMutation(
     (data: CreateSessionDto) => sessionsService.createSession(data),
@@ -67,17 +79,27 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
       invalidateQueries: [['sessions']],
       onSuccess: () => {
         toast.success('Session created successfully');
-        form.reset();
-        onOpenChange(false);
+        form.reset(defaultValues);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       },
       onError: error => {
-        toast.error('Failed to create session', error.message);
+        toast.error('Failed to create session', error.message || 'An error occurred');
       },
     }
   );
 
   const onSubmit = (data: CreateSessionDto) => {
-    createMutation.mutate(data);
+    // Transform kidId to kids array for individual sessions (API expects kids array always)
+    const submitData: CreateSessionDto = {
+      ...data,
+      kids: data.type === SessionType.INDIVIDUAL && data.kidId
+        ? [data.kidId]
+        : data.kids || [],
+      kidId: undefined, // Remove kidId as API doesn't use it
+    };
+    createMutation.mutate(submitData);
   };
 
   return (
@@ -88,7 +110,8 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
           <DialogDescription>Add a new training session</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField
             label="Session Type"
             required
@@ -127,7 +150,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                 <SelectValue placeholder="Select coach" />
               </SelectTrigger>
               <SelectContent>
-                {coachesData?.data.map(coach => (
+                {(coachesData?.data || []).map(coach => (
                   <SelectItem key={coach._id} value={coach._id}>
                     {coach.coachProfile?.name || coach.email}
                   </SelectItem>
@@ -149,7 +172,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                 <SelectValue placeholder="Select location" />
               </SelectTrigger>
               <SelectContent>
-                {locationsData?.data.map(location => (
+                {(locationsData?.data || []).map(location => (
                   <SelectItem key={location._id} value={location._id}>
                     {location.name}
                   </SelectItem>
@@ -181,7 +204,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
               </CustomFormField>
               <CustomFormField label="Kids" required error={form.formState.errors.kids?.message}>
                 <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-2">
-                  {kidsData?.data.map(kid => (
+                  {(kidsData?.data || []).map(kid => (
                     <div key={kid._id} className="flex items-center space-x-2">
                       <Checkbox
                         checked={form.watch('kids')?.includes(kid._id) || false}
@@ -215,7 +238,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                   <SelectValue placeholder="Select kid" />
                 </SelectTrigger>
                 <SelectContent>
-                  {kidsData?.data.map(kid => (
+                  {(kidsData?.data || []).map(kid => (
                     <SelectItem key={kid._id} value={kid._id}>
                       {kid.name}
                     </SelectItem>
@@ -237,15 +260,16 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
             </label>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Session'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Session'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

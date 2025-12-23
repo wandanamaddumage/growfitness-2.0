@@ -3,11 +3,14 @@ import { PaginatedResponse, AuditLog } from '@grow-fitness/shared-types';
 
 export interface DashboardStats {
   todaysSessions: number;
-  freeSessionRequests: number;
-  rescheduleRequests: number;
+  freeSessionRequestsCount?: number;
+  freeSessionRequests?: number; // Alias for compatibility
+  rescheduleRequestsCount?: number;
+  rescheduleRequests?: number; // Alias for compatibility
   totalParents: number;
   totalCoaches: number;
   totalKids: number;
+  todaysSessionsList?: any[];
 }
 
 export interface WeeklySession {

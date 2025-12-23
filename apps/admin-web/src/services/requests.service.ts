@@ -20,12 +20,12 @@ export const requestsService = {
   // Reschedule Requests
   getRescheduleRequests: (page: number = 1, limit: number = 10) =>
     api.get<PaginatedResponse<RescheduleRequest>>(
-      `/requests/reschedule?page=${page}&limit=${limit}`
+      `/requests/reschedules?page=${page}&limit=${limit}`
     ),
   approveRescheduleRequest: (id: string) =>
-    api.patch<RescheduleRequest>(`/requests/reschedule/${id}/approve`),
+    api.post<RescheduleRequest>(`/requests/reschedules/${id}/approve`),
   denyRescheduleRequest: (id: string) =>
-    api.patch<RescheduleRequest>(`/requests/reschedule/${id}/deny`),
+    api.post<RescheduleRequest>(`/requests/reschedules/${id}/deny`),
 
   // Extra Session Requests
   getExtraSessionRequests: (page: number = 1, limit: number = 10) =>
@@ -33,7 +33,7 @@ export const requestsService = {
       `/requests/extra-sessions?page=${page}&limit=${limit}`
     ),
   approveExtraSessionRequest: (id: string) =>
-    api.patch<ExtraSessionRequest>(`/requests/extra-sessions/${id}/approve`),
+    api.post<ExtraSessionRequest>(`/requests/extra-sessions/${id}/approve`),
   denyExtraSessionRequest: (id: string) =>
-    api.patch<ExtraSessionRequest>(`/requests/extra-sessions/${id}/deny`),
+    api.post<ExtraSessionRequest>(`/requests/extra-sessions/${id}/deny`),
 };

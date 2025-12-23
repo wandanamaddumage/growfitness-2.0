@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -36,20 +37,22 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
   const { toast } = useToast();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
-    usersService.getParents(1, 1000)
+    usersService.getParents(1, 100)
   );
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
-    usersService.getCoaches(1, 1000)
+    usersService.getCoaches(1, 100)
   );
+
+  const defaultValues = {
+    type: InvoiceType.PARENT_INVOICE,
+    items: [{ description: '', amount: 0 }],
+    dueDate: '',
+  };
 
   const form = useForm<CreateInvoiceDto>({
     resolver: zodResolver(CreateInvoiceSchema),
-    defaultValues: {
-      type: InvoiceType.PARENT_INVOICE,
-      items: [{ description: '', amount: 0 }],
-      dueDate: '',
-    },
+    defaultValues,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -57,17 +60,28 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
     name: 'items',
   });
 
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [open]);
+
   const createMutation = useApiMutation(
     (data: CreateInvoiceDto) => invoicesService.createInvoice(data),
     {
       invalidateQueries: [['invoices']],
       onSuccess: () => {
         toast.success('Invoice created successfully');
-        form.reset();
-        onOpenChange(false);
+        form.reset(defaultValues);
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       },
       onError: error => {
-        toast.error('Failed to create invoice', error.message);
+        toast.error('Failed to create invoice', error.message || 'An error occurred');
       },
     }
   );
@@ -87,13 +101,14 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Invoice</DialogTitle>
           <DialogDescription>Add a new invoice</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Type" required error={form.formState.errors.type?.message}>
             <Select
               value={form.watch('type')}
@@ -127,7 +142,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                   <SelectValue placeholder="Select parent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {parentsData?.data.map(parent => (
+                  {(parentsData?.data || []).map(parent => (
                     <SelectItem key={parent._id} value={parent._id}>
                       {parent.parentProfile?.name || parent.email}
                     </SelectItem>
@@ -147,7 +162,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                   <SelectValue placeholder="Select coach" />
                 </SelectTrigger>
                 <SelectContent>
-                  {coachesData?.data.map(coach => (
+                  {(coachesData?.data || []).map(coach => (
                     <SelectItem key={coach._id} value={coach._id}>
                       {coach.coachProfile?.name || coach.email}
                     </SelectItem>
@@ -196,15 +211,16 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
             />
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

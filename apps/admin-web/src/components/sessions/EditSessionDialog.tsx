@@ -33,44 +33,60 @@ interface EditSessionDialogProps {
   session: Session;
 }
 
+// Helper to extract ID from populated object or string
+function extractId(value: string | { _id: string } | any): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value._id) return value._id;
+  return '';
+}
+
+// Helper to format date for datetime-local input
+function formatDateForInput(date: Date | string | null | undefined): string {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '';
+  return format(d, "yyyy-MM-dd'T'HH:mm");
+}
+
 export function EditSessionDialog({ open, onOpenChange, session }: EditSessionDialogProps) {
   const { toast } = useToast();
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
-    usersService.getCoaches(1, 1000)
+    usersService.getCoaches(1, 100)
   );
 
   const { data: locationsData } = useApiQuery(['locations', 'all'], () =>
-    locationsService.getLocations(1, 1000)
+    locationsService.getLocations(1, 100)
   );
 
   const form = useForm<UpdateSessionDto>({
     resolver: zodResolver(UpdateSessionSchema),
     defaultValues: {
-      coachId: session.coachId,
-      locationId: session.locationId,
-      dateTime:
-        typeof session.dateTime === 'string'
-          ? session.dateTime
-          : format(new Date(session.dateTime), "yyyy-MM-dd'T'HH:mm"),
+      coachId: extractId(session.coachId),
+      locationId: extractId(session.locationId),
+      dateTime: formatDateForInput(session.dateTime),
       duration: session.duration,
       capacity: session.capacity,
       status: session.status,
+      kids: Array.isArray(session.kids)
+        ? session.kids.map((kid: any) => extractId(kid))
+        : undefined,
     },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
-        coachId: session.coachId,
-        locationId: session.locationId,
-        dateTime:
-          typeof session.dateTime === 'string'
-            ? session.dateTime
-            : format(new Date(session.dateTime), "yyyy-MM-dd'T'HH:mm"),
+        coachId: extractId(session.coachId),
+        locationId: extractId(session.locationId),
+        dateTime: formatDateForInput(session.dateTime),
         duration: session.duration,
         capacity: session.capacity,
         status: session.status,
+        kids: Array.isArray(session.kids)
+          ? session.kids.map((kid: any) => extractId(kid))
+          : undefined,
       });
     }
   }, [open, session, form]);
@@ -101,7 +117,8 @@ export function EditSessionDialog({ open, onOpenChange, session }: EditSessionDi
           <DialogDescription>Update session information</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CustomFormField label="Coach" required error={form.formState.errors.coachId?.message}>
             <Select
               value={form.watch('coachId')}
@@ -111,7 +128,7 @@ export function EditSessionDialog({ open, onOpenChange, session }: EditSessionDi
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {coachesData?.data.map(coach => (
+                {(coachesData?.data || []).map(coach => (
                   <SelectItem key={coach._id} value={coach._id}>
                     {coach.coachProfile?.name || coach.email}
                   </SelectItem>
@@ -133,7 +150,7 @@ export function EditSessionDialog({ open, onOpenChange, session }: EditSessionDi
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {locationsData?.data.map(location => (
+                {(locationsData?.data || []).map(location => (
                   <SelectItem key={location._id} value={location._id}>
                     {location.name}
                   </SelectItem>
@@ -175,15 +192,16 @@ export function EditSessionDialog({ open, onOpenChange, session }: EditSessionDi
             </Select>
           </CustomFormField>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? 'Updating...' : 'Update'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Updating...' : 'Update'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
