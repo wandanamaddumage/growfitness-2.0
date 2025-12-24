@@ -82,7 +82,7 @@ exports.UpdateSessionSchema = zod_1.z.object({
     capacity: zod_1.z.number().min(1).optional(),
     kids: zod_1.z.array(zod_1.z.string()).optional(),
     kidId: zod_1.z.string().optional(),
-    status: zod_1.z.enum(['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED']).optional(),
+    status: zod_1.z.nativeEnum(shared_types_1.SessionStatus).optional(),
 });
 exports.CreateFreeSessionRequestSchema = zod_1.z.object({
     parentName: zod_1.z.string().min(1, 'Parent name is required'),

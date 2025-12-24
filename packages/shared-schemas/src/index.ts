@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SessionType, InvoiceType, BannerTargetAudience } from '@grow-fitness/shared-types';
+import { SessionType, SessionStatus, InvoiceType, BannerTargetAudience } from '@grow-fitness/shared-types';
 
 // Auth Schemas
 export const LoginSchema = z.object({
@@ -123,7 +123,7 @@ export const UpdateSessionSchema = z.object({
   capacity: z.number().min(1).optional(),
   kids: z.array(z.string()).optional(),
   kidId: z.string().optional(),
-  status: z.enum(['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED']).optional(),
+  status: z.nativeEnum(SessionStatus).optional(),
 });
 
 export type UpdateSessionDto = z.infer<typeof UpdateSessionSchema>;

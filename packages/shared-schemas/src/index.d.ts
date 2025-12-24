@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SessionType, InvoiceType, BannerTargetAudience } from '@grow-fitness/shared-types';
+import { SessionType, SessionStatus, InvoiceType, BannerTargetAudience } from '@grow-fitness/shared-types';
 export declare const LoginSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
@@ -223,9 +223,9 @@ export declare const UpdateSessionSchema: z.ZodObject<{
     capacity: z.ZodOptional<z.ZodNumber>;
     kids: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     kidId: z.ZodOptional<z.ZodString>;
-    status: z.ZodOptional<z.ZodEnum<["SCHEDULED", "CONFIRMED", "CANCELLED", "COMPLETED"]>>;
+    status: z.ZodOptional<z.ZodNativeEnum<typeof SessionStatus>>;
 }, "strip", z.ZodTypeAny, {
-    status?: "SCHEDULED" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | undefined;
+    status?: SessionStatus | undefined;
     kids?: string[] | undefined;
     coachId?: string | undefined;
     locationId?: string | undefined;
@@ -234,7 +234,7 @@ export declare const UpdateSessionSchema: z.ZodObject<{
     capacity?: number | undefined;
     kidId?: string | undefined;
 }, {
-    status?: "SCHEDULED" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | undefined;
+    status?: SessionStatus | undefined;
     kids?: string[] | undefined;
     coachId?: string | undefined;
     locationId?: string | undefined;
