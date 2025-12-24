@@ -82,7 +82,7 @@ const normalizeKid = (kid: any) => {
 };
 
 SessionSchema.set('toObject', {
-  transform: (_, ret) => {
+  transform: (_doc, ret: Record<string, any>) => {
     ret.id = ret._id?.toString?.() ?? ret.id;
     delete ret._id;
     delete ret.__v;
@@ -95,7 +95,7 @@ SessionSchema.set('toObject', {
 });
 
 SessionSchema.set('toJSON', {
-  transform: (_, ret) => {
+  transform: (_doc, ret: Record<string, any>) => {
     ret.id = ret._id?.toString?.() ?? ret.id;
     delete ret._id;
     delete ret.__v;
