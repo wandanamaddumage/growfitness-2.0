@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm run build:admin-web",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "apps/admin-web/dist",
+  "framework": "vite"
+}
