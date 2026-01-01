@@ -56,3 +56,5 @@ tail_logs
 
 # Wait for background processes
 wait $ADMIN_WEB_PID $API_PID
+
+

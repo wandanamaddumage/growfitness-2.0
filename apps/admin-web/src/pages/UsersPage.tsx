@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ParentsTable } from '@/components/users/ParentsTable';
 import { CoachesTable } from '@/components/users/CoachesTable';

@@ -26,7 +26,6 @@ import { usersService } from '@/services/users.service';
 import { locationsService } from '@/services/locations.service';
 import { kidsService } from '@/services/kids.service';
 import { useToast } from '@/hooks/useToast';
-import { format } from 'date-fns';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface CreateSessionDialogProps {

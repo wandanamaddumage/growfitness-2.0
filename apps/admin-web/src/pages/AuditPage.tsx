@@ -31,8 +31,8 @@ export function AuditPage() {
       pageSize.toString(),
       actorIdFilter,
       entityTypeFilter,
-      startDateFilter?.toISOString(),
-      endDateFilter?.toISOString(),
+      startDateFilter?.toISOString() || '',
+      endDateFilter?.toISOString() || '',
     ],
     () =>
       auditService.getAuditLogs(page, pageSize, {

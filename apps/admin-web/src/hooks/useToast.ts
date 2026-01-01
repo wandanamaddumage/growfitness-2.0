@@ -4,25 +4,27 @@ export function useToast() {
   const { toast } = useShadcnToast();
 
   return {
-    success: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-        variant: 'default',
-      });
-    },
-    error: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-        variant: 'destructive',
-      });
-    },
-    info: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-      });
+    toast: {
+      success: (title: string, description?: string) => {
+        toast({
+          title,
+          description,
+          variant: 'default',
+        });
+      },
+      error: (title: string, description?: string) => {
+        toast({
+          title,
+          description,
+          variant: 'destructive',
+        });
+      },
+      info: (title: string, description?: string) => {
+        toast({
+          title,
+          description,
+        });
+      },
     },
   };
 }

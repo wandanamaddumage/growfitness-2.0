@@ -20,7 +20,7 @@ export function LoginPage() {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm({
+  } = useForm<{ email: string; password: string }>({
     resolver: zodResolver(LoginSchema),
   });
 

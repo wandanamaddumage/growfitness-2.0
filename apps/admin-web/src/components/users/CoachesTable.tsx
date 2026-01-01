@@ -36,10 +36,10 @@ export function CoachesTable() {
   const deleteMutation = useApiMutation((id: string) => usersService.deleteCoach(id), {
     invalidateQueries: [['users', 'coaches']],
     onSuccess: () => {
-      toast.toast.success('Coach deleted successfully');
+      toast.success('Coach deleted successfully');
     },
     onError: error => {
-      toast.toast.error('Failed to delete coach', error.message);
+      toast.error('Failed to delete coach', error.message);
     },
   });
 

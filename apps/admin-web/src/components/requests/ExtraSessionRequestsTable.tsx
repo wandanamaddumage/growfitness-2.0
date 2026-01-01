@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
 import { requestsService } from '@/services/requests.service';

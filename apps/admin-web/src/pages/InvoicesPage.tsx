@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useApiQuery, useApiMutation } from '@/hooks';
+import { useApiQuery } from '@/hooks';
 import { invoicesService } from '@/services/invoices.service';
 import { Invoice, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
@@ -21,7 +21,6 @@ import {
   formatDate,
   formatCurrency,
   formatInvoiceType,
-  formatInvoiceStatus,
 } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { CreateInvoiceDialog } from '@/components/invoices/CreateInvoiceDialog';

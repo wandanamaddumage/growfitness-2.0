@@ -28,7 +28,8 @@ export function useApiMutation<TData, TVariables, TError = ApiError>(
       }
       // Call original onSuccess if provided
       if (onSuccess) {
-        onSuccess(data, variables, context as any);
+        // Type assertion needed due to react-query v5 type signature differences
+        (onSuccess as any)(data, variables, context);
       }
     },
   });

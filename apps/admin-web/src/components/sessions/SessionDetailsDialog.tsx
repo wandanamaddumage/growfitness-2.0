@@ -8,7 +8,6 @@ import {
 import { Session, SessionType } from '@grow-fitness/shared-types';
 import { formatDateTime, formatSessionType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { Separator } from '@/components/ui/separator';
 
 interface SessionDetailsDialogProps {
   open: boolean;
