@@ -15,6 +15,7 @@ import { CreateCoachSchema, CreateCoachDto } from '@grow-fitness/shared-schemas'
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateCoachDialogProps {
   open: boolean;
@@ -29,6 +30,15 @@ const defaultValues = {
 };
 
 export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps) {
+  const { closeModal } = useModalParams('userId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const form = useForm<CreateCoachDto>({
@@ -67,7 +77,7 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Coach</DialogTitle>

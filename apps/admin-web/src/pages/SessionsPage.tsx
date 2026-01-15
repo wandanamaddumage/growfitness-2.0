@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
 import { sessionsService } from '@/services/sessions.service';
@@ -27,18 +27,41 @@ import { EditSessionDialog } from '@/components/sessions/EditSessionDialog';
 import { SessionDetailsDialog } from '@/components/sessions/SessionDetailsDialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
+import { useModalParams } from '@/hooks/useModalParams';
 
 export function SessionsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [coachFilter, setCoachFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<SessionStatus | ''>('');
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('sessionId');
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
+
+  // Sync selectedSession with URL params
+  useEffect(() => {
+    if (entityId && modal) {
+      // Fetch session if we have ID in URL but no selectedSession
+      if (!selectedSession || selectedSession.id !== entityId) {
+        sessionsService
+          .getSessionById(entityId)
+          .then(response => {
+            setSelectedSession(response);
+          })
+          .catch(() => {
+            // Session not found, close modal
+            closeModal();
+          });
+      }
+    } else if (!entityId && !modal) {
+      setSelectedSession(null);
+    }
+  }, [entityId, modal, selectedSession, closeModal]);
+
+  const detailsDialogOpen = modal === 'details' && isOpen;
+  const editDialogOpen = modal === 'edit' && isOpen;
+  const createDialogOpen = modal === 'create' && isOpen;
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
     usersService.getCoaches(1, 100)
@@ -77,7 +100,7 @@ export function SessionsPage() {
     });
 
     if (confirmed) {
-      deleteMutation.mutate(session._id);
+      deleteMutation.mutate(session.id);
     }
   };
 
@@ -119,7 +142,7 @@ export function SessionsPage() {
               size="icon"
               onClick={() => {
                 setSelectedSession(session);
-                setDetailsDialogOpen(true);
+                openModal(session.id, 'details');
               }}
             >
               <Eye className="h-4 w-4" />
@@ -129,7 +152,7 @@ export function SessionsPage() {
               size="icon"
               onClick={() => {
                 setSelectedSession(session);
-                setEditDialogOpen(true);
+                openModal(session.id, 'edit');
               }}
             >
               <Pencil className="h-4 w-4" />
@@ -152,7 +175,7 @@ export function SessionsPage() {
 
       <div className="space-y-4">
         <div className="flex items-center justify-end">
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button onClick={() => openModal(null, 'create')}>
             <Plus className="h-4 w-4 mr-2" />
             Create Session
           </Button>
@@ -171,7 +194,7 @@ export function SessionsPage() {
               <SelectContent>
                 <SelectItem value="all">All coaches</SelectItem>
                 {(coachesData?.data || []).map(coach => (
-                  <SelectItem key={coach._id} value={coach._id}>
+                  <SelectItem key={coach.id} value={coach.id}>
                     {coach.coachProfile?.name || coach.email}
                   </SelectItem>
                 ))}
@@ -191,7 +214,7 @@ export function SessionsPage() {
               <SelectContent>
                 <SelectItem value="all">All locations</SelectItem>
                 {(locationsData?.data || []).map(location => (
-                  <SelectItem key={location._id} value={location._id}>
+                  <SelectItem key={location.id} value={location.id}>
                     {location.name}
                   </SelectItem>
                 ))}
@@ -238,19 +261,19 @@ export function SessionsPage() {
         )}
       </div>
 
-      <CreateSessionDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      <CreateSessionDialog open={createDialogOpen} onOpenChange={closeModal} />
 
-      {selectedSession && (
+      {(selectedSession || entityId) && (
         <>
           <EditSessionDialog
             open={editDialogOpen}
-            onOpenChange={setEditDialogOpen}
-            session={selectedSession}
+            onOpenChange={closeModal}
+            session={selectedSession || undefined}
           />
           <SessionDetailsDialog
             open={detailsDialogOpen}
-            onOpenChange={setDetailsDialogOpen}
-            session={selectedSession}
+            onOpenChange={closeModal}
+            session={selectedSession || undefined}
           />
         </>
       )}

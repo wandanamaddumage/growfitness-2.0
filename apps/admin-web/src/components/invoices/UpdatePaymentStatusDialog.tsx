@@ -24,18 +24,49 @@ import { Invoice, InvoiceStatus } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { invoicesService } from '@/services/invoices.service';
 import { useToast } from '@/hooks/useToast';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface UpdatePaymentStatusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  invoice: Invoice;
+  invoice?: Invoice;
 }
 
 export function UpdatePaymentStatusDialog({
   open,
   onOpenChange,
-  invoice,
+  invoice: invoiceProp,
 }: UpdatePaymentStatusDialogProps) {
+  const { entityId, closeModal } = useModalParams('invoiceId');
+  
+  // Fetch invoice from URL if prop not provided
+  const { data: invoiceFromUrl } = useApiQuery<Invoice>(
+    ['invoices', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Invoice ID is required');
+      }
+      return invoicesService.getInvoiceById(entityId);
+    },
+    {
+      enabled: open && !invoiceProp && !!entityId,
+    }
+  );
+
+  const invoice = invoiceProp || invoiceFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!invoice) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateInvoicePaymentStatusDto>({
@@ -47,7 +78,7 @@ export function UpdatePaymentStatusDialog({
   });
 
   const updateMutation = useApiMutation(
-    (data: UpdateInvoicePaymentStatusDto) => invoicesService.updatePaymentStatus(invoice._id, data),
+    (data: UpdateInvoicePaymentStatusDto) => invoicesService.updatePaymentStatus(invoice.id, data),
     {
       invalidateQueries: [['invoices']],
       onSuccess: () => {
@@ -65,7 +96,7 @@ export function UpdatePaymentStatusDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Update Payment Status</DialogTitle>

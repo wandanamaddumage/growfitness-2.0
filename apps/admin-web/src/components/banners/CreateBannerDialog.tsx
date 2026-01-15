@@ -23,6 +23,7 @@ import { BannerTargetAudience } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { bannersService } from '@/services/banners.service';
 import { useToast } from '@/hooks/useToast';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateBannerDialogProps {
   open: boolean;
@@ -30,6 +31,15 @@ interface CreateBannerDialogProps {
 }
 
 export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogProps) {
+  const { closeModal } = useModalParams('bannerId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const defaultValues = {
@@ -61,7 +71,7 @@ export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogPro
         toast.success('Banner created successfully');
         form.reset(defaultValues);
         setTimeout(() => {
-          onOpenChange(false);
+          handleOpenChange(false);
         }, 100);
       },
       onError: error => {
@@ -75,7 +85,7 @@ export function CreateBannerDialog({ open, onOpenChange }: CreateBannerDialogPro
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Banner</DialogTitle>

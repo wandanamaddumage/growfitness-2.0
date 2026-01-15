@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
 import { kidsService } from '@/services/kids.service';
@@ -19,17 +19,62 @@ import { LinkParentDialog } from '@/components/kids/LinkParentDialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ErrorState } from '@/components/common/ErrorState';
+import { useModalParams } from '@/hooks/useModalParams';
+import { useSearchParams } from 'react-router-dom';
 
 export function KidsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [, setSearch] = useState('');
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('kidId');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
+
+  // Handle link dialog separately (it uses a different param)
+  const linkDialogOpen = searchParams.get('linkKid') === entityId;
+
+  // Sync selectedKid with URL params
+  useEffect(() => {
+    if (entityId && modal) {
+      // Fetch kid if we have ID in URL but no selectedKid
+      if (!selectedKid || selectedKid.id !== entityId) {
+        kidsService
+          .getKidById(entityId)
+          .then(response => {
+            setSelectedKid(response);
+          })
+          .catch(() => {
+            // Kid not found, close modal
+            closeModal();
+          });
+      }
+    } else if (!entityId && !modal) {
+      setSelectedKid(null);
+    }
+  }, [entityId, modal, selectedKid, closeModal]);
+
+  const detailsDialogOpen = modal === 'details' && isOpen;
+  const editDialogOpen = modal === 'edit' && isOpen;
+  const createDialogOpen = modal === 'create' && isOpen;
+
+  const handleOpenLinkDialog = (kid: Kid) => {
+    setSelectedKid(kid);
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('kidId', kid.id);
+      newParams.set('linkKid', kid.id);
+      return newParams;
+    });
+  };
+
+  const handleCloseLinkDialog = () => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.delete('linkKid');
+      return newParams;
+    });
+  };
 
   const { data, isLoading, error } = useApiQuery(
     ['kids', page.toString(), pageSize.toString()],
@@ -55,7 +100,7 @@ export function KidsPage() {
     });
 
     if (confirmed) {
-      deleteMutation.mutate(kid._id);
+      deleteMutation.mutate(kid.id);
     }
   };
 
@@ -95,7 +140,7 @@ export function KidsPage() {
               size="icon"
               onClick={() => {
                 setSelectedKid(kid);
-                setDetailsDialogOpen(true);
+                openModal(kid.id, 'details');
               }}
             >
               <Eye className="h-4 w-4" />
@@ -105,7 +150,7 @@ export function KidsPage() {
               size="icon"
               onClick={() => {
                 setSelectedKid(kid);
-                setEditDialogOpen(true);
+                openModal(kid.id, 'edit');
               }}
             >
               <Pencil className="h-4 w-4" />
@@ -113,10 +158,7 @@ export function KidsPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
-                setSelectedKid(kid);
-                setLinkDialogOpen(true);
-              }}
+              onClick={() => handleOpenLinkDialog(kid)}
             >
               <Link2 className="h-4 w-4" />
             </Button>
@@ -141,7 +183,7 @@ export function KidsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <SearchInput placeholder="Search kids..." onSearch={setSearch} className="max-w-sm" />
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button onClick={() => openModal(null, 'create')}>
             <Plus className="h-4 w-4 mr-2" />
             Add Kid
           </Button>
@@ -164,20 +206,20 @@ export function KidsPage() {
         )}
       </div>
 
-      <CreateKidDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      <CreateKidDialog open={createDialogOpen} onOpenChange={closeModal} />
 
-      {selectedKid && (
+      {(selectedKid || entityId) && (
         <>
-          <EditKidDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} kid={selectedKid} />
+          <EditKidDialog open={editDialogOpen} onOpenChange={closeModal} kid={selectedKid || undefined} />
           <KidDetailsDialog
             open={detailsDialogOpen}
-            onOpenChange={setDetailsDialogOpen}
-            kid={selectedKid}
+            onOpenChange={closeModal}
+            kid={selectedKid || undefined}
           />
           <LinkParentDialog
             open={linkDialogOpen}
-            onOpenChange={setLinkDialogOpen}
-            kid={selectedKid}
+            onOpenChange={handleCloseLinkDialog}
+            kid={selectedKid || undefined}
           />
         </>
       )}

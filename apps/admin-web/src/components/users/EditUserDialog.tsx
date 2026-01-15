@@ -28,15 +28,53 @@ import { User, UserStatus } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User;
+  user?: User;
   userType: 'parent' | 'coach';
 }
 
-export function EditUserDialog({ open, onOpenChange, user, userType }: EditUserDialogProps) {
+export function EditUserDialog({
+  open,
+  onOpenChange,
+  user: userProp,
+  userType,
+}: EditUserDialogProps) {
+  const { entityId, closeModal } = useModalParams('userId');
+
+  // Fetch user from URL if prop not provided
+  const { data: userFromUrl } = useApiQuery<User>(
+    ['users', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('User ID is required');
+      }
+      return userType === 'parent'
+        ? usersService.getParentById(entityId)
+        : usersService.getCoachById(entityId);
+    },
+    {
+      enabled: open && !userProp && !!entityId,
+    }
+  );
+
+  const user = userProp || userFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!user) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateParentDto | UpdateCoachDto>({
@@ -87,7 +125,7 @@ export function EditUserDialog({ open, onOpenChange, user, userType }: EditUserD
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit {userType === 'parent' ? 'Parent' : 'Coach'}</DialogTitle>

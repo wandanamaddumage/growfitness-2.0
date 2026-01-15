@@ -8,20 +8,52 @@ import {
 import { Location } from '@grow-fitness/shared-types';
 import { formatDate } from '@/lib/formatters';
 import { Separator } from '@/components/ui/separator';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { locationsService } from '@/services/locations.service';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface LocationDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  location: Location;
+  location?: Location;
 }
 
 export function LocationDetailsDialog({
   open,
   onOpenChange,
-  location,
+  location: locationProp,
 }: LocationDetailsDialogProps) {
+  const { entityId, closeModal } = useModalParams('locationId');
+  
+  // Fetch location from URL if prop not provided
+  const { data: locationFromUrl } = useApiQuery<Location>(
+    ['locations', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Location ID is required');
+      }
+      return locationsService.getLocationById(entityId);
+    },
+    {
+      enabled: open && !locationProp && !!entityId,
+    }
+  );
+
+  const location = locationProp || locationFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!location) {
+    return null;
+  }
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Location Details</DialogTitle>

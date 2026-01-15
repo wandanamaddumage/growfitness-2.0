@@ -23,14 +23,45 @@ import { Banner, BannerTargetAudience } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { bannersService } from '@/services/banners.service';
 import { useToast } from '@/hooks/useToast';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface EditBannerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  banner: Banner;
+  banner?: Banner;
 }
 
-export function EditBannerDialog({ open, onOpenChange, banner }: EditBannerDialogProps) {
+export function EditBannerDialog({ open, onOpenChange, banner: bannerProp }: EditBannerDialogProps) {
+  const { entityId, closeModal } = useModalParams('bannerId');
+  
+  // Fetch banner from URL if prop not provided
+  const { data: bannerFromUrl } = useApiQuery<Banner>(
+    ['banners', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Banner ID is required');
+      }
+      return bannersService.getBannerById(entityId);
+    },
+    {
+      enabled: open && !bannerProp && !!entityId,
+    }
+  );
+
+  const banner = bannerProp || bannerFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!banner) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateBannerDto>({
@@ -55,7 +86,7 @@ export function EditBannerDialog({ open, onOpenChange, banner }: EditBannerDialo
   }, [open, banner, form]);
 
   const updateMutation = useApiMutation(
-    (data: UpdateBannerDto) => bannersService.updateBanner(banner._id, data),
+    (data: UpdateBannerDto) => bannersService.updateBanner(banner.id, data),
     {
       invalidateQueries: [['banners']],
       onSuccess: () => {
@@ -73,7 +104,7 @@ export function EditBannerDialog({ open, onOpenChange, banner }: EditBannerDialo
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Banner</DialogTitle>

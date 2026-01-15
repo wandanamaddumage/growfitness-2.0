@@ -36,7 +36,7 @@ export function FreeSessionRequestsTable() {
   );
 
   const handleSelect = (request: FreeSessionRequest) => {
-    selectMutation.mutate({ id: request._id });
+    selectMutation.mutate({ id: request.id });
   };
 
   const columns: ColumnDef<FreeSessionRequest>[] = [

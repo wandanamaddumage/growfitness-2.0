@@ -24,6 +24,7 @@ import { CreateCodeDto } from '@/services/codes.service';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { codesService } from '@/services/codes.service';
 import { useToast } from '@/hooks/useToast';
+import { useModalParams } from '@/hooks/useModalParams';
 
 // Create Code Schema
 const CreateCodeSchema = z
@@ -55,6 +56,15 @@ interface CreateCodeDialogProps {
 }
 
 export function CreateCodeDialog({ open, onOpenChange }: CreateCodeDialogProps) {
+  const { closeModal } = useModalParams('codeId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const defaultValues = {
@@ -89,7 +99,7 @@ export function CreateCodeDialog({ open, onOpenChange }: CreateCodeDialogProps) 
         toast.success('Code created successfully');
         form.reset(defaultValues);
         setTimeout(() => {
-          onOpenChange(false);
+          handleOpenChange(false);
         }, 100);
       },
       onError: error => {
@@ -110,7 +120,7 @@ export function CreateCodeDialog({ open, onOpenChange }: CreateCodeDialogProps) 
   const codeType = form.watch('type');
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Code</DialogTitle>

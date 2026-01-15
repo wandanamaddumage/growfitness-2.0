@@ -15,6 +15,7 @@ import { formatDate, formatSessionType } from '@/lib/formatters';
 import { User, Kid } from '@grow-fitness/shared-types';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { usersService } from '@/services/users.service';
+import { useModalParams } from '@/hooks/useModalParams';
 import {
   Mail,
   Phone,
@@ -30,19 +31,38 @@ import {
 interface UserDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User;
+  user?: User;
 }
 
 interface ParentWithKids extends User {
   kids?: Kid[];
 }
 
-export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialogProps) {
-  const isParent = !!user.parentProfile;
-  const isCoach = !!user.coachProfile;
+export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDetailsDialogProps) {
+  const { entityId, closeModal } = useModalParams('userId');
+  
+  // Fetch user from URL if prop not provided
+  const { data: userFromUrl } = useApiQuery<User>(
+    ['users', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('User ID is required');
+      }
+      // Try to determine if it's a parent or coach by fetching both
+      return usersService.getParentById(entityId).catch(() => usersService.getCoachById(entityId));
+    },
+    {
+      enabled: open && !userProp && !!entityId,
+    }
+  );
+
+  const user = userProp || userFromUrl;
+  const isParent = !!user?.parentProfile;
+  const isCoach = !!user?.coachProfile;
 
   // Fetch parent with kids if it's a parent, or coach if it's a coach
-  const userId = user.id || user._id;
+  // We always fetch to ensure we have the latest data with populated kids
+  const userId = user?.id || entityId;
   const shouldFetchParent = isParent && open && !!userId;
   const shouldFetchCoach = isCoach && open && !!userId;
 
@@ -81,10 +101,22 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
   const displayUser = (parentData as ParentWithKids) || (coachData as User) || user;
   const kids = (displayUser as ParentWithKids).kids || [];
   const userName = isParent
-    ? user.parentProfile?.name
+    ? user?.parentProfile?.name
     : isCoach
-      ? user.coachProfile?.name
+      ? user?.coachProfile?.name
       : 'N/A';
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!user) {
+    return null;
+  }
   const initials = userName
     .split(' ')
     .map(n => n[0])
@@ -101,7 +133,7 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
   const groupSessions = kids.filter(k => k.sessionType === 'GROUP').length;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Header */}
@@ -252,7 +284,7 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {kids.map((kid, index) => (
-                          <Card key={kid._id} className="overflow-hidden">
+                          <Card key={kid.id} className="overflow-hidden">
                             <CardHeader className="pb-3">
                               <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg flex items-center gap-2">

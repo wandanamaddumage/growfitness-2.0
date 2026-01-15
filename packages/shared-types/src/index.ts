@@ -51,7 +51,7 @@ export enum BannerTargetAudience {
 
 // Types
 export interface User {
-  _id: string;
+  id: string;
   role: UserRole;
   email: string;
   phone: string;
@@ -74,7 +74,7 @@ export interface CoachProfile {
 }
 
 export interface Kid {
-  _id: string;
+  id: string;
   parentId: string;
   name: string;
   gender: string;
@@ -90,7 +90,7 @@ export interface Kid {
 }
 
 export interface Session {
-  _id: string;
+  id: string;
   type: SessionType;
   coachId: string;
   locationId: string;
@@ -106,7 +106,7 @@ export interface Session {
 }
 
 export interface FreeSessionRequest {
-  _id: string;
+  id: string;
   parentName: string;
   phone: string;
   email: string;
@@ -118,7 +118,7 @@ export interface FreeSessionRequest {
 }
 
 export interface RescheduleRequest {
-  _id: string;
+  id: string;
   sessionId: string;
   requestedBy: string; // User ID
   newDateTime: Date;
@@ -129,7 +129,7 @@ export interface RescheduleRequest {
 }
 
 export interface ExtraSessionRequest {
-  _id: string;
+  id: string;
   parentId: string;
   kidId: string;
   coachId: string;
@@ -141,7 +141,7 @@ export interface ExtraSessionRequest {
 }
 
 export interface Invoice {
-  _id: string;
+  id: string;
   type: InvoiceType;
   parentId?: string;
   coachId?: string;
@@ -161,7 +161,7 @@ export interface InvoiceItem {
 }
 
 export interface Location {
-  _id: string;
+  id: string;
   name: string;
   address: string;
   geo?: {
@@ -174,7 +174,7 @@ export interface Location {
 }
 
 export interface Banner {
-  _id: string;
+  id: string;
   imageUrl: string;
   active: boolean;
   order: number;
@@ -184,7 +184,7 @@ export interface Banner {
 }
 
 export interface AuditLog {
-  _id: string;
+  id: string;
   actorId: string;
   action: string;
   entityType: string;

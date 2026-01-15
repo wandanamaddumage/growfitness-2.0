@@ -25,14 +25,45 @@ import { kidsService } from '@/services/kids.service';
 import { useToast } from '@/hooks/useToast';
 import { DatePicker } from '@/components/common/DatePicker';
 import { format } from 'date-fns';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface EditKidDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  kid: Kid;
+  kid?: Kid;
 }
 
-export function EditKidDialog({ open, onOpenChange, kid }: EditKidDialogProps) {
+export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialogProps) {
+  const { entityId, closeModal } = useModalParams('kidId');
+
+  // Fetch kid from URL if prop not provided
+  const { data: kidFromUrl } = useApiQuery<Kid>(
+    ['kids', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Kid ID is required');
+      }
+      return kidsService.getKidById(entityId);
+    },
+    {
+      enabled: open && !kidProp && !!entityId,
+    }
+  );
+
+  const kid = kidProp || kidFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!kid) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateKidDto>({
@@ -94,7 +125,7 @@ export function EditKidDialog({ open, onOpenChange, kid }: EditKidDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Kid</DialogTitle>

@@ -17,14 +17,45 @@ import { Location } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { locationsService } from '@/services/locations.service';
 import { useToast } from '@/hooks/useToast';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface EditLocationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  location: Location;
+  location?: Location;
 }
 
-export function EditLocationDialog({ open, onOpenChange, location }: EditLocationDialogProps) {
+export function EditLocationDialog({ open, onOpenChange, location: locationProp }: EditLocationDialogProps) {
+  const { entityId, closeModal } = useModalParams('locationId');
+  
+  // Fetch location from URL if prop not provided
+  const { data: locationFromUrl } = useApiQuery<Location>(
+    ['locations', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Location ID is required');
+      }
+      return locationsService.getLocationById(entityId);
+    },
+    {
+      enabled: open && !locationProp && !!entityId,
+    }
+  );
+
+  const location = locationProp || locationFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!location) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateLocationDto>({
@@ -47,7 +78,7 @@ export function EditLocationDialog({ open, onOpenChange, location }: EditLocatio
   }, [open, location, form]);
 
   const updateMutation = useApiMutation(
-    (data: UpdateLocationDto) => locationsService.updateLocation(location._id, data),
+    (data: UpdateLocationDto) => locationsService.updateLocation(location.id, data),
     {
       invalidateQueries: [['locations']],
       onSuccess: () => {
@@ -65,7 +96,7 @@ export function EditLocationDialog({ open, onOpenChange, location }: EditLocatio
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Location</DialogTitle>

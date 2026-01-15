@@ -15,6 +15,7 @@ import { CreateLocationSchema, CreateLocationDto } from '@grow-fitness/shared-sc
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { locationsService } from '@/services/locations.service';
 import { useToast } from '@/hooks/useToast';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateLocationDialogProps {
   open: boolean;
@@ -22,6 +23,15 @@ interface CreateLocationDialogProps {
 }
 
 export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialogProps) {
+  const { closeModal } = useModalParams('locationId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const defaultValues = {
@@ -51,7 +61,7 @@ export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialo
         toast.success('Location created successfully');
         form.reset(defaultValues);
         setTimeout(() => {
-          onOpenChange(false);
+          handleOpenChange(false);
         }, 100);
       },
       onError: error => {
@@ -65,7 +75,7 @@ export function CreateLocationDialog({ open, onOpenChange }: CreateLocationDialo
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Location</DialogTitle>

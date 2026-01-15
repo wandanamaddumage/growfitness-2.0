@@ -23,11 +23,13 @@ import { useApiMutation } from '@/hooks/useApiMutation';
 import { codesService } from '@/services/codes.service';
 import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface EditCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  code: Code;
+  code?: Code;
 }
 
 function formatDateForInput(date: Date | string | null | undefined): string {
@@ -37,7 +39,36 @@ function formatDateForInput(date: Date | string | null | undefined): string {
   return format(d, "yyyy-MM-dd'T'HH:mm");
 }
 
-export function EditCodeDialog({ open, onOpenChange, code }: EditCodeDialogProps) {
+export function EditCodeDialog({ open, onOpenChange, code: codeProp }: EditCodeDialogProps) {
+  const { entityId, closeModal } = useModalParams('codeId');
+  
+  // Fetch code from URL if prop not provided
+  const { data: codeFromUrl } = useApiQuery<Code>(
+    ['codes', entityId || 'no-id'],
+    () => {
+      if (!entityId) {
+        throw new Error('Code ID is required');
+      }
+      return codesService.getCodeById(entityId);
+    },
+    {
+      enabled: open && !codeProp && !!entityId,
+    }
+  );
+
+  const code = codeProp || codeFromUrl;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!code) {
+    return null;
+  }
   const { toast } = useToast();
 
   const form = useForm<UpdateCodeDto>({
@@ -61,7 +92,7 @@ export function EditCodeDialog({ open, onOpenChange, code }: EditCodeDialogProps
   }, [open, code, form]);
 
   const updateMutation = useApiMutation(
-    (data: UpdateCodeDto) => codesService.updateCode(code._id, data),
+    (data: UpdateCodeDto) => codesService.updateCode(code.id, data),
     {
       invalidateQueries: [['codes']],
       onSuccess: () => {
@@ -79,7 +110,7 @@ export function EditCodeDialog({ open, onOpenChange, code }: EditCodeDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Code</DialogTitle>

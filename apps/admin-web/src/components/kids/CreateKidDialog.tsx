@@ -26,6 +26,7 @@ import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
 import { DatePicker } from '@/components/common/DatePicker';
 import { format } from 'date-fns';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateKidDialogProps {
   open: boolean;
@@ -33,6 +34,15 @@ interface CreateKidDialogProps {
 }
 
 export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
+  const { closeModal } = useModalParams('kidId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
@@ -70,7 +80,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
       toast.success('Kid created successfully');
       form.reset(defaultValues);
       setTimeout(() => {
-        onOpenChange(false);
+        handleOpenChange(false);
       }, 100);
     },
     onError: error => {
@@ -90,7 +100,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Kid</DialogTitle>
@@ -109,7 +119,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 {(parentsData?.data || []).map(parent => (
-                  <SelectItem key={parent._id} value={parent._id}>
+                  <SelectItem key={parent.id} value={parent.id}>
                     {parent.parentProfile?.name || parent.email}
                   </SelectItem>
                 ))}

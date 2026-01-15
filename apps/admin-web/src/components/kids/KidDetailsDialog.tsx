@@ -14,6 +14,7 @@ import { Kid } from '@grow-fitness/shared-types';
 import { formatDate, formatSessionType } from '@/lib/formatters';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { kidsService } from '@/services/kids.service';
+import { useModalParams } from '@/hooks/useModalParams';
 import {
   Mail,
   Phone,
@@ -30,7 +31,7 @@ import {
 interface KidDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  kid: Kid;
+  kid?: Kid;
 }
 
 interface KidWithParent extends Kid {
@@ -45,24 +46,54 @@ interface KidWithParent extends Kid {
   };
 }
 
-export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogProps) {
-  // Fetch kid with parent info if available
-  const { data: kidData, isLoading } = useApiQuery<KidWithParent>(
-    ['kids', kid._id || kid.id || ''],
+export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetailsDialogProps) {
+  const { entityId, closeModal } = useModalParams('kidId');
+  
+  // Fetch kid from URL if prop not provided
+  const { data: kidFromUrl } = useApiQuery<KidWithParent>(
+    ['kids', entityId || 'no-id'],
     () => {
-      const kidId = kid._id || kid.id;
+      if (!entityId) {
+        throw new Error('Kid ID is required');
+      }
+      return kidsService.getKidById(entityId);
+    },
+    {
+      enabled: open && !kidProp && !!entityId,
+    }
+  );
+
+  // Fetch kid with parent info if available (only if we have kidProp)
+  const kidId = kidProp?.id || entityId;
+  const { data: kidData, isLoading } = useApiQuery<KidWithParent>(
+    ['kids', kidId || 'no-id'],
+    () => {
       if (!kidId) {
         throw new Error('Kid ID is required');
       }
       return kidsService.getKidById(kidId);
     },
     {
-      enabled: open && !!(kid._id || kid.id),
+      enabled: open && !!kidId && !!kidProp,
     }
   );
 
+  const kid = kidProp || kidFromUrl;
   const displayKid = (kidData as KidWithParent) || kid;
-  const parent = displayKid.parent;
+  const parent = displayKid?.parent;
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!kid) {
+    return null;
+  }
+
   const initials = kid.name
     .split(' ')
     .map(n => n[0])
@@ -82,26 +113,26 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
     return age;
   };
 
-  const age = kid.birthDate ? calculateAge(kid.birthDate) : null;
+  const age = displayKid?.birthDate ? calculateAge(displayKid.birthDate) : null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Header */}
           <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
             <div className="flex items-center gap-4">
               <div>
-                <h2 className="text-2xl font-semibold">{kid.name}</h2>
+                <h2 className="text-2xl font-semibold">{displayKid.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline">{kid.gender}</Badge>
+                  <Badge variant="outline">{displayKid.gender}</Badge>
                   {age !== null && (
                     <span className="text-sm text-muted-foreground">{age} years old</span>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Born {formatDate(kid.birthDate)}
+                  Born {formatDate(displayKid.birthDate)}
                 </p>
               </div>
             </div>
@@ -120,7 +151,7 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                     <AvatarFallback className="text-base">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{kid.name}</p>
+                    <p className="font-medium text-sm">{displayKid.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Kid Account</p>
                   </div>
                 </div>
@@ -174,25 +205,25 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Session Type</span>
                     <span className="text-muted-foreground">
-                      {formatSessionType(kid.sessionType)}
+                      {formatSessionType(displayKid.sessionType)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">In Sports</span>
                     <span className="text-muted-foreground">
-                      {kid.currentlyInSports ? 'Yes' : 'No'}
+                      {displayKid.currentlyInSports ? 'Yes' : 'No'}
                     </span>
                   </div>
-                  {kid.medicalConditions && kid.medicalConditions.length > 0 && (
+                  {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Medical Conditions</span>
-                      <span className="text-muted-foreground">{kid.medicalConditions.length}</span>
+                      <span className="text-muted-foreground">{displayKid.medicalConditions.length}</span>
                     </div>
                   )}
-                  {kid.achievements && kid.achievements.length > 0 && (
+                  {displayKid.achievements && displayKid.achievements.length > 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Achievements</span>
-                      <span className="text-muted-foreground">{kid.achievements.length}</span>
+                      <span className="text-muted-foreground">{displayKid.achievements.length}</span>
                     </div>
                   )}
                 </div>
@@ -211,7 +242,7 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="sessions">Sessions</TabsTrigger>
                     <TabsTrigger value="achievements">
-                      Achievements {kid.achievements && kid.achievements.length > 0 && `(${kid.achievements.length})`}
+                      Achievements {displayKid.achievements && displayKid.achievements.length > 0 && `(${displayKid.achievements.length})`}
                     </TabsTrigger>
                   </TabsList>
 
@@ -222,17 +253,17 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">Name</h4>
-                          <p className="text-sm">{kid.name}</p>
+                          <p className="text-sm">{displayKid.name}</p>
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">Gender</h4>
-                          <p className="text-sm">{kid.gender}</p>
+                          <p className="text-sm">{displayKid.gender}</p>
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">
                             Birth Date
                           </h4>
-                          <p className="text-sm">{formatDate(kid.birthDate)}</p>
+                          <p className="text-sm">{formatDate(displayKid.birthDate)}</p>
                         </div>
                         {age !== null && (
                           <div>
@@ -240,33 +271,33 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                             <p className="text-sm">{age} years old</p>
                           </div>
                         )}
-                        {kid.goal && (
+                        {displayKid.goal && (
                           <div>
                             <h4 className="text-sm font-medium text-muted-foreground mb-1">Goal</h4>
-                            <p className="text-sm">{kid.goal}</p>
+                            <p className="text-sm">{displayKid.goal}</p>
                           </div>
                         )}
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">
                             Session Type
                           </h4>
-                          <p className="text-sm">{formatSessionType(kid.sessionType)}</p>
+                          <p className="text-sm">{formatSessionType(displayKid.sessionType)}</p>
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">
                             Currently in Sports
                           </h4>
-                          <p className="text-sm">{kid.currentlyInSports ? 'Yes' : 'No'}</p>
+                          <p className="text-sm">{displayKid.currentlyInSports ? 'Yes' : 'No'}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Medical Conditions */}
-                    {kid.medicalConditions && kid.medicalConditions.length > 0 && (
+                    {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
                       <div>
                         <h3 className="font-semibold mb-3">Medical Conditions</h3>
                         <div className="flex flex-wrap gap-2">
-                          {kid.medicalConditions.map((condition, index) => (
+                          {displayKid.medicalConditions.map((condition, index) => (
                             <Badge key={index} variant="secondary">
                               {condition}
                             </Badge>
@@ -284,9 +315,9 @@ export function KidDetailsDialog({ open, onOpenChange, kid }: KidDetailsDialogPr
                   </TabsContent>
 
                   <TabsContent value="achievements" className="mt-6">
-                    {kid.achievements && kid.achievements.length > 0 ? (
+                    {displayKid.achievements && displayKid.achievements.length > 0 ? (
                       <div className="space-y-4">
-                        {kid.achievements.map((achievement, index) => (
+                        {displayKid.achievements.map((achievement, index) => (
                           <Card key={index}>
                             <CardContent className="pt-6">
                               <div className="flex items-start gap-3">

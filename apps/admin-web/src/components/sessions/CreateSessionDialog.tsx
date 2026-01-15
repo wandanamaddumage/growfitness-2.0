@@ -29,6 +29,7 @@ import { kidsService } from '@/services/kids.service';
 import { useToast } from '@/hooks/useToast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateSessionDialogProps {
   open: boolean;
@@ -36,6 +37,15 @@ interface CreateSessionDialogProps {
 }
 
 export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogProps) {
+  const { closeModal } = useModalParams('sessionId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
@@ -82,7 +92,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
         toast.success('Session created successfully');
         form.reset(defaultValues);
         setTimeout(() => {
-          onOpenChange(false);
+          handleOpenChange(false);
         }, 100);
       },
       onError: error => {
@@ -104,7 +114,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Session</DialogTitle>
@@ -152,7 +162,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
               </SelectTrigger>
               <SelectContent>
                 {(coachesData?.data || []).map(coach => {
-                  const coachId = coach.id || coach._id;
+                  const coachId = coach.id;
                   return (
                     <SelectItem key={coachId} value={coachId}>
                       {coach.coachProfile?.name || coach.email}
@@ -177,7 +187,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
               </SelectTrigger>
               <SelectContent>
                 {(locationsData?.data || []).map(location => {
-                  const locationId = location.id || location._id;
+                  const locationId = location.id;
                   return (
                     <SelectItem key={locationId} value={locationId}>
                       {location.name}
@@ -229,7 +239,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
               <CustomFormField label="Kids" required error={form.formState.errors.kids?.message}>
                 <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-2">
                   {(kidsData?.data || []).map(kid => {
-                    const kidId = kid.id || kid._id;
+                    const kidId = kid.id;
                     return (
                       <div key={kidId} className="flex items-center space-x-2">
                         <Checkbox
@@ -266,7 +276,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                 </SelectTrigger>
                 <SelectContent>
                   {(kidsData?.data || []).map(kid => {
-                    const kidId = kid.id || kid._id;
+                    const kidId = kid.id;
                     return (
                       <SelectItem key={kidId} value={kidId}>
                         {kid.name}

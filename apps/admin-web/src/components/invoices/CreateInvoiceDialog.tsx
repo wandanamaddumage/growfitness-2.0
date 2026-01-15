@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/useToast';
 import { Plus, Trash2 } from 'lucide-react';
 import { DatePicker } from '@/components/common/DatePicker';
 import { format } from 'date-fns';
+import { useModalParams } from '@/hooks/useModalParams';
 
 interface CreateInvoiceDialogProps {
   open: boolean;
@@ -34,6 +35,15 @@ interface CreateInvoiceDialogProps {
 }
 
 export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogProps) {
+  const { closeModal } = useModalParams('invoiceId');
+
+  // Handle close with URL params
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+    }
+    onOpenChange(newOpen);
+  };
   const { toast } = useToast();
 
   const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
@@ -77,7 +87,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
         toast.success('Invoice created successfully');
         form.reset(defaultValues);
         setTimeout(() => {
-          onOpenChange(false);
+          handleOpenChange(false);
         }, 100);
       },
       onError: error => {
@@ -100,7 +110,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
   const invoiceType = form.watch('type');
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Invoice</DialogTitle>
@@ -143,7 +153,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                 </SelectTrigger>
                 <SelectContent>
                   {(parentsData?.data || []).map(parent => (
-                    <SelectItem key={parent._id} value={parent._id}>
+                    <SelectItem key={parent.id} value={parent.id}>
                       {parent.parentProfile?.name || parent.email}
                     </SelectItem>
                   ))}
@@ -163,7 +173,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                 </SelectTrigger>
                 <SelectContent>
                   {(coachesData?.data || []).map(coach => (
-                    <SelectItem key={coach._id} value={coach._id}>
+                    <SelectItem key={coach.id} value={coach.id}>
                       {coach.coachProfile?.name || coach.email}
                     </SelectItem>
                   ))}
