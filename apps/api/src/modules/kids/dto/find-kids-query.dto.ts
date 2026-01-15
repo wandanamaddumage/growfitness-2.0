@@ -11,7 +11,5 @@ export class FindKidsQueryDto extends PaginationDto {
   @IsEnum(SessionType)
   sessionType?: SessionType;
 
-  @IsOptional()
-  @IsString()
-  search?: string;
+  // search is already defined in PaginationDto, no need to redeclare
 }

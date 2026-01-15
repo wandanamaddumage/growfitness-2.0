@@ -429,7 +429,7 @@ export class RequestsService {
     return new PaginatedResponseDto(data, total, pagination.page, pagination.limit);
   }
 
-  async approveUserRegistrationRequest(id: string, actorId: string) {
+  async approveUserRegistrationRequest(id: string, actorId: string | Types.ObjectId) {
     try {
       const request = await this.userRegistrationRequestModel.findById(id).exec();
 
@@ -508,7 +508,7 @@ export class RequestsService {
       const kids = await this.kidModel.find({ parentId: parent._id }).exec();
 
       await this.auditService.log({
-        actorId,
+        actorId: actorId instanceof Types.ObjectId ? actorId.toString() : actorId,
         action: 'APPROVE_USER_REGISTRATION_REQUEST',
         entityType: 'UserRegistrationRequest',
         entityId: id,
@@ -532,7 +532,7 @@ export class RequestsService {
     }
   }
 
-  async rejectUserRegistrationRequest(id: string, actorId: string) {
+  async rejectUserRegistrationRequest(id: string, actorId: string | Types.ObjectId) {
     const request = await this.userRegistrationRequestModel.findById(id).exec();
 
     if (!request) {
@@ -606,7 +606,7 @@ export class RequestsService {
     await request.save();
 
     await this.auditService.log({
-      actorId,
+      actorId: actorId instanceof Types.ObjectId ? actorId.toString() : actorId,
       action: 'REJECT_USER_REGISTRATION_REQUEST',
       entityType: 'UserRegistrationRequest',
       entityId: id,

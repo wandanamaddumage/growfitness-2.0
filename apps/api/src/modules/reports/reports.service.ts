@@ -177,15 +177,16 @@ export class ReportsService {
     const query: Record<string, unknown> = {};
 
     if (startDate || endDate) {
-      query.dateTime = {};
+      const dateTimeQuery: Record<string, Date> = {};
       if (startDate) {
-        query.dateTime = { ...query.dateTime, $gte: startDate };
+        dateTimeQuery.$gte = startDate;
       }
       if (endDate) {
         const endDateWithTime = new Date(endDate);
         endDateWithTime.setHours(23, 59, 59, 999);
-        query.dateTime = { ...query.dateTime, $lte: endDateWithTime };
+        dateTimeQuery.$lte = endDateWithTime;
       }
+      query.dateTime = dateTimeQuery;
     }
 
     if (filters?.locationId) {
@@ -251,15 +252,16 @@ export class ReportsService {
     const query: Record<string, unknown> = {};
 
     if (startDate || endDate) {
-      query.createdAt = {};
+      const createdAtQuery: Record<string, Date> = {};
       if (startDate) {
-        query.createdAt = { ...query.createdAt, $gte: startDate };
+        createdAtQuery.$gte = startDate;
       }
       if (endDate) {
         const endDateWithTime = new Date(endDate);
         endDateWithTime.setHours(23, 59, 59, 999);
-        query.createdAt = { ...query.createdAt, $lte: endDateWithTime };
+        createdAtQuery.$lte = endDateWithTime;
       }
+      query.createdAt = createdAtQuery;
     }
 
     if (filters?.parentId) {
@@ -341,15 +343,16 @@ export class ReportsService {
     const query: Record<string, unknown> = {};
 
     if (startDate || endDate) {
-      query.dateTime = {};
+      const dateTimeQuery: Record<string, Date> = {};
       if (startDate) {
-        query.dateTime = { ...query.dateTime, $gte: startDate };
+        dateTimeQuery.$gte = startDate;
       }
       if (endDate) {
         const endDateWithTime = new Date(endDate);
         endDateWithTime.setHours(23, 59, 59, 999);
-        query.dateTime = { ...query.dateTime, $lte: endDateWithTime };
+        dateTimeQuery.$lte = endDateWithTime;
       }
+      query.dateTime = dateTimeQuery;
     }
 
     if (filters?.locationId) {
@@ -492,13 +495,14 @@ export class ReportsService {
     if (filters?.includeSessions) {
       const sessionQuery: Record<string, unknown> = {};
       if (startDate || endDate) {
-        sessionQuery.dateTime = {};
-        if (startDate) sessionQuery.dateTime = { ...sessionQuery.dateTime, $gte: startDate };
+        const dateTimeQuery: Record<string, Date> = {};
+        if (startDate) dateTimeQuery.$gte = startDate;
         if (endDate) {
           const endDateWithTime = new Date(endDate);
           endDateWithTime.setHours(23, 59, 59, 999);
-          sessionQuery.dateTime = { ...sessionQuery.dateTime, $lte: endDateWithTime };
+          dateTimeQuery.$lte = endDateWithTime;
         }
+        sessionQuery.dateTime = dateTimeQuery;
       }
       const sessionCount = await this.sessionModel.countDocuments(sessionQuery).exec();
       results.sessions = { count: sessionCount };
@@ -507,13 +511,14 @@ export class ReportsService {
     if (filters?.includeInvoices) {
       const invoiceQuery: Record<string, unknown> = {};
       if (startDate || endDate) {
-        invoiceQuery.createdAt = {};
-        if (startDate) invoiceQuery.createdAt = { ...invoiceQuery.createdAt, $gte: startDate };
+        const createdAtQuery: Record<string, Date> = {};
+        if (startDate) createdAtQuery.$gte = startDate;
         if (endDate) {
           const endDateWithTime = new Date(endDate);
           endDateWithTime.setHours(23, 59, 59, 999);
-          invoiceQuery.createdAt = { ...invoiceQuery.createdAt, $lte: endDateWithTime };
+          createdAtQuery.$lte = endDateWithTime;
         }
+        invoiceQuery.createdAt = createdAtQuery;
       }
       const invoiceCount = await this.invoiceModel.countDocuments(invoiceQuery).exec();
       results.invoices = { count: invoiceCount };
