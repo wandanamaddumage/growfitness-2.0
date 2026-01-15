@@ -10,9 +10,7 @@ import {
   Image,
   Shield,
   Code,
-  BookOpen,
   HelpCircle,
-  UsersRound,
   BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,9 +26,7 @@ const menuItems = [
   { path: '/banners', label: 'Banners', icon: Image },
   { path: '/audit', label: 'Audit', icon: Shield },
   { path: '/codes', label: 'Codes', icon: Code },
-  { path: '/resources', label: 'Resources', icon: BookOpen },
   { path: '/quizzes', label: 'Quizzes', icon: HelpCircle },
-  { path: '/crm', label: 'CRM', icon: UsersRound },
   { path: '/reports', label: 'Reports', icon: BarChart3 },
 ];
 
