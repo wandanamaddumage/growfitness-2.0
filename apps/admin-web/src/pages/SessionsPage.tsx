@@ -104,11 +104,32 @@ export function SessionsPage() {
     }
   };
 
+  // Helper to get coach name from populated object or ID
+  const getCoachName = (coachId: any): string => {
+    if (!coachId) return 'N/A';
+    if (typeof coachId === 'string') {
+      // If it's just an ID, try to find the coach in the coachesData
+      const coach = coachesData?.data?.find(c => c.id === coachId);
+      return coach?.coachProfile?.name || coach?.email || 'N/A';
+    }
+    if (typeof coachId === 'object') {
+      // If it's a populated object
+      if (coachId.coachProfile?.name) return coachId.coachProfile.name;
+      if (coachId.email) return coachId.email;
+    }
+    return 'N/A';
+  };
+
   const columns: ColumnDef<Session>[] = [
     {
       accessorKey: 'dateTime',
       header: 'Date & Time',
       cell: ({ row }) => formatDateTime(row.original.dateTime),
+    },
+    {
+      accessorKey: 'coachId',
+      header: 'Coach',
+      cell: ({ row }) => getCoachName(row.original.coachId),
     },
     {
       accessorKey: 'type',

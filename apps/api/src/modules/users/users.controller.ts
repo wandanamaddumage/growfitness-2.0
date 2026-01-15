@@ -69,11 +69,20 @@ export class UsersController {
 
   @Get('parents/:id')
   @ApiOperation({ summary: 'Get parent by ID' })
+  @ApiQuery({
+    name: 'includeUnapproved',
+    required: false,
+    type: Boolean,
+    description: 'Include unapproved parents (admin only)',
+  })
   @ApiResponse({ status: 200, description: 'Parent details' })
   @ApiResponse({ status: 404, description: 'Parent not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
-  findParentById(@Param('id', ObjectIdValidationPipe) id: string) {
-    return this.usersService.findParentById(id);
+  findParentById(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @Query('includeUnapproved') includeUnapproved?: string
+  ) {
+    return this.usersService.findParentById(id, includeUnapproved === 'true');
   }
 
   @Post('parents')
@@ -108,9 +117,14 @@ export class UsersController {
     },
   })
   @ApiResponse({ status: 201, description: 'Parent created successfully' })
-  createParent(@Body() createParentDto: CreateParentDto) {
-    // For public endpoints, we don't have an authenticated user, so we pass null as actorId
-    return this.usersService.createParent(createParentDto, null);
+  createParent(
+    @Body() createParentDto: CreateParentDto,
+    @CurrentUser() user?: any
+  ) {
+    // If user is authenticated (admin creating from portal), use their ID
+    // If no user (public registration), pass null to require approval
+    const actorId = user?.sub || user?.id || null;
+    return this.usersService.createParent(createParentDto, actorId);
   }
 
   @Patch('parents/:id')

@@ -8,7 +8,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
-import { UserRole, UserStatus } from '@grow-fitness/shared-types';
+import {
+  UserRegistrationRequest,
+  UserRegistrationRequestDocument,
+} from '../../infra/database/schemas/user-registration-request.schema';
+import { UserRole, UserStatus, RequestStatus } from '@grow-fitness/shared-types';
 import {
   CreateParentDto,
   UpdateParentDto,
@@ -25,13 +29,15 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Kid.name) private kidModel: Model<KidDocument>,
+    @InjectModel(UserRegistrationRequest.name)
+    private userRegistrationRequestModel: Model<UserRegistrationRequestDocument>,
     private authService: AuthService,
     private auditService: AuditService
   ) {}
 
   // Parents
   async findParents(pagination: PaginationDto, search?: string) {
-    const query: Record<string, unknown> = { role: UserRole.PARENT };
+    const query: Record<string, unknown> = { role: UserRole.PARENT, isApproved: true };
 
     if (search) {
       query.$or = [
@@ -50,8 +56,13 @@ export class UsersService {
     return new PaginatedResponseDto(data, total, pagination.page, pagination.limit);
   }
 
-  async findParentById(id: string) {
-    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
+  async findParentById(id: string, includeUnapproved: boolean = false) {
+    const query: Record<string, unknown> = { _id: id, role: UserRole.PARENT };
+    if (!includeUnapproved) {
+      query.isApproved = true;
+    }
+
+    const parent = await this.userModel.findOne(query).exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -61,7 +72,11 @@ export class UsersService {
     }
 
     // Convert string id to ObjectId for querying kids
-    const kids = await this.kidModel.find({ parentId: new Types.ObjectId(id) }).exec();
+    const kidsQuery: Record<string, unknown> = { parentId: new Types.ObjectId(id) };
+    if (!includeUnapproved) {
+      kidsQuery.isApproved = true;
+    }
+    const kids = await this.kidModel.find(kidsQuery).exec();
 
     return {
       ...parent.toObject(),
@@ -84,12 +99,17 @@ export class UsersService {
 
     const passwordHash = await this.authService.hashPassword(createParentDto.password);
 
+    // If actorId is provided, it's an admin creation - auto-approve
+    // If actorId is null, it's a public registration - requires approval
+    const isApproved = actorId !== null;
+
     const parent = new this.userModel({
       role: UserRole.PARENT,
       email: createParentDto.email.toLowerCase(),
       phone: createParentDto.phone,
       passwordHash,
       status: UserStatus.ACTIVE,
+      isApproved,
       parentProfile: {
         name: createParentDto.name,
         location: createParentDto.location,
@@ -105,12 +125,22 @@ export class UsersService {
           ...kidData,
           parentId: parent._id,
           birthDate: new Date(kidData.birthDate),
+          isApproved, // Same approval status as parent
         });
         return kid.save();
       })
     );
 
-    // Only log audit if actorId is provided (not a public registration)
+    // Only create user registration request for public registrations (when actorId is null)
+    if (!isApproved) {
+      const registrationRequest = new this.userRegistrationRequestModel({
+        parentId: parent._id,
+        status: RequestStatus.PENDING,
+      });
+      await registrationRequest.save();
+    }
+
+    // Log audit if actorId is provided (admin creation)
     if (actorId) {
       await this.auditService.log({
         actorId,

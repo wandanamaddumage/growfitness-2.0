@@ -20,11 +20,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField as CustomFormField } from '@/components/common/FormField';
+import { DateTimePicker } from '@/components/common/DateTimePicker';
 import { CreateCodeDto } from '@/services/codes.service';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { codesService } from '@/services/codes.service';
 import { useToast } from '@/hooks/useToast';
 import { useModalParams } from '@/hooks/useModalParams';
+import { format } from 'date-fns';
 
 // Create Code Schema
 const CreateCodeSchema = z
@@ -197,7 +199,24 @@ export function CreateCodeDialog({ open, onOpenChange }: CreateCodeDialogProps) 
             label="Expiry Date"
             error={form.formState.errors.expiryDate?.message}
           >
-            <Input type="datetime-local" {...form.register('expiryDate')} />
+            <DateTimePicker
+              date={
+                form.watch('expiryDate')
+                  ? typeof form.watch('expiryDate') === 'string'
+                    ? new Date(form.watch('expiryDate'))
+                    : form.watch('expiryDate')
+                  : undefined
+              }
+              onSelect={date => {
+                if (date) {
+                  // Format as ISO string for the API (yyyy-MM-ddTHH:mm format)
+                  form.setValue('expiryDate', format(date, "yyyy-MM-dd'T'HH:mm"));
+                } else {
+                  form.setValue('expiryDate', undefined);
+                }
+              }}
+              placeholder="Pick expiry date and time"
+            />
           </CustomFormField>
 
           <CustomFormField

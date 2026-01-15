@@ -289,13 +289,12 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
           )}
 
           <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
+            <Checkbox
               id="isFreeSession"
-              {...form.register('isFreeSession')}
-              className="rounded"
+              checked={form.watch('isFreeSession')}
+              onCheckedChange={checked => form.setValue('isFreeSession', checked === true)}
             />
-            <label htmlFor="isFreeSession" className="text-sm">
+            <label htmlFor="isFreeSession" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Free session
             </label>
           </div>

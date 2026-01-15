@@ -124,6 +124,7 @@ export const UpdateSessionSchema = z.object({
   kids: z.array(z.string()).optional(),
   kidId: z.string().optional(),
   status: z.nativeEnum(SessionStatus).optional(),
+  isFreeSession: z.boolean().optional(),
 });
 
 export type UpdateSessionDto = z.infer<typeof UpdateSessionSchema>;

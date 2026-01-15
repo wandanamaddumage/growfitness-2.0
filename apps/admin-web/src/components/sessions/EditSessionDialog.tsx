@@ -114,6 +114,7 @@ export function EditSessionDialog({
         ? session.kids.map((kid: any) => extractId(kid))
         : undefined,
       kidId: session.kidId ? extractId(session.kidId) : undefined,
+      isFreeSession: session.isFreeSession,
     },
   });
 
@@ -130,6 +131,7 @@ export function EditSessionDialog({
           ? session.kids.map((kid: any) => extractId(kid))
           : undefined,
         kidId: session.kidId ? extractId(session.kidId) : undefined,
+        isFreeSession: session.isFreeSession,
       });
     }
   }, [open, session, form]);
@@ -149,6 +151,10 @@ export function EditSessionDialog({
   );
 
   const onSubmit = (data: UpdateSessionDto) => {
+    // Get current form values to ensure we have the latest isFreeSession value
+    // Use getValues() to get the actual current form state
+    const formValues = form.getValues();
+    
     // Transform dateTime to string format if it's a Date object
     const submitData: UpdateSessionDto = {
       ...data,
@@ -159,6 +165,8 @@ export function EditSessionDialog({
         session.type === SessionType.INDIVIDUAL && data.kids && data.kids.length > 0
           ? data.kids[0]
           : data.kidId,
+      // Explicitly include isFreeSession from form values to ensure it's always in the payload
+      isFreeSession: formValues.isFreeSession !== undefined ? formValues.isFreeSession : false,
     };
     updateMutation.mutate(submitData);
   };
@@ -319,16 +327,15 @@ export function EditSessionDialog({
               </CustomFormField>
             )}
 
-            {/* Free Session - Read-only display */}
             <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 id="isFreeSession"
-                checked={session.isFreeSession}
-                disabled
-                className="rounded bg-muted"
+                checked={form.watch('isFreeSession') || false}
+                onCheckedChange={checked => {
+                  form.setValue('isFreeSession', checked === true, { shouldDirty: true, shouldValidate: true });
+                }}
               />
-              <label htmlFor="isFreeSession" className="text-sm text-muted-foreground">
+              <label htmlFor="isFreeSession" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Free session
               </label>
             </div>

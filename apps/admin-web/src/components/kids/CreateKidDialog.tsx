@@ -25,6 +25,7 @@ import { kidsService } from '@/services/kids.service';
 import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
 import { DatePicker } from '@/components/common/DatePicker';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { useModalParams } from '@/hooks/useModalParams';
 
@@ -155,6 +156,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
             <DatePicker
               date={form.watch('birthDate') ? new Date(form.watch('birthDate')) : undefined}
               onSelect={date => form.setValue('birthDate', date ? format(date, 'yyyy-MM-dd') : '')}
+              enableYearMonthDropdown
             />
           </CustomFormField>
 
@@ -182,13 +184,12 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
           </CustomFormField>
 
           <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
+            <Checkbox
               id="currentlyInSports"
-              {...form.register('currentlyInSports')}
-              className="rounded"
+              checked={form.watch('currentlyInSports')}
+              onCheckedChange={checked => form.setValue('currentlyInSports', checked === true)}
             />
-            <label htmlFor="currentlyInSports" className="text-sm">
+            <label htmlFor="currentlyInSports" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Currently in sports
             </label>
           </div>

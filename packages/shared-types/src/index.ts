@@ -140,6 +140,15 @@ export interface ExtraSessionRequest {
   createdAt: Date;
 }
 
+export interface UserRegistrationRequest {
+  id: string;
+  parentId: string;
+  status: RequestStatus;
+  createdAt: Date;
+  processedAt?: Date;
+  processedBy?: string;
+}
+
 export interface Invoice {
   id: string;
   type: InvoiceType;

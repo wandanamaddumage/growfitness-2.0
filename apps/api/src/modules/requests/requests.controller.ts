@@ -283,4 +283,45 @@ export class RequestsController {
   ) {
     return this.requestsService.deleteExtraSessionRequest(id, actorId);
   }
+
+  @Get('user-registrations')
+  @ApiOperation({ summary: 'Get all user registration requests' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 10, max: 100)',
+  })
+  @ApiResponse({ status: 200, description: 'List of user registration requests' })
+  findUserRegistrationRequests(@Query() pagination: PaginationDto) {
+    return this.requestsService.findUserRegistrationRequests(pagination);
+  }
+
+  @Post('user-registrations/:id/approve')
+  @ApiOperation({ summary: 'Approve a user registration request' })
+  @ApiResponse({ status: 200, description: 'User registration request approved successfully' })
+  @ApiResponse({ status: 404, description: 'Request not found' })
+  approveUserRegistrationRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
+    return this.requestsService.approveUserRegistrationRequest(id, actorId);
+  }
+
+  @Post('user-registrations/:id/reject')
+  @ApiOperation({ summary: 'Reject a user registration request' })
+  @ApiResponse({ status: 200, description: 'User registration request rejected successfully' })
+  @ApiResponse({ status: 404, description: 'Request not found' })
+  rejectUserRegistrationRequest(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser('sub') actorId: string
+  ) {
+    return this.requestsService.rejectUserRegistrationRequest(id, actorId);
+  }
 }

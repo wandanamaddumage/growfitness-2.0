@@ -10,4 +10,8 @@ export class FindKidsQueryDto extends PaginationDto {
   @IsOptional()
   @IsEnum(SessionType)
   sessionType?: SessionType;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

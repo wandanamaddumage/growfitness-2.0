@@ -24,7 +24,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export function KidsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
-  const [, setSearch] = useState('');
+  const [search, setSearch] = useState('');
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('kidId');
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
@@ -33,6 +33,13 @@ export function KidsPage() {
 
   // Handle link dialog separately (it uses a different param)
   const linkDialogOpen = searchParams.get('linkKid') === entityId;
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    if (page !== 1) {
+      setPage(1);
+    }
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selectedKid with URL params
   useEffect(() => {
@@ -77,8 +84,8 @@ export function KidsPage() {
   };
 
   const { data, isLoading, error } = useApiQuery(
-    ['kids', page.toString(), pageSize.toString()],
-    () => kidsService.getKids(page, pageSize)
+    ['kids', page.toString(), pageSize.toString(), search],
+    () => kidsService.getKids(page, pageSize, undefined, undefined, search || undefined)
   );
 
   const deleteMutation = useApiMutation((id: string) => kidsService.unlinkFromParent(id), {

@@ -17,7 +17,8 @@ export const usersService = {
     if (search) params.append('search', search);
     return api.get<PaginatedResponse<User>>(`/users/parents?${params.toString()}`);
   },
-  getParentById: (id: string) => api.get<User>(`/users/parents/${id}`),
+  getParentById: (id: string, includeUnapproved?: boolean) =>
+    api.get<User>(`/users/parents/${id}${includeUnapproved ? '?includeUnapproved=true' : ''}`),
   createParent: (data: CreateParentDto) => api.post<User>('/users/parents', data),
   updateParent: (id: string, data: UpdateParentDto) =>
     api.patch<User>(`/users/parents/${id}`, data),

@@ -43,8 +43,20 @@ export function AuditLogDetailsDialog({ open, onOpenChange, log }: AuditLogDetai
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Actor ID</h3>
-            <p className="text-sm">{log.actorId}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Actor</h3>
+            <p className="text-sm">
+              {(() => {
+                const actorId = log.actorId as any;
+                if (!actorId) return 'N/A';
+                if (typeof actorId === 'string') return actorId;
+                if (typeof actorId === 'object') {
+                  if (actorId.email) return actorId.email;
+                  if (actorId._id) return actorId._id.toString();
+                  if (actorId.id) return actorId.id;
+                }
+                return 'N/A';
+              })()}
+            </p>
           </div>
 
           <div>

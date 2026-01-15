@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField as CustomFormField } from '@/components/common/FormField';
+import { DateTimePicker } from '@/components/common/DateTimePicker';
 import { UpdateCodeDto, Code } from '@/services/codes.service';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { codesService } from '@/services/codes.service';
@@ -32,11 +33,11 @@ interface EditCodeDialogProps {
   code?: Code;
 }
 
-function formatDateForInput(date: Date | string | null | undefined): string {
-  if (!date) return '';
+function getDateValue(date: Date | string | null | undefined): Date | undefined {
+  if (!date) return undefined;
   const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '';
-  return format(d, "yyyy-MM-dd'T'HH:mm");
+  if (isNaN(d.getTime())) return undefined;
+  return d;
 }
 
 export function EditCodeDialog({ open, onOpenChange, code: codeProp }: EditCodeDialogProps) {
@@ -74,7 +75,7 @@ export function EditCodeDialog({ open, onOpenChange, code: codeProp }: EditCodeD
   const form = useForm<UpdateCodeDto>({
     defaultValues: {
       status: code.status,
-      expiryDate: formatDateForInput(code.expiryDate),
+      expiryDate: code.expiryDate ? format(getDateValue(code.expiryDate)!, "yyyy-MM-dd'T'HH:mm") : undefined,
       usageLimit: code.usageLimit,
       description: code.description || '',
     },
@@ -84,7 +85,7 @@ export function EditCodeDialog({ open, onOpenChange, code: codeProp }: EditCodeD
     if (open) {
       form.reset({
         status: code.status,
-        expiryDate: formatDateForInput(code.expiryDate),
+        expiryDate: code.expiryDate ? format(getDateValue(code.expiryDate)!, "yyyy-MM-dd'T'HH:mm") : undefined,
         usageLimit: code.usageLimit,
         description: code.description || '',
       });
@@ -168,7 +169,24 @@ export function EditCodeDialog({ open, onOpenChange, code: codeProp }: EditCodeD
             label="Expiry Date"
             error={form.formState.errors.expiryDate?.message}
           >
-            <Input type="datetime-local" {...form.register('expiryDate')} />
+            <DateTimePicker
+              date={(() => {
+                const expiryDate = form.watch('expiryDate');
+                if (expiryDate) {
+                  return typeof expiryDate === 'string' ? new Date(expiryDate) : expiryDate;
+                }
+                return getDateValue(code.expiryDate);
+              })()}
+              onSelect={date => {
+                if (date) {
+                  // Format as ISO string for the API (yyyy-MM-ddTHH:mm format)
+                  form.setValue('expiryDate', format(date, "yyyy-MM-dd'T'HH:mm"));
+                } else {
+                  form.setValue('expiryDate', undefined);
+                }
+              }}
+              placeholder="Pick expiry date and time"
+            />
           </CustomFormField>
 
           <CustomFormField
