@@ -41,16 +41,14 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
   const isParent = !!user.parentProfile;
   const isCoach = !!user.coachProfile;
 
-  // Fetch parent with kids if it's a parent
-  // Only fetch when dialog is open, user is a parent, and has a valid ID
-  const userId = user.id;
-  console.log('🚀 ~ UserDetailsDialog ~ userId:', userId);
-  const shouldFetch = isParent && open && !!userId;
+  // Fetch parent with kids if it's a parent, or coach if it's a coach
+  const userId = user.id || user._id;
+  const shouldFetchParent = isParent && open && !!userId;
+  const shouldFetchCoach = isCoach && open && !!userId;
 
   const {
     data: parentData,
-    isLoading,
-    error,
+    isLoading: isLoadingParent,
   } = useApiQuery<ParentWithKids>(
     ['users', 'parents', userId || 'no-id'],
     () => {
@@ -60,77 +58,47 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
       return usersService.getParentById(userId);
     },
     {
-      enabled: shouldFetch,
+      enabled: shouldFetchParent,
     }
   );
 
-  const displayUser = (parentData as ParentWithKids) || user;
+  const {
+    data: coachData,
+    isLoading: isLoadingCoach,
+  } = useApiQuery<User>(
+    ['users', 'coaches', userId || 'no-id'],
+    () => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      return usersService.getCoachById(userId);
+    },
+    {
+      enabled: shouldFetchCoach,
+    }
+  );
+
+  const displayUser = (parentData as ParentWithKids) || (coachData as User) || user;
   const kids = (displayUser as ParentWithKids).kids || [];
-  const parentName = isParent
+  const userName = isParent
     ? user.parentProfile?.name
     : isCoach
       ? user.coachProfile?.name
       : 'N/A';
-  const initials = parentName
+  const initials = userName
     .split(' ')
     .map(n => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
 
-  // Calculate highlights
+  const isLoading = isLoadingParent || isLoadingCoach;
+
+  // Calculate highlights for parents
   const totalKids = kids.length;
   const kidsInSports = kids.filter(k => k.currentlyInSports).length;
   const individualSessions = kids.filter(k => k.sessionType === 'INDIVIDUAL').length;
   const groupSessions = kids.filter(k => k.sessionType === 'GROUP').length;
-
-  if (!isParent) {
-    // For non-parents, show simple view
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>User Details</DialogTitle>
-            <DialogDescription>View user information</DialogDescription>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
-                <p className="text-sm font-medium">{parentName}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                <p className="text-sm">{user.email}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
-                <p className="text-sm">{user.phone}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Role</h3>
-                <p className="text-sm">{user.role}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
-                <StatusBadge status={user.status} />
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
-                <p className="text-sm">{formatDate(user.createdAt)}</p>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -140,7 +108,7 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
           <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
             <div className="flex items-center gap-4">
               <div>
-                <h2 className="text-2xl font-semibold">{parentName}</h2>
+                <h2 className="text-2xl font-semibold">{userName}</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   <StatusBadge status={user.status} />
@@ -166,7 +134,7 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
                     <AvatarFallback className="text-base">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{parentName}</p>
+                    <p className="font-medium text-sm">{userName}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Parent Account</p>
                   </div>
                 </div>
@@ -243,7 +211,7 @@ export function UserDetailsDialog({ open, onOpenChange, user }: UserDetailsDialo
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">Name</h4>
-                          <p className="text-sm">{parentName}</p>
+                          <p className="text-sm">{userName}</p>
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>

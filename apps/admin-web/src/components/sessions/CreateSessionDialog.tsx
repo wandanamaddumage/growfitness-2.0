@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FormField as CustomFormField } from '@/components/common/FormField';
+import { DateTimePicker } from '@/components/common/DateTimePicker';
 import { CreateSessionSchema, CreateSessionDto } from '@grow-fitness/shared-schemas';
 import { SessionType } from '@grow-fitness/shared-types';
 import { useApiMutation, useApiQuery } from '@/hooks';
@@ -27,6 +28,7 @@ import { locationsService } from '@/services/locations.service';
 import { kidsService } from '@/services/kids.service';
 import { useToast } from '@/hooks/useToast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { format } from 'date-fns';
 
 interface CreateSessionDialogProps {
   open: boolean;
@@ -142,18 +144,21 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
 
           <CustomFormField label="Coach" required error={form.formState.errors.coachId?.message}>
             <Select
-              value={form.watch('coachId')}
+              value={form.watch('coachId') || ''}
               onValueChange={value => form.setValue('coachId', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select coach" />
               </SelectTrigger>
               <SelectContent>
-                {(coachesData?.data || []).map(coach => (
-                  <SelectItem key={coach._id} value={coach._id}>
-                    {coach.coachProfile?.name || coach.email}
-                  </SelectItem>
-                ))}
+                {(coachesData?.data || []).map(coach => {
+                  const coachId = coach.id || coach._id;
+                  return (
+                    <SelectItem key={coachId} value={coachId}>
+                      {coach.coachProfile?.name || coach.email}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </CustomFormField>
@@ -164,18 +169,21 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
             error={form.formState.errors.locationId?.message}
           >
             <Select
-              value={form.watch('locationId')}
+              value={form.watch('locationId') || ''}
               onValueChange={value => form.setValue('locationId', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select location" />
               </SelectTrigger>
               <SelectContent>
-                {(locationsData?.data || []).map(location => (
-                  <SelectItem key={location._id} value={location._id}>
-                    {location.name}
-                  </SelectItem>
-                ))}
+                {(locationsData?.data || []).map(location => {
+                  const locationId = location.id || location._id;
+                  return (
+                    <SelectItem key={locationId} value={locationId}>
+                      {location.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </CustomFormField>
@@ -185,7 +193,24 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
             required
             error={form.formState.errors.dateTime?.message}
           >
-            <Input type="datetime-local" {...form.register('dateTime')} />
+            <DateTimePicker
+              date={
+                form.watch('dateTime')
+                  ? typeof form.watch('dateTime') === 'string'
+                    ? new Date(form.watch('dateTime'))
+                    : form.watch('dateTime')
+                  : undefined
+              }
+              onSelect={date => {
+                if (date) {
+                  // Format as ISO string for the API (yyyy-MM-ddTHH:mm format)
+                  form.setValue('dateTime', format(date, "yyyy-MM-dd'T'HH:mm"));
+                } else {
+                  form.setValue('dateTime', '');
+                }
+              }}
+              placeholder="Pick date and time"
+            />
           </CustomFormField>
 
           <CustomFormField
@@ -203,25 +228,28 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
               </CustomFormField>
               <CustomFormField label="Kids" required error={form.formState.errors.kids?.message}>
                 <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-2">
-                  {(kidsData?.data || []).map(kid => (
-                    <div key={kid._id} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={form.watch('kids')?.includes(kid._id) || false}
-                        onCheckedChange={checked => {
-                          const currentKids = form.watch('kids') || [];
-                          if (checked) {
-                            form.setValue('kids', [...currentKids, kid._id]);
-                          } else {
-                            form.setValue(
-                              'kids',
-                              currentKids.filter(id => id !== kid._id)
-                            );
-                          }
-                        }}
-                      />
-                      <label className="text-sm">{kid.name}</label>
-                    </div>
-                  ))}
+                  {(kidsData?.data || []).map(kid => {
+                    const kidId = kid.id || kid._id;
+                    return (
+                      <div key={kidId} className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={form.watch('kids')?.includes(kidId) || false}
+                          onCheckedChange={checked => {
+                            const currentKids = form.watch('kids') || [];
+                            if (checked) {
+                              form.setValue('kids', [...currentKids, kidId]);
+                            } else {
+                              form.setValue(
+                                'kids',
+                                currentKids.filter(id => id !== kidId)
+                              );
+                            }
+                          }}
+                        />
+                        <label className="text-sm">{kid.name}</label>
+                      </div>
+                    );
+                  })}
                 </div>
               </CustomFormField>
             </>
@@ -237,11 +265,14 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                   <SelectValue placeholder="Select kid" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(kidsData?.data || []).map(kid => (
-                    <SelectItem key={kid._id} value={kid._id}>
-                      {kid.name}
-                    </SelectItem>
-                  ))}
+                  {(kidsData?.data || []).map(kid => {
+                    const kidId = kid.id || kid._id;
+                    return (
+                      <SelectItem key={kidId} value={kidId}>
+                        {kid.name}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </CustomFormField>

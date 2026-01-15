@@ -2,20 +2,11 @@ import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
 import { kidsService } from '@/services/kids.service';
-import { usersService } from '@/services/users.service';
-import { Kid, SessionType } from '@grow-fitness/shared-types';
+import { Kid } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { SearchInput } from '@/components/common/SearchInput';
-import { FilterBar } from '@/components/common/FilterBar';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Plus, Pencil, Eye, Link2, Unlink } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
@@ -32,8 +23,6 @@ import { ErrorState } from '@/components/common/ErrorState';
 export function KidsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [, setSearch] = useState('');
-  const [parentIdFilter, setParentIdFilter] = useState<string>('');
-  const [sessionTypeFilter, setSessionTypeFilter] = useState<SessionType | ''>('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
@@ -42,19 +31,9 @@ export function KidsPage() {
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
 
-  const { data: parentsData } = useApiQuery(['users', 'parents', 'all'], () =>
-    usersService.getParents(1, 100)
-  );
-
   const { data, isLoading, error } = useApiQuery(
-    ['kids', page.toString(), pageSize.toString(), parentIdFilter, sessionTypeFilter],
-    () =>
-      kidsService.getKids(
-        page,
-        pageSize,
-        parentIdFilter || undefined,
-        sessionTypeFilter || undefined
-      )
+    ['kids', page.toString(), pageSize.toString()],
+    () => kidsService.getKids(page, pageSize)
   );
 
   const deleteMutation = useApiMutation((id: string) => kidsService.unlinkFromParent(id), {
@@ -167,47 +146,6 @@ export function KidsPage() {
             Add Kid
           </Button>
         </div>
-
-        <FilterBar>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Parent:</label>
-            <Select
-              value={parentIdFilter || 'all'}
-              onValueChange={value => setParentIdFilter(value === 'all' ? '' : value)}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="All parents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All parents</SelectItem>
-                {(parentsData?.data || []).map(parent => (
-                  <SelectItem key={parent._id} value={parent._id}>
-                    {parent.parentProfile?.name || parent.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Session Type:</label>
-            <Select
-              value={sessionTypeFilter || 'all'}
-              onValueChange={value =>
-                setSessionTypeFilter(value === 'all' ? '' : (value as SessionType))
-              }
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                <SelectItem value={SessionType.INDIVIDUAL}>Individual</SelectItem>
-                <SelectItem value={SessionType.GROUP}>Group</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </FilterBar>
 
         {error ? (
           <ErrorState title="Failed to load kids" onRetry={() => window.location.reload()} />
