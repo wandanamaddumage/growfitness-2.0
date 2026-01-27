@@ -143,7 +143,9 @@ export const CreateFreeSessionRequestSchema = z.object({
   email: z.string().email('Invalid email address'),
   kidName: z.string().min(1, 'Kid name is required'),
   sessionType: z.nativeEnum(SessionType),
-  selectedSessionId: z.string().min(1, 'Session ID is required'),
+  selectedSessionId: z.string().optional(),
+  preferredDateTime: z.string().or(z.date()),
+  locationId: z.string().min(1, 'Location ID is required'),
 });
 
 export type CreateFreeSessionRequestDto = z.infer<typeof CreateFreeSessionRequestSchema>;

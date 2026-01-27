@@ -27,6 +27,7 @@ import { UserRole } from '@grow-fitness/shared-types';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 import { RequestStatus } from '@grow-fitness/shared-types';
+import { CreateFreeSessionRequestDto } from '@grow-fitness/shared-schemas';
 
 @ApiTags('requests')
 @ApiBearerAuth('JWT-auth')
@@ -35,6 +36,29 @@ import { RequestStatus } from '@grow-fitness/shared-types';
 @Roles(UserRole.ADMIN)
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
+
+  @Post('free-sessions')
+  @Public()
+  @ApiOperation({ summary: 'Create a free session request' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        parentName: { type: 'string', example: 'John Doe' },
+        phone: { type: 'string', example: '1234567890' },
+        email: { type: 'string', example: 'john@example.com' },
+        kidName: { type: 'string', example: 'Jane Doe' },
+        sessionType: { type: 'string', enum: ['INDIVIDUAL', 'GROUP'] },
+        selectedSessionId: { type: 'string', example: '507f1f77bcf86cd799439011' },
+        locationId: { type: 'string', example: '507f1f77bcf86cd799439011' },
+        preferredDateTime: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Free session request created successfully' })
+  createFreeSessionRequest(@Body() createDto: CreateFreeSessionRequestDto) {
+    return this.requestsService.createFreeSessionRequest(createDto);
+  }
 
   @Get('free-sessions')
   @Public()

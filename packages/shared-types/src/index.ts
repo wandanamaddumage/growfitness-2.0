@@ -133,6 +133,8 @@ export interface FreeSessionRequest {
   kidName: string;
   sessionType: SessionType;
   selectedSessionId?: string;
+  preferredDateTime?: Date;
+  locationId?: string;
   status: RequestStatus;
   createdAt: Date;
 }

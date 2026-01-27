@@ -14,6 +14,9 @@ import {
   ExtraSessionRequestDocument,
 } from '../../infra/database/schemas/extra-session-request.schema';
 import {
+  CreateFreeSessionRequestDto,
+} from '@grow-fitness/shared-schemas';
+import {
   UserRegistrationRequest,
   UserRegistrationRequestDocument,
 } from '../../infra/database/schemas/user-registration-request.schema';
@@ -44,12 +47,26 @@ export class RequestsService {
   ) {}
 
   // Free Session Requests
+  async createFreeSessionRequest(data: CreateFreeSessionRequestDto): Promise<FreeSessionRequest> {
+    const request = new this.freeSessionRequestModel({
+      ...data,
+      selectedSessionId: data.selectedSessionId
+        ? new Types.ObjectId(data.selectedSessionId)
+        : undefined,
+      locationId: new Types.ObjectId(data.locationId),
+      preferredDateTime: new Date(data.preferredDateTime),
+      status: RequestStatus.PENDING,
+    });
+    return request.save();
+  }
+
   async findFreeSessionRequests(pagination: PaginationDto) {
     const skip = (pagination.page - 1) * pagination.limit;
     const [data, total] = await Promise.all([
       this.freeSessionRequestModel
         .find()
         .populate('selectedSessionId')
+        .populate('locationId')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pagination.limit)

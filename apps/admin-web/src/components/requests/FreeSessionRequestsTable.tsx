@@ -61,6 +61,23 @@ export function FreeSessionRequestsTable() {
       header: 'Session Type',
     },
     {
+      accessorKey: 'preferredDateTime',
+      header: 'Preferred Date',
+      cell: ({ row }) => {
+        const date = row.original.preferredDateTime;
+        return date ? formatDate(date) : '-';
+      },
+    },
+    {
+      accessorKey: 'locationId',
+      header: 'Location',
+      cell: ({ row }) => {
+        // Handle both populated object and ID string
+        const location = row.original.locationId as any;
+        return location?.name || location || '-';
+      },
+    },
+    {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
