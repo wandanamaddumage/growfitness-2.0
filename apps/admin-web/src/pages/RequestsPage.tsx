@@ -3,8 +3,16 @@ import { FreeSessionRequestsTable } from '@/components/requests/FreeSessionReque
 import { RescheduleRequestsTable } from '@/components/requests/RescheduleRequestsTable';
 import { ExtraSessionRequestsTable } from '@/components/requests/ExtraSessionRequestsTable';
 import { UserRequestsTable } from '@/components/requests/UserRequestsTable';
+import { useSearchParams } from 'react-router-dom';
 
 export function RequestsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'free-sessions';
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -14,7 +22,7 @@ export function RequestsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="free-sessions" className="space-y-4">
+      <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
           <TabsTrigger value="free-sessions">Free Sessions</TabsTrigger>
           <TabsTrigger value="reschedule">Reschedule</TabsTrigger>
