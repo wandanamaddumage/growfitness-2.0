@@ -1,0 +1,204 @@
+/* src/index.css */
+
+/* ------------------- */
+/* Tailwind Directives  */
+/* ------------------- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------- */
+/* Custom Font Declarations */
+/* ------------------- */
+@font-face {
+  font-family: 'Insanibc';
+  src: url('./assets/fonts/Insanibc.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Now-Regular';
+  src: url('./assets/fonts/Now-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------- */
+/* CSS Variables / Theme */
+/* ------------------- */
+:root {
+  font-family: 'Now-Regular', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1f2937;
+  background-color: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --radius: 0.625rem;
+
+  /* Grow Colors */
+  --grow-50: #f0fdf4;
+  --grow-100: #dcfce7;
+  --grow-200: #bbf7d0;
+  --grow-300: #86efac;
+  --grow-400: #4ade80;
+  --grow-500: #22c55e;
+  --grow-600: #16a34a;
+  --grow-700: #15803d;
+  --grow-800: #166534;
+  --grow-900: #14532d;
+  --grow-950: #052e16;
+
+  /* Sidebar colors */
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #1f2937;
+  --sidebar-primary: #16a34a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0fdf4;
+  --sidebar-accent-foreground: #15803d;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #16a34a;
+}
+
+/* ------------------- */
+/* Global Element Styles */
+/* ------------------- */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Insanibc', system-ui, Arial, sans-serif;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+a {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #15803d;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: 'Now-Regular', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #f9faf9;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: var(--primary);
+}
+
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
+/* ------------------- */
+/* Tailwind Base Layer Overrides */
+/* ------------------- */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Now-Regular', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Insanibc', system-ui, sans-serif;
+  }
+
+  a {
+    color: var(--primary);
+  }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 213 25% 27%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+    --primary: 147 47% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 120 48% 97%;
+    --secondary-foreground: 147 47% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 60 100% 75%;
+    --accent-foreground: 213 25% 27%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 11% 91%;
+    --input: 220 12% 98%;
+    --ring: 147 47% 45%;
+    --chart-1: 147 47% 45%;
+    --chart-2: 147 50% 42%;
+    --chart-3: 84 76% 53%;
+    --chart-4: 60 100% 75%;
+    --chart-5: 147 59% 29%;
+    --radius: 0.625rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
