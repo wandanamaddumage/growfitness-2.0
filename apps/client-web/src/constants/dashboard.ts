@@ -18,7 +18,7 @@ import {
 // Coach Tabs
 export const coachTabs = [
   { id: 'overview', label: 'Overview', icon: Home },
-  { id: 'students', label: 'Students', icon: User },
+  { id: 'kids', label: 'kids', icon: User },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'invoice', label: 'Invoice', icon: TrendingUp },
 ];
