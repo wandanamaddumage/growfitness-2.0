@@ -13,6 +13,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
+  ApiOkResponse,
   ApiBearerAuth,
   ApiQuery,
   ApiBody,
@@ -24,9 +25,9 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole, SessionStatus } from '@grow-fitness/shared-types';
 import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 import { GetSessionsQueryDto } from './dto/get-sessions-query.dto';
+import { SessionResponseDto, PaginatedSessionResponseDto } from './dto/session-response.dto';
 
 @ApiTags('sessions')
 @ApiBearerAuth('JWT-auth')
@@ -38,29 +39,21 @@ export class SessionsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all sessions' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number (default: 1)',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Items per page (default: 10, max: 100)',
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 10, max: 100)' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search string' })
   @ApiQuery({ name: 'coachId', required: false, type: String, description: 'Filter by coach ID' })
+  @ApiQuery({ name: 'locationId', required: false, type: String, description: 'Filter by location ID' })
   @ApiQuery({
-    name: 'locationId',
+    name: 'kidId',
     required: false,
     type: String,
-    description: 'Filter by location ID',
+    description: 'Filter by kid ID (sessions that include this kid)',
   })
   @ApiQuery({
     name: 'status',
     required: false,
-    enum: ['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'],
+    enum: SessionStatus,
     description: 'Filter by session status',
   })
   @ApiQuery({
@@ -75,14 +68,19 @@ export class SessionsController {
     type: String,
     description: 'Filter sessions until this date (ISO format)',
   })
-  @ApiResponse({ status: 200, description: 'List of sessions' })
+  @ApiOkResponse({
+    description: 'Paginated list of sessions. Each session includes coachId/locationId as IDs and optional coach/location when expanded.',
+    type: PaginatedSessionResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Validation error (e.g. invalid query params)' })
   findAll(@Query() query: GetSessionsQueryDto) {
-    const { page, limit, search, coachId, locationId, status, startDate, endDate } = query;
+    const { page, limit, search, coachId, locationId, kidId, status, startDate, endDate } = query;
     return this.sessionsService.findAll(
       { page, limit, search },
       {
         coachId,
         locationId,
+        kidId,
         status,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
@@ -92,7 +90,10 @@ export class SessionsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get session by ID' })
-  @ApiResponse({ status: 200, description: 'Session details' })
+  @ApiOkResponse({
+    description: 'Session details with optional coach/location populated.',
+    type: SessionResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Session not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
   findById(@Param('id', ObjectIdValidationPipe) id: string) {
@@ -138,7 +139,11 @@ export class SessionsController {
       required: ['type', 'coachId', 'locationId', 'dateTime', 'duration', 'kids'],
     },
   })
-  @ApiResponse({ status: 201, description: 'Session created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Session created successfully. Returns session with optional coach/location populated.',
+    type: SessionResponseDto,
+  })
   create(@Body() createSessionDto: CreateSessionDto, @CurrentUser('sub') actorId: string) {
     return this.sessionsService.create(createSessionDto, actorId);
   }
@@ -167,7 +172,10 @@ export class SessionsController {
       },
     },
   })
-  @ApiResponse({ status: 200, description: 'Session updated successfully' })
+  @ApiOkResponse({
+    description: 'Session updated. Returns session with optional coach/location populated.',
+    type: SessionResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Session not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
   update(

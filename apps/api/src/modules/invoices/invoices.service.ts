@@ -53,11 +53,13 @@ export class InvoicesService {
         .sort({ dueDate: 1 })
         .skip(skip)
         .limit(pagination.limit)
+        .lean()
         .exec(),
       this.invoiceModel.countDocuments(query).exec(),
     ]);
 
-    return new PaginatedResponseDto(data, total, pagination.page, pagination.limit);
+    const transformedData = (data as any[]).map(inv => this.toInvoiceResponse(inv));
+    return new PaginatedResponseDto(transformedData, total, pagination.page, pagination.limit);
   }
 
   async findById(id: string) {
@@ -65,6 +67,7 @@ export class InvoicesService {
       .findById(id)
       .populate('parentId', 'email parentProfile')
       .populate('coachId', 'email coachProfile')
+      .lean()
       .exec();
 
     if (!invoice) {
@@ -74,7 +77,48 @@ export class InvoicesService {
       });
     }
 
-    return invoice;
+    return this.toInvoiceResponse(invoice as any);
+  }
+
+  /**
+   * Normalize invoice document: keep parentId/coachId as string IDs and expose
+   * populated refs as parent and coach.
+   */
+  private toInvoiceResponse(inv: any) {
+    const parentIdVal = inv.parentId?._id ?? inv.parentId;
+    const coachIdVal = inv.coachId?._id ?? inv.coachId;
+    const parent =
+      inv.parentId && typeof inv.parentId === 'object'
+        ? {
+            id: inv.parentId._id?.toString(),
+            email: inv.parentId.email,
+            parentProfile: inv.parentId.parentProfile,
+          }
+        : undefined;
+    const coach =
+      inv.coachId && typeof inv.coachId === 'object'
+        ? {
+            id: inv.coachId._id?.toString(),
+            email: inv.coachId.email,
+            coachProfile: inv.coachId.coachProfile,
+          }
+        : undefined;
+    return {
+      id: inv._id?.toString(),
+      type: inv.type,
+      parentId: parentIdVal != null ? parentIdVal.toString() : undefined,
+      coachId: coachIdVal != null ? coachIdVal.toString() : undefined,
+      parent,
+      coach,
+      items: inv.items,
+      totalAmount: inv.totalAmount,
+      status: inv.status,
+      dueDate: inv.dueDate,
+      paidAt: inv.paidAt,
+      exportFields: inv.exportFields,
+      createdAt: inv.createdAt,
+      updatedAt: inv.updatedAt,
+    };
   }
 
   async create(createInvoiceDto: CreateInvoiceDto, actorId: string) {
@@ -97,7 +141,7 @@ export class InvoicesService {
       metadata: createInvoiceDto,
     });
 
-    return invoice;
+    return this.findById(invoice._id.toString());
   }
 
   async updatePaymentStatus(id: string, updateDto: UpdateInvoicePaymentStatusDto, actorId: string) {
@@ -134,7 +178,7 @@ export class InvoicesService {
       metadata: updateDto,
     });
 
-    return invoice;
+    return this.findById(id);
   }
 
   async getFinanceSummary() {

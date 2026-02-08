@@ -110,11 +110,31 @@ export interface Kid {
   updatedAt: Date;
 }
 
+/** Populated coach reference (when coachId is expanded) */
+export interface SessionCoachRef {
+  id: string;
+  email: string;
+  coachProfile?: CoachProfile;
+}
+
+/** Populated location reference (when locationId is expanded) */
+export interface SessionLocationRef {
+  id: string;
+  name: string;
+  address: string;
+  geo?: { lat: number; lng: number };
+  isActive: boolean;
+}
+
 export interface Session {
   id: string;
   type: SessionType;
   coachId: string;
   locationId: string;
+  /** Populated when API expands coachId */
+  coach?: SessionCoachRef;
+  /** Populated when API expands locationId */
+  location?: SessionLocationRef;
   dateTime: Date;
   duration: number; // minutes
   capacity: number;
@@ -172,11 +192,29 @@ export interface UserRegistrationRequest {
   processedBy?: string;
 }
 
+/** Populated parent reference (when parentId is expanded) */
+export interface InvoiceParentRef {
+  id: string;
+  email: string;
+  parentProfile?: ParentProfile;
+}
+
+/** Populated coach reference (when coachId is expanded) */
+export interface InvoiceCoachRef {
+  id: string;
+  email: string;
+  coachProfile?: CoachProfile;
+}
+
 export interface Invoice {
   id: string;
   type: InvoiceType;
   parentId?: string;
   coachId?: string;
+  /** Populated when API expands parentId */
+  parent?: InvoiceParentRef;
+  /** Populated when API expands coachId */
+  coach?: InvoiceCoachRef;
   items: InvoiceItem[];
   totalAmount: number;
   status: InvoiceStatus;

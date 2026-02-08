@@ -3,6 +3,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
+  ApiOkResponse,
   ApiBearerAuth,
   ApiQuery,
   ApiBody,
@@ -15,7 +16,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { CreateInvoiceDto, UpdateInvoicePaymentStatusDto } from '@grow-fitness/shared-schemas';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { GetInvoicesQueryDto } from './dto/get-invoices-query.dto';
+import { InvoiceResponseDto, PaginatedInvoiceResponseDto } from './dto/invoice-response.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 
 @ApiTags('invoices')
@@ -28,46 +30,25 @@ export class InvoicesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all invoices' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number (default: 1)',
+  @ApiOkResponse({
+    description: 'Paginated list of invoices. Each invoice includes parentId/coachId as IDs and optional parent/coach when expanded.',
+    type: PaginatedInvoiceResponseDto,
   })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Items per page (default: 10, max: 100)',
-  })
-  @ApiQuery({
-    name: 'type',
-    required: false,
-    enum: ['PARENT_INVOICE', 'COACH_PAYOUT'],
-    description: 'Filter by invoice type',
-  })
-  @ApiQuery({ name: 'parentId', required: false, type: String, description: 'Filter by parent ID' })
-  @ApiQuery({ name: 'coachId', required: false, type: String, description: 'Filter by coach ID' })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ['PENDING', 'PAID', 'OVERDUE'],
-    description: 'Filter by invoice status',
-  })
-  @ApiResponse({ status: 200, description: 'List of invoices' })
-  findAll(
-    @Query() pagination: PaginationDto,
-    @Query('type') type?: InvoiceType,
-    @Query('parentId') parentId?: string,
-    @Query('coachId') coachId?: string,
-    @Query('status') status?: InvoiceStatus
-  ) {
-    return this.invoicesService.findAll(pagination, { type, parentId, coachId, status });
+  @ApiResponse({ status: 400, description: 'Validation error (e.g. invalid query params)' })
+  findAll(@Query() query: GetInvoicesQueryDto) {
+    const { page, limit, type, parentId, coachId, status } = query;
+    return this.invoicesService.findAll(
+      { page, limit },
+      { type, parentId, coachId, status }
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get invoice by ID' })
-  @ApiResponse({ status: 200, description: 'Invoice details' })
+  @ApiOkResponse({
+    description: 'Invoice details with optional parent/coach populated.',
+    type: InvoiceResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Invoice not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
   findById(@Param('id', ObjectIdValidationPipe) id: string) {
@@ -131,7 +112,11 @@ export class InvoicesController {
       required: ['type', 'items', 'dueDate'],
     },
   })
-  @ApiResponse({ status: 201, description: 'Invoice created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Invoice created successfully. Returns invoice with optional parent/coach populated.',
+    type: InvoiceResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 404, description: 'Parent or Coach not found' })
   create(@Body() createInvoiceDto: CreateInvoiceDto, @CurrentUser('sub') actorId: string) {
@@ -160,7 +145,10 @@ export class InvoicesController {
       required: ['status'],
     },
   })
-  @ApiResponse({ status: 200, description: 'Payment status updated successfully' })
+  @ApiOkResponse({
+    description: 'Payment status updated. Returns invoice with optional parent/coach populated.',
+    type: InvoiceResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Invoice not found' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   updatePaymentStatus(

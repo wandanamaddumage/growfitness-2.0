@@ -35,6 +35,7 @@ export class SessionsService {
     filters?: {
       coachId?: string;
       locationId?: string;
+      kidId?: string;
       status?: SessionStatus;
       startDate?: Date;
       endDate?: Date;
@@ -48,6 +49,10 @@ export class SessionsService {
 
     if (filters?.locationId) {
       query.locationId = this.toObjectId(filters.locationId, 'locationId');
+    }
+
+    if (filters?.kidId?.trim()) {
+      query.kids = this.toObjectId(filters.kidId.trim(), 'kidId');
     }
 
     if (filters?.status) {
@@ -75,11 +80,13 @@ export class SessionsService {
         .sort({ dateTime: 1 })
         .skip(skip)
         .limit(pagination.limit)
+        .lean()
         .exec(),
       this.sessionModel.countDocuments(query).exec(),
     ]);
 
-    return new PaginatedResponseDto(data, total, pagination.page, pagination.limit);
+    const transformedData = (data as any[]).map(s => this.toSessionResponse(s));
+    return new PaginatedResponseDto(transformedData, total, pagination.page, pagination.limit);
   }
 
   async findById(id: string) {
@@ -88,6 +95,7 @@ export class SessionsService {
       .populate('coachId', 'email coachProfile')
       .populate('locationId')
       .populate('kids')
+      .lean()
       .exec();
 
     if (!session) {
@@ -97,7 +105,53 @@ export class SessionsService {
       });
     }
 
-    return session;
+    return this.toSessionResponse(session as any);
+  }
+
+  /**
+   * Normalize session document: keep coachId/locationId as string IDs and expose
+   * populated refs as coach and location.
+   */
+  private toSessionResponse(s: any) {
+    const coachIdVal = s.coachId?._id ?? s.coachId;
+    const locationIdVal = s.locationId?._id ?? s.locationId;
+    const coach =
+      s.coachId && typeof s.coachId === 'object'
+        ? {
+            id: s.coachId._id?.toString(),
+            email: s.coachId.email,
+            coachProfile: s.coachId.coachProfile,
+          }
+        : undefined;
+    const location =
+      s.locationId && typeof s.locationId === 'object'
+        ? {
+            id: s.locationId._id?.toString(),
+            name: s.locationId.name,
+            address: s.locationId.address,
+            geo: s.locationId.geo,
+            isActive: s.locationId.isActive,
+          }
+        : undefined;
+    const kids = Array.isArray(s.kids)
+      ? s.kids.map((k: any) => (k && typeof k === 'object' && k._id ? k._id.toString() : k?.toString?.() ?? k))
+      : undefined;
+    return {
+      id: s._id?.toString(),
+      type: s.type,
+      coachId: coachIdVal != null ? coachIdVal.toString() : undefined,
+      locationId: locationIdVal != null ? locationIdVal.toString() : undefined,
+      coach,
+      location,
+      dateTime: s.dateTime,
+      duration: s.duration,
+      capacity: s.capacity,
+      kids,
+      status: s.status,
+      isFreeSession: s.isFreeSession,
+      createdAt: s.createdAt,
+      updatedAt: s.updatedAt,
+    };
   }
 
   async create(createSessionDto: CreateSessionDto, actorId: string) {
@@ -140,13 +194,6 @@ export class SessionsService {
 
     await session.save();
 
-    const createdSession = await this.sessionModel
-      .findById(session._id)
-      .populate('coachId', 'email coachProfile')
-      .populate('locationId')
-      .populate('kids')
-      .exec();
-
     await this.auditService.log({
       actorId,
       action: 'CREATE_SESSION',
@@ -155,7 +202,7 @@ export class SessionsService {
       metadata: createSessionDto,
     });
 
-    return createdSession ?? session;
+    return this.findById(session._id.toString());
   }
 
   async update(id: string, updateSessionDto: UpdateSessionDto, actorId: string) {
@@ -212,13 +259,6 @@ export class SessionsService {
 
     await session.save();
 
-    const updatedSession = await this.sessionModel
-      .findById(id)
-      .populate('coachId', 'email coachProfile')
-      .populate('locationId')
-      .populate('kids')
-      .exec();
-
     await this.auditService.log({
       actorId,
       action: 'UPDATE_SESSION',
@@ -227,7 +267,7 @@ export class SessionsService {
       metadata: updateSessionDto,
     });
 
-    return updatedSession ?? session;
+    return this.findById(id);
   }
 
   async findByDateRange(startDate: Date, endDate: Date) {
