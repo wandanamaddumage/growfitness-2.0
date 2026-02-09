@@ -267,5 +267,5 @@
 // }
 
 export default function BookSessionModal() {
-  return <div>BookSessionModal</div>;
+  return <div></div>;
 }

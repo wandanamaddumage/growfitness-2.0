@@ -212,43 +212,52 @@ export default function SessionDetailsDialog({ open, onClose, session: sessionPr
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
-        <div className="flex flex-col flex-1 min-h-0">
-          {/* Header */}
-          <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-            <div className="flex items-center gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">{formatSessionType(displaySession.type)} Session</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-sm text-muted-foreground">{formatDateTime(displaySession.dateTime)}</p>
-                  <StatusBadge status={displaySession.status} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  Created {new Date(displaySession.createdAt).toLocaleDateString()}
+      <DialogContent className="max-w-[95vw] sm:max-w-[90vw] lg:max-w-6xl h-[90vh] p-0 flex flex-col overflow-hidden">
+        {/* Header - Fixed */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-2xl font-semibold truncate">
+                {formatSessionType(displaySession.type)} Session
+              </h2>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  {formatDateTime(displaySession.dateTime)}
                 </p>
+                <StatusBadge status={displaySession.status} />
               </div>
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Calendar className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">
+                  Created {new Date(displaySession.createdAt).toLocaleDateString()}
+                </span>
+              </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            {/* Left Sidebar */}
-            <div className="w-80 border-r bg-muted/20 p-6 overflow-y-auto min-h-0">
+        {/* Content - Scrollable */}
+        <div className="flex flex-1 min-h-0 overflow-hidden flex-col lg:flex-row">
+          {/* Left Sidebar - Scrollable on mobile, fixed height on desktop */}
+          <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r bg-muted/20 overflow-y-auto flex-shrink-0">
+            <div className="p-4 sm:p-6">
               {/* Session Info Section */}
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-sm">Session Info</h3>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                     {displaySession.type === SessionType.GROUP ? (
-                      <Users className="h-8 w-8 text-primary" />
+                      <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                     ) : (
-                      <User className="h-8 w-8 text-primary" />
+                      <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{formatSessionType(displaySession.type)}</p>
+                    <p className="font-medium text-sm truncate">
+                      {formatSessionType(displaySession.type)}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-0.5">Training Session</p>
                   </div>
                 </div>
@@ -261,26 +270,28 @@ export default function SessionDetailsDialog({ open, onClose, session: sessionPr
                 <h3 className="font-semibold text-sm">Details</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <span className="text-muted-foreground">Duration</span>
-                      <p className="font-medium">{displaySession.duration} minutes</p>
+                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-muted-foreground block text-xs">Duration</span>
+                      <p className="font-medium truncate">{displaySession.duration} minutes</p>
                     </div>
                   </div>
                   {isGroupSession && capacity > 0 && (
                     <div className="flex items-center gap-2 text-sm">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex-1">
-                        <span className="text-muted-foreground">Capacity</span>
-                        <p className="font-medium">{enrolled} / {capacity}</p>
+                      <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-muted-foreground block text-xs">Capacity</span>
+                        <p className="font-medium truncate">{enrolled} / {capacity}</p>
                       </div>
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <span className="text-muted-foreground">Date & Time</span>
-                      <p className="font-medium">{formatDateTime(displaySession.dateTime)}</p>
+                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-muted-foreground block text-xs">Date & Time</span>
+                      <p className="font-medium text-xs sm:text-sm break-words">
+                        {formatDateTime(displaySession.dateTime)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -292,202 +303,214 @@ export default function SessionDetailsDialog({ open, onClose, session: sessionPr
               <div className="space-y-4">
                 <h3 className="font-semibold text-sm">Highlights</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm gap-2">
                     <span className="text-muted-foreground">Type</span>
-                    <Badge variant="outline">{formatSessionType(displaySession.type)}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {formatSessionType(displaySession.type)}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm gap-2">
                     <span className="text-muted-foreground">Status</span>
                     <StatusBadge status={displaySession.status} />
                   </div>
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm gap-2">
                     <span className="text-muted-foreground">Free Session</span>
-                    <span className="text-muted-foreground">{displaySession.isFreeSession ? 'Yes' : 'No'}</span>
+                    <span className="text-muted-foreground text-xs sm:text-sm">
+                      {displaySession.isFreeSession ? 'Yes' : 'No'}
+                    </span>
                   </div>
                   {isGroupSession && (
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm gap-2">
                       <span className="text-muted-foreground">Enrolled</span>
-                      <span className="text-muted-foreground">{enrolled} kids</span>
+                      <span className="text-muted-foreground text-xs sm:text-sm">
+                        {enrolled} kids
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Right Main Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p className="text-sm text-muted-foreground">Loading...</p>
-                </div>
-              ) : (
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="kids">
-                      Kids {totalKids > 0 && `(${totalKids})`}
-                    </TabsTrigger>
-                  </TabsList>
+          {/* Right Main Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <p className="text-sm text-muted-foreground">Loading...</p>
+              </div>
+            ) : (
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="w-full sm:w-auto">
+                  <TabsTrigger value="overview" className="flex-1 sm:flex-none">
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="kids" className="flex-1 sm:flex-none">
+                    Kids {totalKids > 0 && `(${totalKids})`}
+                  </TabsTrigger>
+                </TabsList>
 
-                  <TabsContent value="overview" className="mt-6 space-y-6">
-                    {/* Session Details */}
-                    <div>
-                      <h3 className="font-semibold mb-3">Session Information</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Date & Time</h4>
-                          <p className="text-sm">{formatDateTime(displaySession.dateTime)}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Coach</h4>
-                          <p className="text-sm">{coachName}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Location</h4>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm">{locationName}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Type</h4>
-                          <Badge variant="outline">{formatSessionType(displaySession.type)}</Badge>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Duration</h4>
-                          <p className="text-sm">{displaySession.duration} minutes</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Status</h4>
-                          <StatusBadge status={displaySession.status} />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Free Session</h4>
-                          <p className="text-sm">{displaySession.isFreeSession ? 'Yes' : 'No'}</p>
-                        </div>
-                        {isGroupSession && capacity > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Capacity</h4>
-                            <p className="text-sm">{enrolled} / {capacity}</p>
-                          </div>
-                        )}
+                <TabsContent value="overview" className="mt-6 space-y-6">
+                  {/* Session Details */}
+                  <div>
+                    <h3 className="font-semibold mb-3 text-base sm:text-lg">Session Information</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Date & Time</h4>
+                        <p className="text-sm break-words">{formatDateTime(displaySession.dateTime)}</p>
                       </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Coach</h4>
+                        <p className="text-sm break-words">{coachName}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Location</h4>
+                        <div className="flex items-start gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <p className="text-sm break-words flex-1">{locationName}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Type</h4>
+                        <Badge variant="outline">{formatSessionType(displaySession.type)}</Badge>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Duration</h4>
+                        <p className="text-sm">{displaySession.duration} minutes</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Status</h4>
+                        <StatusBadge status={displaySession.status} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-1">Free Session</h4>
+                        <p className="text-sm">{displaySession.isFreeSession ? 'Yes' : 'No'}</p>
+                      </div>
+                      {isGroupSession && capacity > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Capacity</h4>
+                          <p className="text-sm">{enrolled} / {capacity}</p>
+                        </div>
+                      )}
                     </div>
-                  </TabsContent>
+                  </div>
+                </TabsContent>
 
-                  <TabsContent value="kids" className="mt-6">
-                    {totalKids === 0 ? (
-                      <div className="text-center py-12">
-                        <Baby className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-sm text-muted-foreground">No kids enrolled in this session</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {kids.map((kidOrId) => {
-                          // Handle case where kid is either a string ID or a Kid object
+                <TabsContent value="kids" className="mt-6">
+                  {totalKids === 0 ? (
+                    <div className="text-center py-12">
+                      <Baby className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground">No kids enrolled in this session</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                      {kids.map((kidOrId) => {
+                        // Handle case where kid is either a string ID or a Kid object
                         const kid: Kid = typeof kidOrId === 'string' 
-                        ? { 
-                            id: kidOrId, 
-                            parentId: '', // Provide a default value
-                            name: 'Loading...',
-                            gender: 'other', // Default or empty string based on your needs
-                            birthDate: new Date(), // Default to current date or another sensible default
-                            currentlyInSports: false,
-                            medicalConditions: [],
-                            sessionType: 'GROUP' as SessionType, // Default session type
-                            achievements: [],
-                            createdAt: new Date(),
-                            updatedAt: new Date()
-                          }
-                        : kidOrId;
+                          ? { 
+                              id: kidOrId, 
+                              parentId: '',
+                              name: 'Loading...',
+                              gender: 'other',
+                              birthDate: new Date(),
+                              currentlyInSports: false,
+                              medicalConditions: [],
+                              sessionType: 'GROUP' as SessionType,
+                              achievements: [],
+                              createdAt: new Date(),
+                              updatedAt: new Date()
+                            }
+                          : kidOrId;
 
-                          return (
-                            <Card key={kid.id} className="overflow-hidden">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <CardTitle className="text-lg flex items-center gap-2">
-                                    <Baby className="h-4 w-4" />
-                                    {kid.name}
-                                  </CardTitle>
-                                  {kid.gender && (
-                                    <Badge variant="outline">{kid.gender}</Badge>
-                                  )}
+                        return (
+                          <Card key={kid.id} className="overflow-hidden">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-start justify-between gap-2">
+                                <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
+                                  <Baby className="h-4 w-4 flex-shrink-0" />
+                                  <span className="truncate">{kid.name}</span>
+                                </CardTitle>
+                                {kid.gender && (
+                                  <Badge variant="outline" className="text-xs flex-shrink-0">
+                                    {kid.gender}
+                                  </Badge>
+                                )}
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div className="min-w-0">
+                                  <p className="text-muted-foreground text-xs">Birth Date</p>
+                                  <p className="font-medium text-xs sm:text-sm truncate">
+                                    {kid.birthDate ? new Date(kid.birthDate).toLocaleDateString() : 'N/A'}
+                                  </p>
                                 </div>
-                              </CardHeader>
-                              <CardContent className="space-y-3">
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                  <div>
-                                    <p className="text-muted-foreground text-xs">Birth Date</p>
-                                    <p className="font-medium">
-                                      {kid.birthDate ? new Date(kid.birthDate).toLocaleDateString() : 'N/A'}
+                                {kid.goal && (
+                                  <div className="col-span-2 min-w-0">
+                                    <p className="text-muted-foreground text-xs">Goal</p>
+                                    <p className="font-medium text-xs sm:text-sm break-words">
+                                      {kid.goal}
                                     </p>
                                   </div>
-                                  {kid.goal && (
-                                    <div className="col-span-2">
-                                      <p className="text-muted-foreground text-xs">Goal</p>
-                                      <p className="font-medium">{kid.goal}</p>
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="flex items-center gap-4 pt-2 border-t">
-                                  <div className="flex items-center gap-2">
-                                    <Activity
-                                      className={`h-4 w-4 ${
-                                        kid.currentlyInSports
-                                          ? 'text-green-600'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    />
-                                    <span className="text-xs text-muted-foreground">
-                                      {kid.currentlyInSports ? 'In Sports' : 'Not in Sports'}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {kid.medicalConditions && kid.medicalConditions.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
-                                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground mb-1">
-                                        Medical Conditions
-                                      </p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {kid.medicalConditions.map((condition: string, idx: number) => (
-                                          <Badge key={idx} variant="secondary" className="text-xs">
-                                            {condition}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
                                 )}
+                              </div>
 
-                                {kid.achievements && kid.achievements.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
-                                    <Award className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground mb-1">Achievements</p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {kid.achievements.map((achievement: string, idx: number) => (
-                                          <Badge key={idx} variant="outline" className="text-xs">
-                                            {achievement}
-                                          </Badge>
-                                        ))}
-                                      </div>
+                              <div className="flex items-center gap-4 pt-2 border-t">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Activity
+                                    className={`h-4 w-4 flex-shrink-0 ${
+                                      kid.currentlyInSports
+                                        ? 'text-green-600'
+                                        : 'text-muted-foreground'
+                                    }`}
+                                  />
+                                  <span className="text-xs text-muted-foreground truncate">
+                                    {kid.currentlyInSports ? 'In Sports' : 'Not in Sports'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {kid.medicalConditions && kid.medicalConditions.length > 0 && (
+                                <div className="flex items-start gap-2 pt-2 border-t">
+                                  <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-muted-foreground mb-1">
+                                      Medical Conditions
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {kid.medicalConditions.map((condition: string, idx: number) => (
+                                        <Badge key={idx} variant="secondary" className="text-xs">
+                                          {condition}
+                                        </Badge>
+                                      ))}
                                     </div>
                                   </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              )}
-            </div>
+                                </div>
+                              )}
+
+                              {kid.achievements && kid.achievements.length > 0 && (
+                                <div className="flex items-start gap-2 pt-2 border-t">
+                                  <Award className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-muted-foreground mb-1">Achievements</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {kid.achievements.map((achievement: string, idx: number) => (
+                                        <Badge key={idx} variant="outline" className="text-xs">
+                                          {achievement}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            )}
           </div>
         </div>
       </DialogContent>
