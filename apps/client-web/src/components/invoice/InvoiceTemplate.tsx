@@ -16,6 +16,13 @@ interface InvoiceTemplateProps {
         'name'
       >;
     };
+    coach?: Pick<User, 'email'> & {
+      coachProfile?: Pick<
+        NonNullable<User['coachProfile']>,
+        'name'
+      >;
+    };
+    kidName?: string;
   };
 }
 
@@ -70,15 +77,46 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
           value={formatInvoiceType(invoice.type)}
         />
 
-        <Meta
-          icon={<UserIcon className="h-4 w-4" />}
-          label="Billed To"
-          value={
-            invoice.parent?.parentProfile?.name ??
-            'Unknown Parent'
-          }
-          subValue={invoice.parent?.email}
-        />
+        {invoice.type === 'PARENT_INVOICE' ? (
+          <div className="space-y-2">
+            <div className="flex items-start gap-2 text-xs text-gray-500 font-medium">
+              <UserIcon className="h-4 w-4 mt-0.5" />
+              <span>Billed To</span>
+            </div>
+            <div>
+              <p className="text-[15px] font-semibold text-gray-900">
+                {invoice.parent?.parentProfile?.name || 'Unknown Parent'}
+              </p>
+              {invoice.kidName && (
+                <p className="text-sm text-gray-700 mt-1">
+                  For: {invoice.kidName}
+                </p>
+              )}
+              {invoice.parent?.email && (
+                <p className="text-sm text-gray-500">
+                  {invoice.parent.email}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-start gap-2 text-xs text-gray-500 font-medium">
+              <UserIcon className="h-4 w-4 mt-0.5" />
+              <span>Coach</span>
+            </div>
+            <div>
+              <p className="text-[15px] font-semibold text-gray-900">
+                {invoice.coach?.coachProfile?.name || 'Unknown Coach'}
+              </p>
+              {invoice.coach?.email && (
+                <p className="text-sm text-gray-500">
+                  {invoice.coach.email}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2">
           <div className="flex items-start gap-2 text-xs text-gray-500 font-medium">
