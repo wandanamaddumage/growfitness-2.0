@@ -186,7 +186,7 @@ export default function ProfilePage() {
                 <Label className="flex items-center gap-2 text-muted-foreground">
                   <User className="h-4 w-4" /> Status
                 </Label>
-                <Input disabled value={user.status} />
+                <Input disabled value={user.status ?? "ACTIVE"} />
               </div>
             </div>
 
