@@ -6,9 +6,9 @@ import { TabsContent } from "../ui/tabs";
 import { getTabsForUser } from "@/constants/dashboard";
 import { UserRole } from "@grow-fitness/shared-types";
 import { OverviewTab } from "./OverviewTab";
-import KidsTab from "./KidsTab";
 import ScheduleTab from "./ScheduleTab";
 import { Payments } from "@/pages/Payments";
+import SessionsTab from "./KidsTab";
 
 export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -20,7 +20,7 @@ export default function ClientDashboard() {
 
   const tabComponents: Record<string, JSX.Element> = {
     overview: <OverviewTab />,
-    kids: <KidsTab />,
+    sessions: <SessionsTab />,
     schedule: <ScheduleTab/>,
     invoice: <Payments />,
   };
