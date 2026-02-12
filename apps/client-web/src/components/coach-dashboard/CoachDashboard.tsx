@@ -7,7 +7,6 @@ import { getTabsForUser } from "@/constants/dashboard";
 import { UserRole } from "@grow-fitness/shared-types";
 import { OverviewTab } from "./OverviewTab";
 import ScheduleTab from "./ScheduleTab";
-import { Payments } from "@/pages/Payments";
 import SessionsTab from "./KidsTab";
 
 export default function ClientDashboard() {
@@ -22,11 +21,10 @@ export default function ClientDashboard() {
     overview: <OverviewTab />,
     sessions: <SessionsTab />,
     schedule: <ScheduleTab/>,
-    invoice: <Payments />,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <DesktopTabs
         activeTab={activeTab}
         onTabChange={setActiveTab}

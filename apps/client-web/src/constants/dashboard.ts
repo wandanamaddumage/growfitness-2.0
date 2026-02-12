@@ -2,7 +2,6 @@ import {
   Calendar,
   Home,
   MessageCircle,
-  TrendingUp,
   User,
   Plus,
   Users,
@@ -20,7 +19,6 @@ export const coachTabs = [
   { id: 'overview', label: 'Overview', icon: Home },
   { id: 'sessions', label: 'Sessions', icon: User },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
-  { id: 'invoice', label: 'Invoice', icon: TrendingUp },
 ];
 
 // Parent Tabs (Individual Kid)
