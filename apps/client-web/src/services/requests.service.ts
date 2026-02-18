@@ -7,7 +7,6 @@ import type {
 } from '@grow-fitness/shared-types';
 
 export const requestsService = {
-  // Free Session Requests
   createFreeSessionRequest: (data: { selectedSessionId?: string }) =>
     api.post<FreeSessionRequest>('/requests/free-sessions', data),
   getFreeSessionRequests: (page: number = 1, limit: number = 10) =>
@@ -20,6 +19,8 @@ export const requestsService = {
     api.patch<FreeSessionRequest>(`/requests/free-sessions/${id}`, data),
 
   // Reschedule Requests
+  createRescheduleRequest: (data: { sessionId?: string }) =>
+    api.post<RescheduleRequest>('/requests/reschedules', data),
   getRescheduleRequests: (page: number = 1, limit: number = 10) =>
     api.get<PaginatedResponse<RescheduleRequest>>(
       `/requests/reschedules?page=${page}&limit=${limit}`
@@ -30,6 +31,15 @@ export const requestsService = {
     api.post<RescheduleRequest>(`/requests/reschedules/${id}/deny`),
 
   // Extra Session Requests
+  createExtraSessionRequest: (data: {
+    parentId: string;
+    kidId: string;
+    coachId: string;
+    sessionType: string;
+    locationId: string;
+    preferredDateTime: string;
+  }) =>
+    api.post<ExtraSessionRequest>('/requests/extra-sessions', data),
   getExtraSessionRequests: (page: number = 1, limit: number = 10) =>
     api.get<PaginatedResponse<ExtraSessionRequest>>(
       `/requests/extra-sessions?page=${page}&limit=${limit}`

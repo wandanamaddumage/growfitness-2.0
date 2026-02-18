@@ -8,6 +8,7 @@ import type {
   CreateSessionDto,
   UpdateSessionDto,
 } from '@grow-fitness/shared-schemas';
+import type { AvailabilityData } from '@/types/session-booking';
 
 export const sessionsService = {
   getSessions: (
@@ -79,4 +80,7 @@ export const sessionsService = {
 
   deleteSession: (id: string) =>
     api.delete<void>(`/sessions/${id}`),
+
+  checkAvailability: (params: { coachId: string; location: string }) =>
+    api.get<AvailabilityData>(`/sessions/availability?coachId=${params.coachId}&location=${params.location}`),
 };

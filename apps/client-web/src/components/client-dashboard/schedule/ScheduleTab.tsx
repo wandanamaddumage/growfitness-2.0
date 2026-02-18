@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { PaginatedResponse } from '@grow-fitness/shared-types';
+import type { PaginatedResponse, Session } from '@grow-fitness/shared-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,14 +10,10 @@ import {
 } from 'lucide-react';
 
 import { sessionsService } from '@/services/sessions.service';
-import type { Session } from '@grow-fitness/shared-types';
 import SessionDetailsModal from '@/components/common/SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useKid } from '@/contexts/kid/useKid';
-
-/* ------------------------------------------------------------------ */
-/* Types */
-/* ------------------------------------------------------------------ */
+import BookSessionModal from './BookSessionModal';
 
 type CalendarEvent = {
   _id: string;
@@ -25,10 +21,6 @@ type CalendarEvent = {
   date: Date;
   session: Session;
 };
-
-/* ------------------------------------------------------------------ */
-/* Helpers */
-/* ------------------------------------------------------------------ */
 
 const getSessionLabel = (session: Session): string => {
   switch (session.type) {
@@ -41,20 +33,14 @@ const getSessionLabel = (session: Session): string => {
   }
 };
 
-/* ------------------------------------------------------------------ */
-/* Component */
-/* ------------------------------------------------------------------ */
-
 export default function ScheduleTab() {
   const { selectedKid } = useKid();
 
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  // Removed unused openBooking state as it's not being used in the component
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [openBooking, setOpenBooking] = useState(false);
 
-  /* ------------------------------------------------------------------
-   * Month range
-   * ------------------------------------------------------------------ */
+  /* ---------------- Month Range ---------------- */
 
   const [startDate, endDate] = useMemo(() => {
     const y = currentDate.getFullYear();
@@ -66,15 +52,19 @@ export default function ScheduleTab() {
     ] as const;
   }, [currentDate]);
 
-  /* ------------------------------------------------------------------
-   * Fetch sessions (kid scoped)
-   * ------------------------------------------------------------------ */
+  /* ---------------- Fetch Sessions ---------------- */
 
   const { data: sessionsData } = useApiQuery<PaginatedResponse<Session>>(
     ['sessions', selectedKid?.id || '', startDate, endDate],
     () => {
       if (!selectedKid?.id) {
-        return Promise.resolve({ data: [], total: 0, page: 1, limit: 10, totalPages: 0 });
+        return Promise.resolve({
+          data: [],
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+        });
       }
 
       return sessionsService.getSessions(1, 50, {
@@ -83,14 +73,10 @@ export default function ScheduleTab() {
         endDate,
       });
     },
-    {
-      enabled: Boolean(selectedKid?.id && startDate),
-    }
+    { enabled: Boolean(selectedKid?.id) }
   );
 
-  /* ------------------------------------------------------------------
-   * Map calendar events
-   * ------------------------------------------------------------------ */
+  /* ---------------- Map Events ---------------- */
 
   const events: CalendarEvent[] = useMemo(() => {
     const sessions: Session[] = sessionsData?.data ?? [];
@@ -103,9 +89,7 @@ export default function ScheduleTab() {
     }));
   }, [sessionsData]);
 
-  /* ------------------------------------------------------------------
-   * Calendar grid
-   * ------------------------------------------------------------------ */
+  /* ---------------- Calendar Grid ---------------- */
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -122,14 +106,6 @@ export default function ScheduleTab() {
     month: 'long',
     year: 'numeric',
   });
-
-  function setOpenBooking(): void {
-    throw new Error('Function not implemented.');
-  }
-
-  /* ------------------------------------------------------------------
-   * Render
-   * ------------------------------------------------------------------ */
 
   return (
     <>
@@ -151,11 +127,7 @@ export default function ScheduleTab() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setCurrentDate(new Date())}
-            >
+            <Button size="sm" variant="ghost" onClick={() => setCurrentDate(new Date())}>
               Today
             </Button>
 
@@ -169,20 +141,20 @@ export default function ScheduleTab() {
               <ChevronRight className="h-4 w-4" />
             </Button>
 
-            <Button size="sm" onClick={() => setOpenBooking()}>
-              <Plus className="h-4 w-4 mr-2" />
-              Book Extra Session
-            </Button>
+            {/* Show button only if sessionType is INDIVIDUAL */}
+            {selectedKid?.sessionType === 'INDIVIDUAL' && (
+              <Button size="sm" onClick={() => setOpenBooking(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Book Extra Session
+              </Button>
+            )}
           </div>
         </CardHeader>
 
         <CardContent>
           <div className="grid grid-cols-7 gap-[1px] bg-muted rounded-lg overflow-hidden text-xs">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div
-                key={day}
-                className="p-2 text-center font-medium bg-muted/50"
-              >
+              <div key={day} className="p-2 text-center font-medium bg-muted/50">
                 {day}
               </div>
             ))}
@@ -216,18 +188,18 @@ export default function ScheduleTab() {
 
       <SessionDetailsModal
         open={Boolean(selectedSession)}
-        session={selectedSession || undefined} 
+        session={selectedSession || undefined}
         onClose={() => setSelectedSession(null)}
         kidId={selectedKid?.id}
         onReschedule={() => {}}
       />
 
-      {/* <BookSessionModal
-        open={openBooking}
-        onClose={() => setOpenBooking(false)}
-        kidId={selectedKid?.id}
-        clientId={selectedKid?.parentId}
-      /> */}
+      {selectedKid?.sessionType === 'INDIVIDUAL' && (
+        <BookSessionModal
+          open={openBooking}
+          onClose={() => setOpenBooking(false)}
+        />
+      )}
     </>
   );
 }
