@@ -1,271 +1,193 @@
-// import { useState, useEffect } from 'react';
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogTitle,
-//   DialogFooter,
-// } from '@/components/ui/dialog';
-// import { Label } from '@/components/ui/label';
-// import { Calendar } from '@/components/ui/calendar';
-// import {
-//   Select,
-//   SelectTrigger,
-//   SelectContent,
-//   SelectItem,
-//   SelectValue,
-// } from '@/components/ui/select';
-// import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { usersService } from '@/services/users.service';
+import { locationsService } from '@/services/locations.service';
+import { requestsService } from '@/services/requests.service';
+import { useKid } from '@/contexts/kid/useKid';
+import type { User, Location } from '@grow-fitness/shared-types';
+import { useAuth } from '@/contexts/useAuth';
+import { toast } from '@/hooks/use-toast';
 
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
 
-// import { kidsService } from '@/services/kids.service';
-// import { sessionsService } from '@/services/sessions.service';
+export default function BookSessionModal({ open, onClose }: Props) {
+  const { selectedKid } = useKid();
+  const { user } = useAuth();
 
-// import type {
-//   BookSessionData,
-//   AvailabilityData,
-//   TimeSlot,
-// } from '@/types/session-booking';
-// import { useApiQuery } from '@/hooks/useApiQuery';
-// import { useApiMutation } from '@/hooks/useApiMutation';
+  const kidId = selectedKid?.id;
+  const parentId = user?.role === 'PARENT' ? user.id : null;
 
-// interface BookSessionModalProps {
-//   open: boolean;
-//   onClose: () => void;
-//   onConfirm: (data: BookSessionData) => void;
-//   kidId: string;
-//   clientId: string;
-// }
+  const [coaches, setCoaches] = useState<User[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedCoachId, setSelectedCoachId] = useState('');
+  const [selectedLocationId, setSelectedLocationId] = useState('');
+  const [preferredDateTime, setPreferredDateTime] = useState('');
+  const [loading, setLoading] = useState(false);
 
-// export default function BookSessionModal({
-//   open,
-//   onClose,
-//   onConfirm,
-//   kidId,
-//   clientId,
-// }: BookSessionModalProps) {
-//   /* ------------------------------------------------------------------
-//    * Local state
-//    * ------------------------------------------------------------------ */
-//   const [date, setDate] = useState<Date | undefined>();
-//   const [time, setTime] = useState('');
-//   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-//   const [location, setLocation] = useState<string>();
+  /* ---------------- Fetch Coaches & Locations ---------------- */
+  useEffect(() => {
+    if (!open) return;
 
-//   const type = 'personal_training';
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-//   /* ------------------------------------------------------------------
-//    * Kid → Coach
-//    * ------------------------------------------------------------------ */
-//   const { data: kidData } = useApiQuery(['kid', kidId], () =>
-//     kidsService.getKidById(kidId)
-//   );
+        const [coachRes, locationRes] = await Promise.all([
+          usersService.getCoaches(1, 100),
+          locationsService.getLocations(1, 100),
+        ]);
 
-//   const coachId =
-//     (kidData?.data as any)?.coach?.id ||
-//     (kidData?.data as any)?.coachId;
+        setCoaches(coachRes.data);
+        setLocations(locationRes.data);
+      } catch (error) {
+        console.error('Error loading dropdown data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   const coachName =
-//     (kidData?.data as any)?.coach?.name ||
-//     (kidData?.data as any)?.coachName;
+    fetchData();
+  }, [open]);
 
-//   /* ------------------------------------------------------------------
-//    * Availability
-//    * ------------------------------------------------------------------ */
-//   const { data: availabilityResp, isLoading: fetchingAvailability } =
-//     useApiQuery(
-//       ['availability', coachId, location],
-//       () =>
-//         sessionsService.checkAvailability({
-//           coachId,
-//           location,
-//         }),
-//       {
-//         enabled: !!coachId && !!location,
-//       }
-//     );
+  /* ---------------- Submit ---------------- */
+  const handleSubmit = async () => {
+    if (!kidId) {
+      toast({
+        title: 'No kid selected',
+      });
+      return;
+    }
 
-//   const availability: AvailabilityData | null =
-//     (availabilityResp?.data as AvailabilityData) ?? null;
+    if (!parentId) {
+      toast({
+        title: 'Only parents can request extra sessions.',
+      });
+      return;
+    }
 
-//   /* ------------------------------------------------------------------
-//    * Create session
-//    * ------------------------------------------------------------------ */
-//   const createSessionMutation = useApiMutation(
-//     (payload: any) => sessionsService.createSession(payload)
-//   );
+    if (!selectedCoachId || !selectedLocationId || !preferredDateTime) {
+      toast({
+        title: 'Please fill all fields',
+      });
+      return;
+    }
 
-//   /* ------------------------------------------------------------------
-//    * Effects
-//    * ------------------------------------------------------------------ */
-//   useEffect(() => {
-//     setDate(undefined);
-//     setTime('');
-//     setTimeSlots([]);
-//   }, [coachId, location]);
+    try {
+      setLoading(true);
 
-//   useEffect(() => {
-//     if (!date || !availability) return;
+      await requestsService.createExtraSessionRequest({
+        kidId,
+        coachId: selectedCoachId,
+        sessionType: 'INDIVIDUAL',
+        locationId: selectedLocationId,
+        preferredDateTime: new Date(preferredDateTime).toISOString(),
+        parentId,
+      });
 
-//     const selected = availability.available_dates.find(
-//       d => new Date(d.date).toDateString() === date.toDateString()
-//     );
+      console.log('Extra session request sent successfully');
 
-//     setTimeSlots(selected?.time_slots.filter(t => t.available) || []);
-//     setTime('');
-//   }, [date, availability]);
+      // Reset form
+      setSelectedCoachId('');
+      setSelectedLocationId('');
+      setPreferredDateTime('');
 
-//   /* ------------------------------------------------------------------
-//    * Helpers
-//    * ------------------------------------------------------------------ */
-//   const isDateAvailable = (d: Date) =>
-//     !!availability?.available_dates.find(
-//       a => new Date(a.date).toDateString() === d.toDateString()
-//     );
+      onClose();
+    } catch (error: unknown) {
+      console.error('Failed to create extra session request', error);
 
-//   /* ------------------------------------------------------------------
-//    * Confirm
-//    * ------------------------------------------------------------------ */
-//   const handleConfirm = async () => {
-//     if (!coachId || !kidId || !clientId || !date || !time || !location) return;
+      if (error && typeof error === 'object' && 'message' in error) {
+        alert((error as { message?: string }).message || 'Something went wrong');
+      } else {
+        alert('Something went wrong');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//     const [hh, mm] = time.split(':').map(Number);
-//     const startsAt = new Date(date);
-//     startsAt.setHours(hh, mm ?? 0, 0, 0);
-//     const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000);
+  /* ---------------- UI ---------------- */
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) onClose();
+      }}
+    >
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Request Extra Session</DialogTitle>
+        </DialogHeader>
 
-//     // optimistic remove
-//     const prevSlots = timeSlots;
-//     setTimeSlots(slots => slots.filter(s => s.time !== time));
+        <div className="space-y-4 mt-4">
+          {/* Coach Dropdown */}
+          <div>
+            <label className="text-sm font-medium">Select Coach</label>
+            <select
+              className="w-full border rounded-md p-2 mt-1"
+              value={selectedCoachId}
+              onChange={(e) => setSelectedCoachId(e.target.value)}
+              disabled={loading}
+            >
+              <option value="">Select a coach</option>
+              {coaches.map((coach) => (
+                <option key={coach.id} value={coach.id}>
+                  {coach.coachProfile?.name || 'Coach'}
+                </option>
+              ))}
+            </select>
+          </div>
 
-//     try {
-//       await createSessionMutation.mutateAsync({
-//         coachId,
-//         clientId,
-//         kidId,
-//         location,
-//         sessionType: 'Personal Training',
-//         startsAt: startsAt.toISOString(),
-//         endsAt: endsAt.toISOString(),
-//       });
+          {/* Location Dropdown */}
+          <div>
+            <label className="text-sm font-medium">Select Location</label>
+            <select
+              className="w-full border rounded-md p-2 mt-1"
+              value={selectedLocationId}
+              onChange={(e) => setSelectedLocationId(e.target.value)}
+              disabled={loading}
+            >
+              <option value="">Select a location</option>
+              {locations.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-//       onConfirm({ coach: coachId, type, date, time });
-//       setTime('');
-//       onClose();
-//     } catch (e) {
-//       setTimeSlots(prevSlots);
-//     }
-//   };
+          {/* DateTime */}
+          <div>
+            <label className="text-sm font-medium">
+              Preferred Date & Time
+            </label>
+            <Input
+              type="datetime-local"
+              value={preferredDateTime}
+              className="mt-1"
+              onChange={(e) => setPreferredDateTime(e.target.value)}
+              disabled={loading}
+            />
+          </div>
 
-//   /* ------------------------------------------------------------------
-//    * Render
-//    * ------------------------------------------------------------------ */
-//   return (
-//     <Dialog open={open} onOpenChange={onClose}>
-//       <DialogContent className="max-w-xl p-0 flex flex-col">
-//         {/* Header */}
-//         <div className="border-b px-6 py-4 flex justify-between">
-//           <div>
-//             <DialogTitle className="text-xl font-semibold">
-//               Book a Session
-//             </DialogTitle>
-//             <DialogDescription>
-//               Choose your preferences to reserve a spot
-//             </DialogDescription>
-//           </div>
-//           <Button variant="ghost" size="sm" onClick={onClose}>
-//             ✕
-//           </Button>
-//         </div>
-
-//         {/* Body */}
-//         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-//           {/* Coach */}
-//           <div>
-//             <Label>Coach</Label>
-//             <div className="h-11 border rounded-md flex items-center px-3 bg-muted">
-//               {coachName || 'No coach assigned'}
-//             </div>
-//           </div>
-
-//           {/* Session Type */}
-//           <div>
-//             <Label>Session Type</Label>
-//             <div className="inline-flex px-3 py-1 rounded-full bg-primary/10 text-primary">
-//               Personal Training
-//             </div>
-//           </div>
-
-//           {/* Location */}
-//           <div>
-//             <Label>Location</Label>
-//             <Select value={location} onValueChange={setLocation}>
-//               <SelectTrigger>
-//                 <SelectValue placeholder="Select location" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 <SelectItem value="Kirulapana">Kirulapana</SelectItem>
-//                 <SelectItem value="Kollupitiya">Kollupitiya</SelectItem>
-//               </SelectContent>
-//             </Select>
-//             {fetchingAvailability && (
-//               <p className="text-xs text-muted-foreground mt-1">
-//                 Loading availability…
-//               </p>
-//             )}
-//           </div>
-
-//           {/* Date */}
-//           <div>
-//             <Label>Date</Label>
-//             <Calendar
-//               mode="single"
-//               selected={date}
-//               onSelect={d => d && location && isDateAvailable(d) && setDate(d)}
-//               disabled={d => !location || !isDateAvailable(d)}
-//             />
-//           </div>
-
-//           {/* Time */}
-//           <div>
-//             <Label>Time Slot</Label>
-//             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-//               {timeSlots.map(slot => (
-//                 <Button
-//                   key={slot.id}
-//                   variant={time === slot.time ? 'default' : 'outline'}
-//                   onClick={() => setTime(slot.time)}
-//                 >
-//                   {slot.time}
-//                 </Button>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Footer */}
-//         <DialogFooter className="border-t px-6 py-4">
-//           <Button variant="outline" onClick={onClose}>
-//             Cancel
-//           </Button>
-//           <Button
-//             disabled={
-//               !coachId ||
-//               !date ||
-//               !time ||
-//               !location ||
-//               createSessionMutation.isLoading
-//             }
-//             onClick={handleConfirm}
-//           >
-//             Confirm Booking
-//           </Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-export default function BookSessionModal() {
-  return <div></div>;
+          <Button
+            className="w-full"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Sending...' : 'Request Extra Session'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }

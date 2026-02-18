@@ -31,6 +31,15 @@ export const requestsService = {
     api.post<RescheduleRequest>(`/requests/reschedules/${id}/deny`),
 
   // Extra Session Requests
+  createExtraSessionRequest: (data: {
+    parentId: string;
+    kidId: string;
+    coachId: string;
+    sessionType: string;
+    locationId: string;
+    preferredDateTime: string;
+  }) =>
+    api.post<ExtraSessionRequest>('/requests/extra-sessions', data),
   getExtraSessionRequests: (page: number = 1, limit: number = 10) =>
     api.get<PaginatedResponse<ExtraSessionRequest>>(
       `/requests/extra-sessions?page=${page}&limit=${limit}`
