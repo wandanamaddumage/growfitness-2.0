@@ -129,6 +129,11 @@ export function SessionsPage() {
 
   const columns = useMemo<ColumnDef<Session>[]>(() => [
     {
+      accessorKey: 'title',
+      header: 'Title',
+      cell: ({ row }) => row.original.title || 'N/A',
+    },
+    {
       accessorKey: 'dateTime',
       header: 'Date & Time',
       cell: ({ row }) => formatDateTime(row.original.dateTime),

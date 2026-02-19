@@ -199,7 +199,7 @@ export function SessionDetailsDialog({ open, onOpenChange, session: sessionProp 
           <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
             <div className="flex items-center gap-4">
               <div>
-                <h2 className="text-2xl font-semibold">{formatSessionType(displaySession.type)} Session</h2>
+                <h2 className="text-2xl font-semibold">{displaySession.title || `${formatSessionType(displaySession.type)} Session`}</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-sm text-muted-foreground">{formatDateTime(displaySession.dateTime)}</p>
                   <StatusBadge status={displaySession.status} />
@@ -315,6 +315,10 @@ export function SessionDetailsDialog({ open, onOpenChange, session: sessionProp 
                     <div>
                       <h3 className="font-semibold mb-3">Session Information</h3>
                       <div className="space-y-4">
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Title</h4>
+                          <p className="text-sm">{displaySession.title || 'N/A'}</p>
+                        </div>
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-1">Date & Time</h4>
                           <p className="text-sm">{formatDateTime(displaySession.dateTime)}</p>

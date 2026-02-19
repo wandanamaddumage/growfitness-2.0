@@ -61,15 +61,20 @@ export function SessionsCalendar({
     const start = new Date(session.dateTime);
     const end = new Date(start.getTime() + session.duration * 60000);
     
-    // Determine coach name
-    let coachName = 'Session';
-    if (session.coachId && typeof session.coachId === 'object') {
-      coachName = (session.coachId as any).coachProfile?.name || (session.coachId as any).email || (session.coachId as any).firstName || 'Coach';
+    // Use session title if available, otherwise fallback to type and coach name
+    let eventTitle = session.title;
+    if (!eventTitle) {
+      // Determine coach name
+      let coachName = 'Session';
+      if (session.coachId && typeof session.coachId === 'object') {
+        coachName = (session.coachId as any).coachProfile?.name || (session.coachId as any).email || (session.coachId as any).firstName || 'Coach';
+      }
+      eventTitle = `${formatSessionType(session.type)} - ${coachName}`;
     }
 
     return {
       id: session.id,
-      title: `${formatSessionType(session.type)} - ${coachName}`,
+      title: eventTitle,
       start: start.toISOString(),
       end: end.toISOString(),
       extendedProps: session,

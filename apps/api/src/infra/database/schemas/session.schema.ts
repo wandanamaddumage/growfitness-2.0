@@ -13,6 +13,9 @@ export type SessionDocument = Session & Document;
 
 @Schema({ timestamps: true })
 export class Session {
+  @Prop({ required: true, type: String })
+  title: string;
+
   @Prop({ required: true, type: String, enum: SessionType })
   type: SessionType;
 

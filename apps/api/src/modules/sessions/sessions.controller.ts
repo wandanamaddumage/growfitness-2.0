@@ -163,6 +163,7 @@ export class SessionsController {
     schema: {
       type: 'object',
       properties: {
+        title: { type: 'string', description: 'Session title/name', example: 'Morning Training Session' },
         type: { type: 'string', enum: ['INDIVIDUAL', 'GROUP'], description: 'Session type' },
         coachId: { type: 'string', description: 'Coach ID', example: '507f1f77bcf86cd799439011' },
         locationId: {
@@ -193,7 +194,7 @@ export class SessionsController {
           default: false,
         },
       },
-      required: ['type', 'coachId', 'locationId', 'dateTime', 'duration', 'kids'],
+      required: ['title', 'type', 'coachId', 'locationId', 'dateTime', 'duration', 'kids'],
     },
   })
   @ApiResponse({
@@ -211,20 +212,38 @@ export class SessionsController {
     schema: {
       type: 'object',
       properties: {
-        coachId: { type: 'string', description: 'Coach ID' },
-        locationId: { type: 'string', description: 'Location ID' },
+        title: { type: 'string', description: 'Session title/name', example: 'Morning Training Session' },
+        coachId: { type: 'string', description: 'Coach ID', example: '507f1f77bcf86cd799439011' },
+        locationId: { type: 'string', description: 'Location ID', example: '507f1f77bcf86cd799439011' },
         dateTime: {
           type: 'string',
           format: 'date-time',
           description: 'Session date and time (ISO format)',
+          example: '2024-12-15T10:00:00.000Z',
         },
-        duration: { type: 'number', description: 'Duration in minutes', minimum: 1 },
-        capacity: { type: 'number', description: 'Maximum capacity', minimum: 1 },
-        kids: { type: 'array', items: { type: 'string' }, description: 'Array of kid IDs' },
+        duration: { type: 'number', description: 'Duration in minutes', example: 60, minimum: 1 },
+        capacity: { type: 'number', description: 'Maximum capacity', example: 10, minimum: 1 },
+        kids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of kid IDs (exactly one for individual sessions)',
+          example: ['507f1f77bcf86cd799439011'],
+        },
+        kidId: {
+          type: 'string',
+          description: 'Kid ID (for individual sessions, alternative to kids array)',
+          example: '507f1f77bcf86cd799439011',
+        },
         status: {
           type: 'string',
           enum: ['SCHEDULED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'],
           description: 'Session status',
+          example: 'SCHEDULED',
+        },
+        isFreeSession: {
+          type: 'boolean',
+          description: 'Whether this is a free session',
+          example: false,
         },
       },
     },

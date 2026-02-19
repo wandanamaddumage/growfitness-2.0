@@ -249,6 +249,7 @@ async function seedDatabase() {
     const now = new Date();
     const sessions = await sessionModel.insertMany([
       {
+        title: 'Morning Individual Training',
         type: SessionType.INDIVIDUAL,
         coachId: coaches[0]._id,
         locationId: locations[0]._id,
@@ -260,6 +261,7 @@ async function seedDatabase() {
         isFreeSession: false,
       },
       {
+        title: 'Group Fitness Session',
         type: SessionType.GROUP,
         coachId: coaches[1]._id,
         locationId: locations[1]._id,
@@ -271,6 +273,7 @@ async function seedDatabase() {
         isFreeSession: false,
       },
       {
+        title: 'Afternoon Individual Session',
         type: SessionType.INDIVIDUAL,
         coachId: coaches[0]._id,
         locationId: locations[0]._id,
@@ -282,6 +285,7 @@ async function seedDatabase() {
         isFreeSession: false,
       },
       {
+        title: 'Free Trial Group Session',
         type: SessionType.GROUP,
         coachId: coaches[2]._id,
         locationId: locations[2]._id,
@@ -293,6 +297,7 @@ async function seedDatabase() {
         isFreeSession: true,
       },
       {
+        title: 'Completed Training Session',
         type: SessionType.INDIVIDUAL,
         coachId: coaches[1]._id,
         locationId: locations[1]._id,

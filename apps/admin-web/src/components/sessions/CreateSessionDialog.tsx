@@ -59,6 +59,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
   const { data: kidsData } = useApiQuery(['kids', 'all'], () => kidsService.getKids(1, 100));
 
   const defaultValues = {
+    title: '',
     type: SessionType.GROUP,
     coachId: '',
     locationId: '',
@@ -102,9 +103,13 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
   );
 
   const onSubmit = (data: CreateSessionDto) => {
+    // Get the current form values to ensure we have the latest title value
+    const formValues = form.getValues();
+    
     // Transform kidId to kids array for individual sessions (API expects kids array always)
     const submitData: CreateSessionDto = {
       ...data,
+      title: formValues.title || data.title, // Explicitly include title from form values
       kids: data.type === SessionType.INDIVIDUAL && data.kidId
         ? [data.kidId]
         : data.kids || [],
@@ -128,6 +133,14 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4 min-h-0">
             <form onSubmit={form.handleSubmit(onSubmit)} id="create-session-form" className="space-y-4">
+          <CustomFormField
+            label="Title"
+            required
+            error={form.formState.errors.title?.message}
+          >
+            <Input {...form.register('title')} placeholder="Enter session title" />
+          </CustomFormField>
+
           <CustomFormField
             label="Session Type"
             required

@@ -128,6 +128,7 @@ export interface SessionLocationRef {
 
 export interface Session {
   id: string;
+  title: string;
   type: SessionType;
   coachId: string;
   locationId: string;

@@ -70,9 +70,9 @@ export function TodaysSessions() {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div>
-                  <p className="font-medium">{formatDateTime(session.dateTime)}</p>
+                  <p className="font-medium">{session.title || formatDateTime(session.dateTime)}</p>
                   <p className="text-sm text-muted-foreground">
-                    {session.type} • {session.duration} min
+                    {session.title ? formatDateTime(session.dateTime) : ''} {session.type} • {session.duration} min
                   </p>
                 </div>
               </div>

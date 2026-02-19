@@ -110,6 +110,7 @@ export type UpdateKidDto = z.infer<typeof UpdateKidSchema>;
 // Session Schemas
 export const CreateSessionSchema = z
   .object({
+    title: z.string().min(1, 'Title is required'),
     type: z.nativeEnum(SessionType),
     coachId: z.string().min(1, 'Coach ID is required'),
     locationId: z.string().min(1, 'Location ID is required'),
@@ -136,6 +137,7 @@ export const CreateSessionSchema = z
 export type CreateSessionDto = z.infer<typeof CreateSessionSchema>;
 
 export const UpdateSessionSchema = z.object({
+  title: z.string().min(1).optional(),
   coachId: z.string().min(1).optional(),
   locationId: z.string().min(1).optional(),
   dateTime: z.string().or(z.date()).optional(),

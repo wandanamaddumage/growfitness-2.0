@@ -143,6 +143,7 @@ export class SessionsService {
       : undefined;
     return {
       id: s._id?.toString(),
+      title: s.title,
       type: s.type,
       coachId: coachIdVal != null ? coachIdVal.toString() : undefined,
       locationId: locationIdVal != null ? locationIdVal.toString() : undefined,
@@ -244,6 +245,7 @@ export class SessionsService {
     }
 
     const updatedFields: Partial<Session> = {
+      ...(updateSessionDto.title && { title: updateSessionDto.title }),
       ...(updateSessionDto.coachId && {
         coachId: this.toObjectId(updateSessionDto.coachId, 'coachId'),
       }),
