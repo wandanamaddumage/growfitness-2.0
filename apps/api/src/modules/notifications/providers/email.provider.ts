@@ -23,7 +23,10 @@ export class EmailProvider {
     const smtpPort = parseInt(this.configService.get<string>('SMTP_PORT', '587'), 10);
     const smtpUser = this.configService.get<string>('SMTP_USER');
     const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
-    const smtpFrom = this.configService.get<string>('SMTP_FROM', smtpUser);
+    const smtpFrom = this.configService.get<string>(
+      'SMTP_FROM',
+      smtpUser ?? 'noreply@growfitness.com'
+    );
 
     if (!emailEnabled) {
       this.logger.warn('Email is disabled. Set EMAIL_ENABLED=true to enable email sending.');

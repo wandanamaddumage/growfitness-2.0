@@ -13,6 +13,7 @@ import {
   UserRegistrationRequestDocument,
 } from '../../infra/database/schemas/user-registration-request.schema';
 import { UserRole, UserStatus, RequestStatus } from '@grow-fitness/shared-types';
+import { NotificationType } from '@grow-fitness/shared-types';
 import {
   CreateParentDto,
   UpdateParentDto,
@@ -21,6 +22,7 @@ import {
 } from '@grow-fitness/shared-schemas';
 import { AuthService } from '../auth/auth.service';
 import { AuditService } from '../audit/audit.service';
+import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 
@@ -32,7 +34,8 @@ export class UsersService {
     @InjectModel(UserRegistrationRequest.name)
     private userRegistrationRequestModel: Model<UserRegistrationRequestDocument>,
     private authService: AuthService,
-    private auditService: AuditService
+    private auditService: AuditService,
+    private notificationService: NotificationService
   ) {}
 
   // Parents
@@ -211,6 +214,22 @@ export class UsersService {
         status: RequestStatus.PENDING,
       });
       await registrationRequest.save();
+      const admins = await this.userModel.find({ role: UserRole.ADMIN }).select('_id').lean().exec();
+      const requestId = registrationRequest._id.toString();
+      const parentName = parent.parentProfile?.name ?? parent.email;
+      for (const a of admins) {
+        const adminId = (a as any)._id?.toString?.();
+        if (adminId) {
+          await this.notificationService.createNotification({
+            userId: adminId,
+            type: NotificationType.USER_REGISTRATION_REQUEST,
+            title: 'New user registration request',
+            body: `${parentName} has requested to join.`,
+            entityType: 'UserRegistrationRequest',
+            entityId: requestId,
+          });
+        }
+      }
     }
 
     // Log audit if actorId is provided (admin creation)

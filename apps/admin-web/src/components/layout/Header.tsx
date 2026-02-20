@@ -3,6 +3,7 @@ import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -31,6 +32,7 @@ export function Header() {
           <h2 className="text-lg font-semibold">Admin Portal</h2>
         </div>
         <div className="flex items-center gap-4">
+          <NotificationBell />
           <span className="text-sm text-muted-foreground">{user?.email}</span>
           <button
             onClick={handleLogout}
