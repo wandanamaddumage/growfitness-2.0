@@ -25,27 +25,12 @@ import {
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
 import { Session, SessionDocument } from '../../infra/database/schemas/session.schema';
-import { RequestStatus, UserStatus, UserRole } from '@grow-fitness/shared-types';
-import type { NotificationType } from '@grow-fitness/shared-types';
+import { RequestStatus, UserStatus, UserRole, NotificationType } from '@grow-fitness/shared-types';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { Types } from 'mongoose';
-
-/** Notification type values used by this service (runtime-safe when package resolves to ESM). */
-const N = {
-  FREE_SESSION_REQUEST: 'FREE_SESSION_REQUEST',
-  FREE_SESSION_SELECTED: 'FREE_SESSION_SELECTED',
-  RESCHEDULE_REQUEST: 'RESCHEDULE_REQUEST',
-  RESCHEDULE_APPROVED: 'RESCHEDULE_APPROVED',
-  RESCHEDULE_DENIED: 'RESCHEDULE_DENIED',
-  EXTRA_SESSION_REQUEST: 'EXTRA_SESSION_REQUEST',
-  EXTRA_SESSION_APPROVED: 'EXTRA_SESSION_APPROVED',
-  EXTRA_SESSION_DENIED: 'EXTRA_SESSION_DENIED',
-  REGISTRATION_APPROVED: 'REGISTRATION_APPROVED',
-  REGISTRATION_REJECTED: 'REGISTRATION_REJECTED',
-} as const satisfies Record<string, NotificationType>;
 
 @Injectable()
 export class RequestsService {
@@ -95,7 +80,7 @@ export class RequestsService {
     });
     const saved = await request.save();
     await this.notifyAdmins(
-      N.FREE_SESSION_REQUEST,
+      NotificationType.FREE_SESSION_REQUEST,
       'New free session request',
       `${data.parentName} requested a free session for ${data.kidName}.`,
       'FreeSessionRequest',
@@ -158,7 +143,7 @@ export class RequestsService {
     if (parent && (parent as any)._id) {
       await this.notificationService.createNotification({
         userId: (parent as any)._id.toString(),
-        type: N.FREE_SESSION_SELECTED,
+        type: NotificationType.FREE_SESSION_SELECTED,
         title: 'Free session confirmed',
         body: `Your free session request for ${request.kidName} has been confirmed.`,
         entityType: 'FreeSessionRequest',
@@ -204,7 +189,7 @@ export class RequestsService {
     });
 
     await this.notifyAdmins(
-      N.RESCHEDULE_REQUEST,
+      NotificationType.RESCHEDULE_REQUEST,
       'New reschedule request',
       'A session reschedule has been requested.',
       'RescheduleRequest',
@@ -216,7 +201,7 @@ export class RequestsService {
       if (coachId) {
         await this.notificationService.createNotification({
           userId: coachId,
-          type: N.RESCHEDULE_REQUEST,
+          type: NotificationType.RESCHEDULE_REQUEST,
           title: 'Reschedule request',
           body: 'A reschedule has been requested for one of your sessions.',
           entityType: 'RescheduleRequest',
@@ -270,7 +255,7 @@ export class RequestsService {
     if (requestedById) {
       await this.notificationService.createNotification({
         userId: requestedById,
-        type: N.RESCHEDULE_APPROVED,
+        type: NotificationType.RESCHEDULE_APPROVED,
         title: 'Reschedule approved',
         body: 'Your session reschedule request has been approved.',
         entityType: 'RescheduleRequest',
@@ -308,7 +293,7 @@ export class RequestsService {
     if (requestedById) {
       await this.notificationService.createNotification({
         userId: requestedById,
-        type: N.RESCHEDULE_DENIED,
+        type: NotificationType.RESCHEDULE_DENIED,
         title: 'Reschedule denied',
         body: 'Your session reschedule request has been denied.',
         entityType: 'RescheduleRequest',
@@ -371,7 +356,7 @@ export class RequestsService {
     });
 
     await this.notifyAdmins(
-      N.EXTRA_SESSION_REQUEST,
+      NotificationType.EXTRA_SESSION_REQUEST,
       'New extra session request',
       'An extra session has been requested.',
       'ExtraSessionRequest',
@@ -380,7 +365,7 @@ export class RequestsService {
     if (dto.coachId) {
       await this.notificationService.createNotification({
         userId: dto.coachId,
-        type: N.EXTRA_SESSION_REQUEST,
+        type: NotificationType.EXTRA_SESSION_REQUEST,
         title: 'Extra session request',
         body: 'A parent has requested an extra session with you.',
         entityType: 'ExtraSessionRequest',
@@ -428,7 +413,7 @@ export class RequestsService {
     if (parentId) {
       await this.notificationService.createNotification({
         userId: parentId,
-        type: N.EXTRA_SESSION_APPROVED,
+        type: NotificationType.EXTRA_SESSION_APPROVED,
         title: 'Extra session approved',
         body: 'Your extra session request has been approved.',
         entityType: 'ExtraSessionRequest',
@@ -463,7 +448,7 @@ export class RequestsService {
     if (parentId) {
       await this.notificationService.createNotification({
         userId: parentId,
-        type: N.EXTRA_SESSION_DENIED,
+        type: NotificationType.EXTRA_SESSION_DENIED,
         title: 'Extra session denied',
         body: 'Your extra session request has been denied.',
         entityType: 'ExtraSessionRequest',
@@ -753,7 +738,7 @@ export class RequestsService {
 
       await this.notificationService.createNotification({
         userId: parentIdString,
-        type: N.REGISTRATION_APPROVED,
+        type: NotificationType.REGISTRATION_APPROVED,
         title: 'Registration approved',
         body: 'Your account has been approved. You can now sign in.',
         entityType: 'UserRegistrationRequest',
@@ -869,7 +854,7 @@ export class RequestsService {
 
     await this.notificationService.createNotification({
       userId: parentIdString,
-      type: N.REGISTRATION_REJECTED,
+      type: NotificationType.REGISTRATION_REJECTED,
       title: 'Registration not approved',
       body: 'Your account registration was not approved. Please contact support if you have questions.',
       entityType: 'UserRegistrationRequest',
