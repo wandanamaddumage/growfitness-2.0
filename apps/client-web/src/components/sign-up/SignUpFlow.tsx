@@ -68,6 +68,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
       phone: '',
       location: '',
       password: '',
+      confirmPassword: '',
       kids: [createEmptyKid()],
     },
   });
@@ -191,18 +192,19 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
                 )}
               </div>
 
-             <QuestionRenderer
-                question={{
-                  id: `kids.${index}.${attribute.id}` as const,  // This is the key change
-                  type: attribute.type,
-                  placeholder: attribute.placeholder,
-                  options: attribute.options,
-                  required: attribute.required,
-                }}
-                control={control}
-                error={errors.kids?.[index]?.[attribute.id] as FieldError | undefined}
-                shouldAutoFocus={index === 0}
-              />
+             <div className="space-y-3">
+                <QuestionRenderer
+                  question={{
+                    id: `kids.${index}.name` as const,
+                    type: 'text',
+                    placeholder: "Child's name",
+                    required: true,
+                  }}
+                  control={control}
+                  error={errors.kids?.[index]?.name as FieldError | undefined}
+                  shouldAutoFocus={index === 0}
+                />
+              </div>
             </motion.div>
           ))}
 
@@ -243,7 +245,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
 
               <QuestionRenderer
                 question={{
-                   id: `kids.${index}.${attribute.id}` as const, 
+                  id: `kids.${index}.${attribute.id}` as const, 
                   type: attribute.type,
                   placeholder: attribute.placeholder,
                   options: attribute.options,

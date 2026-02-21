@@ -171,6 +171,37 @@ const QuestionRenderer = <TFormValues extends FieldValues = FieldValues>({
         );
       }
 
+      case 'confirmPassword': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, ...field } }) => {
+              const val =
+                (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="password"
+                  onChange={e => onChange(e.target.value)}
+                  placeholder={question.placeholder || "Confirm password"}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
       case 'phone': {
         return (
           <Controller
