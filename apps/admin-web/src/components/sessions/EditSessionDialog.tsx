@@ -104,6 +104,7 @@ export function EditSessionDialog({
   const form = useForm<UpdateSessionDto>({
     resolver: zodResolver(UpdateSessionSchema),
     defaultValues: {
+      title: session.title || '',
       coachId: extractId(session.coachId),
       locationId: extractId(session.locationId),
       dateTime: getDateValue(session.dateTime),
@@ -121,6 +122,7 @@ export function EditSessionDialog({
   useEffect(() => {
     if (open) {
       form.reset({
+        title: session.title || '',
         coachId: extractId(session.coachId),
         locationId: extractId(session.locationId),
         dateTime: getDateValue(session.dateTime),
@@ -151,13 +153,14 @@ export function EditSessionDialog({
   );
 
   const onSubmit = (data: UpdateSessionDto) => {
-    // Get current form values to ensure we have the latest isFreeSession value
+    // Get current form values to ensure we have the latest values
     // Use getValues() to get the actual current form state
     const formValues = form.getValues();
     
     // Transform dateTime to string format if it's a Date object
     const submitData: UpdateSessionDto = {
       ...data,
+      title: formValues.title || data.title, // Explicitly include title from form values
       dateTime:
         data.dateTime instanceof Date ? format(data.dateTime, "yyyy-MM-dd'T'HH:mm") : data.dateTime,
       // For individual sessions, ensure kidId is set from kids array if needed
@@ -186,6 +189,14 @@ export function EditSessionDialog({
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4 min-h-0">
             <form onSubmit={form.handleSubmit(onSubmit)} id="edit-session-form" className="space-y-4">
+            <CustomFormField
+              label="Title"
+              required
+              error={form.formState.errors.title?.message}
+            >
+              <Input {...form.register('title')} placeholder="Enter session title" />
+            </CustomFormField>
+
             {/* Session Type - Read-only display */}
             <CustomFormField label="Session Type">
               <Input

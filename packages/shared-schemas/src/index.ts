@@ -16,6 +16,19 @@ export const LoginSchema = z.object({
 
 export type LoginDto = z.infer<typeof LoginSchema>;
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export type ForgotPasswordDto = z.infer<typeof ForgotPasswordSchema>;
+
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema>;
+
 // User Schemas
 export const CreateParentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -97,6 +110,7 @@ export type UpdateKidDto = z.infer<typeof UpdateKidSchema>;
 // Session Schemas
 export const CreateSessionSchema = z
   .object({
+    title: z.string().min(1, 'Title is required'),
     type: z.nativeEnum(SessionType),
     coachId: z.string().min(1, 'Coach ID is required'),
     locationId: z.string().min(1, 'Location ID is required'),
@@ -123,6 +137,7 @@ export const CreateSessionSchema = z
 export type CreateSessionDto = z.infer<typeof CreateSessionSchema>;
 
 export const UpdateSessionSchema = z.object({
+  title: z.string().min(1).optional(),
   coachId: z.string().min(1).optional(),
   locationId: z.string().min(1).optional(),
   dateTime: z.string().or(z.date()).optional(),

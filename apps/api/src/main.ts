@@ -47,7 +47,15 @@ async function bootstrap() {
 - **GET /api/banners** - List banners
 
 ## Authenticated Endpoints
-Most endpoints require JWT Bearer token. Roles: ADMIN, PARENT, COACH (varies by endpoint).`
+Most endpoints require JWT Bearer token. Roles: ADMIN, PARENT, COACH (varies by endpoint).
+
+## Notifications
+- **GET /api/notifications** - List notifications for current user (paginated, optional read filter)
+- **GET /api/notifications/unread-count** - Unread count for badge
+- **PATCH /api/notifications/:id/read** - Mark one as read
+- **PATCH /api/notifications/read-all** - Mark all as read
+- **DELETE /api/notifications/clear-all** - Clear all notifications for current user
+- **DELETE /api/notifications/:id** - Clear one notification`
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -74,6 +82,7 @@ Most endpoints require JWT Bearer token. Roles: ADMIN, PARENT, COACH (varies by 
     .addTag('testimonials', 'Testimonials CRUD. GET list and GET by ID are public.')
     .addTag('dashboard', 'Dashboard endpoints')
     .addTag('audit', 'Audit log endpoints')
+    .addTag('notifications', 'In-app notifications: list, unread count, mark read. Used by admin-web and client-web.')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document, {

@@ -10,6 +10,7 @@ import {
 } from '../../infra/database/schemas/user-registration-request.schema';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuditModule } from '../audit/audit.module';
     ]),
     AuthModule,
     AuditModule,
+    NotificationsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

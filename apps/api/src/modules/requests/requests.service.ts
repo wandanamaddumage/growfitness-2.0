@@ -25,7 +25,7 @@ import {
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
 import { Session, SessionDocument } from '../../infra/database/schemas/session.schema';
-import { RequestStatus, UserStatus, UserRole } from '@grow-fitness/shared-types';
+import { RequestStatus, UserStatus, UserRole, NotificationType } from '@grow-fitness/shared-types';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
@@ -50,6 +50,23 @@ export class RequestsService {
     private notificationService: NotificationService
   ) {}
 
+  private async notifyAdmins(type: NotificationType, title: string, body: string, entityType?: string, entityId?: string): Promise<void> {
+    const admins = await this.userModel.find({ role: UserRole.ADMIN }).select('_id').lean().exec();
+    for (const a of admins) {
+      const id = (a as any)._id?.toString?.();
+      if (id) {
+        await this.notificationService.createNotification({
+          userId: id,
+          type,
+          title,
+          body,
+          entityType,
+          entityId,
+        });
+      }
+    }
+  }
+
   // Free Session Requests
   async createFreeSessionRequest(data: CreateFreeSessionRequestDto): Promise<FreeSessionRequest> {
     const request = new this.freeSessionRequestModel({
@@ -61,7 +78,15 @@ export class RequestsService {
       preferredDateTime: new Date(data.preferredDateTime),
       status: RequestStatus.PENDING,
     });
-    return request.save();
+    const saved = await request.save();
+    await this.notifyAdmins(
+      NotificationType.FREE_SESSION_REQUEST,
+      'New free session request',
+      `${data.parentName} requested a free session for ${data.kidName}.`,
+      'FreeSessionRequest',
+      saved._id.toString()
+    );
+    return saved;
   }
 
   async findFreeSessionRequests(pagination: PaginationDto) {
@@ -102,7 +127,6 @@ export class RequestsService {
     }
     await request.save();
 
-    // Send notification
     await this.notificationService.sendFreeSessionConfirmation({
       email: request.email,
       phone: request.phone,
@@ -110,6 +134,22 @@ export class RequestsService {
       kidName: request.kidName,
       sessionId: request.selectedSessionId?.toString(),
     });
+
+    const parent = await this.userModel
+      .findOne({ email: request.email.toLowerCase(), role: UserRole.PARENT })
+      .select('_id')
+      .lean()
+      .exec();
+    if (parent && (parent as any)._id) {
+      await this.notificationService.createNotification({
+        userId: (parent as any)._id.toString(),
+        type: NotificationType.FREE_SESSION_SELECTED,
+        title: 'Free session confirmed',
+        body: `Your free session request for ${request.kidName} has been confirmed.`,
+        entityType: 'FreeSessionRequest',
+        entityId: id,
+      });
+    }
 
     await this.auditService.log({
       actorId,
@@ -148,6 +188,28 @@ export class RequestsService {
       metadata: dto,
     });
 
+    await this.notifyAdmins(
+      NotificationType.RESCHEDULE_REQUEST,
+      'New reschedule request',
+      'A session reschedule has been requested.',
+      'RescheduleRequest',
+      saved._id.toString()
+    );
+    const sessionWithCoach = await this.sessionModel.findById(dto.sessionId).select('coachId').lean().exec();
+    if (sessionWithCoach && (sessionWithCoach as any).coachId) {
+      const coachId = (sessionWithCoach as any).coachId?.toString?.() ?? (sessionWithCoach as any).coachId;
+      if (coachId) {
+        await this.notificationService.createNotification({
+          userId: coachId,
+          type: NotificationType.RESCHEDULE_REQUEST,
+          title: 'Reschedule request',
+          body: 'A reschedule has been requested for one of your sessions.',
+          entityType: 'RescheduleRequest',
+          entityId: saved._id.toString(),
+        });
+      }
+    }
+
     return saved.populate(['sessionId', 'requestedBy']);
   }
 
@@ -174,7 +236,7 @@ export class RequestsService {
   }
 
   async approveRescheduleRequest(id: string, actorId: string) {
-    const request = await this.rescheduleRequestModel.findById(id).populate('sessionId').exec();
+    const request = await this.rescheduleRequestModel.findById(id).populate('sessionId').populate('requestedBy', 'email').exec();
 
     if (!request) {
       throw new NotFoundException({
@@ -187,6 +249,20 @@ export class RequestsService {
     request.processedAt = new Date();
     await request.save();
 
+    const requestedById = request.requestedBy instanceof Types.ObjectId
+      ? request.requestedBy.toString()
+      : (request.requestedBy as any)?._id?.toString?.() ?? (request.requestedBy as any)?.id;
+    if (requestedById) {
+      await this.notificationService.createNotification({
+        userId: requestedById,
+        type: NotificationType.RESCHEDULE_APPROVED,
+        title: 'Reschedule approved',
+        body: 'Your session reschedule request has been approved.',
+        entityType: 'RescheduleRequest',
+        entityId: id,
+      });
+    }
+
     await this.auditService.log({
       actorId,
       action: 'APPROVE_RESCHEDULE_REQUEST',
@@ -198,7 +274,7 @@ export class RequestsService {
   }
 
   async denyRescheduleRequest(id: string, actorId: string) {
-    const request = await this.rescheduleRequestModel.findById(id).exec();
+    const request = await this.rescheduleRequestModel.findById(id).populate('requestedBy', 'email').exec();
 
     if (!request) {
       throw new NotFoundException({
@@ -210,6 +286,20 @@ export class RequestsService {
     request.status = RequestStatus.DENIED;
     request.processedAt = new Date();
     await request.save();
+
+    const requestedById = request.requestedBy instanceof Types.ObjectId
+      ? request.requestedBy.toString()
+      : (request.requestedBy as any)?._id?.toString?.() ?? (request.requestedBy as any)?.id;
+    if (requestedById) {
+      await this.notificationService.createNotification({
+        userId: requestedById,
+        type: NotificationType.RESCHEDULE_DENIED,
+        title: 'Reschedule denied',
+        body: 'Your session reschedule request has been denied.',
+        entityType: 'RescheduleRequest',
+        entityId: id,
+      });
+    }
 
     await this.auditService.log({
       actorId,
@@ -265,6 +355,24 @@ export class RequestsService {
       metadata: { ...dto, parentId },
     });
 
+    await this.notifyAdmins(
+      NotificationType.EXTRA_SESSION_REQUEST,
+      'New extra session request',
+      'An extra session has been requested.',
+      'ExtraSessionRequest',
+      saved._id.toString()
+    );
+    if (dto.coachId) {
+      await this.notificationService.createNotification({
+        userId: dto.coachId,
+        type: NotificationType.EXTRA_SESSION_REQUEST,
+        title: 'Extra session request',
+        body: 'A parent has requested an extra session with you.',
+        entityType: 'ExtraSessionRequest',
+        entityId: saved._id.toString(),
+      });
+    }
+
     return saved.populate(['parentId', 'kidId', 'coachId', 'locationId']);
   }
 
@@ -301,6 +409,18 @@ export class RequestsService {
     request.status = RequestStatus.APPROVED;
     await request.save();
 
+    const parentId = request.parentId?.toString?.();
+    if (parentId) {
+      await this.notificationService.createNotification({
+        userId: parentId,
+        type: NotificationType.EXTRA_SESSION_APPROVED,
+        title: 'Extra session approved',
+        body: 'Your extra session request has been approved.',
+        entityType: 'ExtraSessionRequest',
+        entityId: id,
+      });
+    }
+
     await this.auditService.log({
       actorId,
       action: 'APPROVE_EXTRA_SESSION_REQUEST',
@@ -323,6 +443,18 @@ export class RequestsService {
 
     request.status = RequestStatus.DENIED;
     await request.save();
+
+    const parentId = request.parentId?.toString?.();
+    if (parentId) {
+      await this.notificationService.createNotification({
+        userId: parentId,
+        type: NotificationType.EXTRA_SESSION_DENIED,
+        title: 'Extra session denied',
+        body: 'Your extra session request has been denied.',
+        entityType: 'ExtraSessionRequest',
+        entityId: id,
+      });
+    }
 
     await this.auditService.log({
       actorId,
@@ -604,6 +736,21 @@ export class RequestsService {
       
       await request.save();
 
+      await this.notificationService.createNotification({
+        userId: parentIdString,
+        type: NotificationType.REGISTRATION_APPROVED,
+        title: 'Registration approved',
+        body: 'Your account has been approved. You can now sign in.',
+        entityType: 'UserRegistrationRequest',
+        entityId: id,
+      });
+
+      await this.notificationService.sendRegistrationApproved({
+        email: parent.email,
+        phone: parent.phone ?? '',
+        parentName: parent.parentProfile?.name,
+      });
+
       // Get kids count for audit
       const kids = await this.kidModel.find({ parentId: parent._id }).exec();
 
@@ -704,6 +851,15 @@ export class RequestsService {
     }
     
     await request.save();
+
+    await this.notificationService.createNotification({
+      userId: parentIdString,
+      type: NotificationType.REGISTRATION_REJECTED,
+      title: 'Registration not approved',
+      body: 'Your account registration was not approved. Please contact support if you have questions.',
+      entityType: 'UserRegistrationRequest',
+      entityId: id,
+    });
 
     await this.auditService.log({
       actorId: actorId instanceof Types.ObjectId ? actorId.toString() : actorId,

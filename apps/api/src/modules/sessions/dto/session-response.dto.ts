@@ -25,6 +25,8 @@ class SessionLocationRefDto {
 export class SessionResponseDto {
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
   id: string;
+  @ApiProperty({ example: 'Morning Training Session', description: 'Session title/name' })
+  title: string;
   @ApiProperty({ enum: ['INDIVIDUAL', 'GROUP'] })
   type: string;
   @ApiProperty({ description: 'Coach user ID' })

@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Invoice, InvoiceDocument } from '../../infra/database/schemas/invoice.schema';
+import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
+import { NotificationType } from '@grow-fitness/shared-types';
 import { CreateInvoiceDto, UpdateInvoicePaymentStatusDto } from '@grow-fitness/shared-schemas';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
@@ -13,6 +15,7 @@ import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination
 export class InvoicesService {
   constructor(
     @InjectModel(Invoice.name) private invoiceModel: Model<InvoiceDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private auditService: AuditService,
     private notificationService: NotificationService
   ) {}
@@ -141,7 +144,46 @@ export class InvoicesService {
       metadata: createInvoiceDto,
     });
 
-    return this.findById(invoice._id.toString());
+    const invoiceIdStr = invoice._id.toString();
+
+    if (invoice.type === InvoiceType.PARENT_INVOICE && invoice.parentId) {
+      const parentIdStr = invoice.parentId.toString();
+      const parent = await this.userModel
+        .findById(parentIdStr)
+        .select('email phone parentProfile')
+        .lean()
+        .exec();
+      await this.notificationService.createNotification({
+        userId: parentIdStr,
+        type: NotificationType.INVOICE_CREATED,
+        title: 'New invoice',
+        body: 'A new invoice has been issued for you. Please log in to view and pay.',
+        entityType: 'Invoice',
+        entityId: invoiceIdStr,
+      });
+      if (parent) {
+        const p = parent as any;
+        await this.notificationService.sendNewInvoiceToParent({
+          email: p.email,
+          phone: p.phone ?? '',
+          recipientName: p.parentProfile?.name,
+        });
+      }
+    }
+
+    if (invoice.type === InvoiceType.COACH_PAYOUT && invoice.coachId) {
+      const coachIdStr = invoice.coachId.toString();
+      await this.notificationService.createNotification({
+        userId: coachIdStr,
+        type: NotificationType.INVOICE_CREATED,
+        title: 'New payout invoice',
+        body: 'A new payout invoice has been created for you.',
+        entityType: 'Invoice',
+        entityId: invoiceIdStr,
+      });
+    }
+
+    return this.findById(invoiceIdStr);
   }
 
   async updatePaymentStatus(id: string, updateDto: UpdateInvoicePaymentStatusDto, actorId: string) {
@@ -161,13 +203,61 @@ export class InvoicesService {
 
     await invoice.save();
 
-    // Send notification
     if (invoice.type === InvoiceType.PARENT_INVOICE && invoice.parentId) {
+      const parentIdStr = invoice.parentId.toString();
+      const parent = await this.userModel
+        .findById(parentIdStr)
+        .select('email phone')
+        .lean()
+        .exec();
+      const email = parent ? (parent as any).email : undefined;
+      const phone = parent ? (parent as any).phone : undefined;
       await this.notificationService.sendInvoiceUpdate({
         invoiceId: invoice._id.toString(),
-        parentId: invoice.parentId.toString(),
+        parentId: parentIdStr,
         status: updateDto.status,
+        email,
+        phone,
       });
+      await this.notificationService.createNotification({
+        userId: parentIdStr,
+        type: NotificationType.INVOICE_STATUS_UPDATED,
+        title: 'Invoice updated',
+        body: `Your invoice status has been updated to: ${updateDto.status}.`,
+        entityType: 'Invoice',
+        entityId: invoice._id.toString(),
+      });
+    }
+
+    if (invoice.type === InvoiceType.COACH_PAYOUT && invoice.coachId) {
+      const coachIdStr = invoice.coachId.toString();
+      await this.notificationService.createNotification({
+        userId: coachIdStr,
+        type: NotificationType.INVOICE_STATUS_UPDATED,
+        title: 'Payout invoice updated',
+        body:
+          updateDto.status === InvoiceStatus.PAID
+            ? 'Your payout has been marked as paid.'
+            : `Your payout invoice status has been updated to: ${updateDto.status}.`,
+        entityType: 'Invoice',
+        entityId: invoice._id.toString(),
+      });
+      if (updateDto.status === InvoiceStatus.PAID) {
+        const coach = await this.userModel
+          .findById(coachIdStr)
+          .select('email phone coachProfile')
+          .lean()
+          .exec();
+        if (coach) {
+          const c = coach as any;
+          await this.notificationService.sendCoachPayoutPaid({
+            email: c.email,
+            phone: c.phone ?? '',
+            coachName: c.coachProfile?.name,
+            invoiceId: invoice._id.toString(),
+          });
+        }
+      }
     }
 
     await this.auditService.log({

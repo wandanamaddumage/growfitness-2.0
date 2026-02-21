@@ -1,25 +1,22 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SessionsController } from './sessions.controller';
-import { SessionsService } from './sessions.service';
 import { Session, SessionSchema } from '../../infra/database/schemas/session.schema';
-import { Kid, KidSchema } from '../../infra/database/schemas/kid.schema';
+import { Invoice, InvoiceSchema } from '../../infra/database/schemas/invoice.schema';
 import { User, UserSchema } from '../../infra/database/schemas/user.schema';
-import { AuditModule } from '../audit/audit.module';
+import { Kid, KidSchema } from '../../infra/database/schemas/kid.schema';
+import { RemindersService } from './reminders.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Session.name, schema: SessionSchema },
-      { name: Kid.name, schema: KidSchema },
+      { name: Invoice.name, schema: InvoiceSchema },
       { name: User.name, schema: UserSchema },
+      { name: Kid.name, schema: KidSchema },
     ]),
-    AuditModule,
     NotificationsModule,
   ],
-  controllers: [SessionsController],
-  providers: [SessionsService],
-  exports: [SessionsService],
+  providers: [RemindersService],
 })
-export class SessionsModule {}
+export class RemindersModule {}

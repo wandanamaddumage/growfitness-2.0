@@ -2,9 +2,12 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Session, SessionDocument } from '../../infra/database/schemas/session.schema';
-import { SessionType, SessionStatus } from '@grow-fitness/shared-types';
+import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
+import { User, UserDocument } from '../../infra/database/schemas/user.schema';
+import { SessionType, SessionStatus, NotificationType } from '@grow-fitness/shared-types';
 import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
 import { AuditService } from '../audit/audit.service';
+import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 
@@ -12,7 +15,10 @@ import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination
 export class SessionsService {
   constructor(
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
-    private auditService: AuditService
+    @InjectModel(Kid.name) private kidModel: Model<KidDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private auditService: AuditService,
+    private notificationService: NotificationService
   ) {}
 
   private toObjectId(id: string, fieldName: string) {
@@ -28,6 +34,21 @@ export class SessionsService {
   private toObjectIdArray(ids: string[] | undefined, fieldName: string) {
     if (!ids) return ids;
     return ids.map(id => this.toObjectId(id, fieldName));
+  }
+
+  private async getParentIdsFromKidIds(kidIds: Types.ObjectId[]): Promise<string[]> {
+    if (!kidIds?.length) return [];
+    const kids = await this.kidModel
+      .find({ _id: { $in: kidIds } })
+      .select('parentId')
+      .lean()
+      .exec();
+    const parentIds = new Set<string>();
+    for (const k of kids) {
+      const pid = (k as any).parentId?.toString?.() ?? (k as any).parentId;
+      if (pid) parentIds.add(pid);
+    }
+    return Array.from(parentIds);
   }
 
   async findAll(
@@ -143,6 +164,7 @@ export class SessionsService {
       : undefined;
     return {
       id: s._id?.toString(),
+      title: s.title,
       type: s.type,
       coachId: coachIdVal != null ? coachIdVal.toString() : undefined,
       locationId: locationIdVal != null ? locationIdVal.toString() : undefined,
@@ -207,7 +229,32 @@ export class SessionsService {
       metadata: createSessionDto,
     });
 
-    return this.findById(session._id.toString());
+    const sessionIdStr = session._id.toString();
+    const parentIds = await this.getParentIdsFromKidIds(session.kids ?? []);
+    const coachIdStr = session.coachId.toString();
+    const title = 'New session scheduled';
+    const body = `Session "${session.title}" has been scheduled.`;
+
+    await this.notificationService.createNotification({
+      userId: coachIdStr,
+      type: NotificationType.SESSION_CREATED,
+      title,
+      body,
+      entityType: 'Session',
+      entityId: sessionIdStr,
+    });
+    for (const parentId of parentIds) {
+      await this.notificationService.createNotification({
+        userId: parentId,
+        type: NotificationType.SESSION_CREATED,
+        title,
+        body,
+        entityType: 'Session',
+        entityId: sessionIdStr,
+      });
+    }
+
+    return this.findById(sessionIdStr);
   }
 
   async update(id: string, updateSessionDto: UpdateSessionDto, actorId: string) {
@@ -244,6 +291,7 @@ export class SessionsService {
     }
 
     const updatedFields: Partial<Session> = {
+      ...(updateSessionDto.title && { title: updateSessionDto.title }),
       ...(updateSessionDto.coachId && {
         coachId: this.toObjectId(updateSessionDto.coachId, 'coachId'),
       }),
@@ -258,6 +306,9 @@ export class SessionsService {
       ...(updateSessionDto.isFreeSession !== undefined && { isFreeSession: updateSessionDto.isFreeSession }),
     };
 
+    const previousStatus = session.status;
+    const previousDateTime = session.dateTime;
+
     Object.assign(session, {
       ...updatedFields,
     });
@@ -271,6 +322,69 @@ export class SessionsService {
       entityId: id,
       metadata: updateSessionDto,
     });
+
+    const statusChanged = updateSessionDto.status !== undefined && updateSessionDto.status !== previousStatus;
+    const dateTimeChanged =
+      updateSessionDto.dateTime !== undefined &&
+      new Date(updateSessionDto.dateTime).getTime() !== previousDateTime.getTime();
+
+    if (statusChanged || dateTimeChanged) {
+      const notifType =
+        session.status === SessionStatus.CANCELLED
+          ? NotificationType.SESSION_CANCELLED
+          : session.status === SessionStatus.COMPLETED
+            ? NotificationType.SESSION_COMPLETED
+            : NotificationType.SESSION_UPDATED;
+      const changes: string[] = [];
+      if (statusChanged) changes.push(`status: ${previousStatus} → ${session.status}`);
+      if (dateTimeChanged) changes.push(`date/time updated`);
+      const changesStr = changes.length ? changes.join('; ') : 'Session updated';
+
+      const sessionPopulated = await this.sessionModel
+        .findById(id)
+        .populate('coachId', 'email phone')
+        .populate('kids')
+        .exec();
+      if (sessionPopulated) {
+        const coachIdStr = (sessionPopulated.coachId as any)?._id?.toString?.() ?? sessionPopulated.coachId?.toString?.();
+        const parentIds = await this.getParentIdsFromKidIds(sessionPopulated.kids ?? []);
+        const recipientIds = [coachIdStr, ...parentIds].filter(Boolean);
+
+        for (const userId of recipientIds) {
+          await this.notificationService.createNotification({
+            userId,
+            type: notifType,
+            title: 'Session updated',
+            body: `Session "${session.title}": ${changesStr}`,
+            entityType: 'Session',
+            entityId: id,
+          });
+        }
+
+        const coachUser = coachIdStr
+          ? await this.userModel.findById(coachIdStr).select('email phone').lean().exec()
+          : null;
+        if (coachUser && (coachUser as any).email) {
+          await this.notificationService.sendSessionChange({
+            email: (coachUser as any).email,
+            phone: (coachUser as any).phone ?? '',
+            sessionId: id,
+            changes: changesStr,
+          });
+        }
+        for (const parentId of parentIds) {
+          const parent = await this.userModel.findById(parentId).select('email phone').lean().exec();
+          if (parent && (parent as any).email) {
+            await this.notificationService.sendSessionChange({
+              email: (parent as any).email,
+              phone: (parent as any).phone ?? '',
+              sessionId: id,
+              changes: changesStr,
+            });
+          }
+        }
+      }
+    }
 
     return this.findById(id);
   }
@@ -317,6 +431,30 @@ export class SessionsService {
       throw new NotFoundException({
         errorCode: ErrorCode.SESSION_NOT_FOUND,
         message: 'Session not found',
+      });
+    }
+
+    const coachIdStr = session.coachId.toString();
+    const parentIds = await this.getParentIdsFromKidIds(session.kids ?? []);
+    const title = 'Session deleted';
+    const body = `Session "${session.title}" has been deleted.`;
+
+    await this.notificationService.createNotification({
+      userId: coachIdStr,
+      type: NotificationType.SESSION_DELETED,
+      title,
+      body,
+      entityType: 'Session',
+      entityId: id,
+    });
+    for (const parentId of parentIds) {
+      await this.notificationService.createNotification({
+        userId: parentId,
+        type: NotificationType.SESSION_DELETED,
+        title,
+        body,
+        entityType: 'Session',
+        entityId: id,
       });
     }
 

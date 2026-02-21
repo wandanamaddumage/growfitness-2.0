@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -22,9 +23,11 @@ import { CodesModule } from './modules/codes/codes.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { TestimonialsModule } from './modules/testimonials/testimonials.module';
+import { RemindersModule } from './modules/reminders/reminders.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
@@ -50,6 +53,7 @@ import { TestimonialsModule } from './modules/testimonials/testimonials.module';
     QuizzesModule,
     ReportsModule,
     TestimonialsModule,
+    RemindersModule,
   ],
   controllers: [AppController],
   providers: [
