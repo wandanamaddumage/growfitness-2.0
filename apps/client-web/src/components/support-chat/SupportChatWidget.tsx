@@ -255,12 +255,12 @@ export function SupportChatWidget() {
                     >
                       {m.content}
                     </div>
+                    {m.timestamp && (
+                      <p className="text-[11px] text-gray-400 mb-0.5 shrink-0">
+                        {m.timestamp}
+                      </p>
+                    )}
                   </div>
-                  {m.timestamp && (
-                    <p className={cn('text-[11px] text-gray-400 mt-0.5', isUser ? 'mr-1' : 'ml-9')}>
-                      {m.timestamp}
-                    </p>
-                  )}
                 </div>
               );
             })}
