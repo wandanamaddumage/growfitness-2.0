@@ -82,9 +82,6 @@ const BookAFreeSessionForm: React.FC = () => {
     fetchSessions();
   }, []);
 
-  /**
-   * Handle Submit
-   */
   const handleCollectInfoSubmit = async (
     data: CreateFreeSessionRequestDto
   ) => {
