@@ -85,7 +85,7 @@ export function LoginPage() {
                   id="email"
                   type="email"
                   {...register('email')}
-                  placeholder="admin@growfitness.com"
+                  placeholder="growfitnesslk@gmail.com"
                   className="w-full px-4 py-3 border border-input rounded-md bg-muted/50 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring transition-colors"
                   required
                 />
