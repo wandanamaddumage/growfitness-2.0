@@ -42,4 +42,3 @@ GoogleCalendarEventSchema.set('toJSON', {
 GoogleCalendarEventSchema.index({ userId: 1, sessionId: 1 }, { unique: true });
 GoogleCalendarEventSchema.index({ userId: 1 });
 GoogleCalendarEventSchema.index({ sessionId: 1 });
-

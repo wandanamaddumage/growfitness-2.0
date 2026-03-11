@@ -263,7 +263,9 @@ export class SessionsService {
 
     this.googleCalendarSync
       .syncSessionCreated(sessionIdStr)
-      .catch(err => this.logger.warn(`Google Calendar sync failed for session ${sessionIdStr}`, err));
+      .catch(err =>
+        this.logger.warn(`Google Calendar sync failed for session ${sessionIdStr}`, err)
+      );
 
     return this.findById(sessionIdStr);
   }
@@ -408,10 +410,10 @@ export class SessionsService {
 
     const calendarRelevantChanged = Boolean(
       updateSessionDto.title ||
-        updateSessionDto.locationId ||
-        updateSessionDto.dateTime ||
-        updateSessionDto.duration ||
-        updateSessionDto.status
+      updateSessionDto.locationId ||
+      updateSessionDto.dateTime ||
+      updateSessionDto.duration ||
+      updateSessionDto.status
     );
     if (calendarRelevantChanged) {
       this.googleCalendarSync
@@ -501,7 +503,7 @@ export class SessionsService {
     });
 
     this.googleCalendarSync
-      .syncSessionDeleted(id, session.coachId.toString(), (session.kids ?? []) as Types.ObjectId[])
+      .syncSessionDeleted(id, session.coachId.toString(), session.kids ?? [])
       .catch(err => this.logger.warn(`Google Calendar sync failed for deleted session ${id}`, err));
 
     return { message: 'Session deleted successfully' };

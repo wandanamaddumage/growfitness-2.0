@@ -95,4 +95,3 @@ export class GoogleOAuthStateService {
     return payload;
   }
 }
-

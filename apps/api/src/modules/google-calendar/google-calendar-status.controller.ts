@@ -19,4 +19,3 @@ export class GoogleCalendarStatusController {
     return { connected };
   }
 }
-

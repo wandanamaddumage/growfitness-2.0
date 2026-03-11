@@ -35,11 +35,7 @@ export class GoogleCalendarAuthController {
   @Public()
   @ApiOperation({ summary: 'Google Calendar OAuth callback' })
   @ApiResponse({ status: 302, description: 'Redirects back to redirect_uri with connected=1' })
-  async callback(
-    @Query('code') code: string,
-    @Query('state') state: string,
-    @Res() res: Response
-  ) {
+  async callback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
     try {
       const { redirectUri } = await this.googleCalendarOAuth.handleCallback(code, state);
       const url = new URL(redirectUri);
@@ -67,4 +63,3 @@ export class GoogleCalendarAuthController {
     return { connected: false };
   }
 }
-
