@@ -11,7 +11,7 @@ export class PasswordResetToken {
   @Prop({ required: true, unique: true, index: true })
   token: string;
 
-  @Prop({ required: true, index: { expireAfterSeconds: 0 } })
+  @Prop({ required: true })
   expiresAt: Date;
 
   @Prop({ required: true, default: false })

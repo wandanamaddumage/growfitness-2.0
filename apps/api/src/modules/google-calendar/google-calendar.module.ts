@@ -35,4 +35,3 @@ import { GoogleCalendarStatusController } from './google-calendar-status.control
   exports: [GoogleCalendarSyncService],
 })
 export class GoogleCalendarModule {}
-

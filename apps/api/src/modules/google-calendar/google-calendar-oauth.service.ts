@@ -149,4 +149,3 @@ export class GoogleCalendarOAuthService {
     return Boolean((user as any)?.googleCalendarRefreshToken);
   }
 }
-

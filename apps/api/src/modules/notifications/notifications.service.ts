@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { EmailProvider } from './providers/email.provider';
+import { TextLkProvider } from './providers/textlk.provider';
 import { UserDocument } from '../../infra/database/schemas/user.schema';
 import {
   Notification,
@@ -65,106 +66,183 @@ export interface NewInvoiceData {
 
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
   constructor(
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private emailProvider: EmailProvider,
+    private textLkProvider: TextLkProvider,
     private configService: ConfigService
   ) {}
 
   async sendFreeSessionConfirmation(data: FreeSessionConfirmationData) {
     const message = `Hello ${data.parentName}, your free session request for ${data.kidName} has been confirmed!`;
 
-    await this.emailProvider.send({
-      to: data.email,
-      subject: 'Free Session Confirmation',
-      body: message,
-    });
+    const tasks: Promise<void>[] = [];
+    tasks.push(
+      this.emailProvider
+        .send({
+          to: data.email,
+          subject: 'Free Session Confirmation',
+          body: message,
+        })
+        .catch(err => this.logger.error(`Failed to send free session confirmation email to ${data.email}`, err))
+    );
+    tasks.push(
+      this.textLkProvider
+        .send({
+          to: data.phone,
+          message,
+        })
+        .catch(err => this.logger.error(`Failed to send free session confirmation SMS to ${data.phone}`, err))
+    );
+    await Promise.all(tasks);
   }
 
   async sendSessionChange(data: SessionChangeData) {
     const message = `Your session has been updated: ${data.changes}`;
 
-    await this.emailProvider.send({
-      to: data.email,
-      subject: 'Session Update',
-      body: message,
-    });
+    const tasks: Promise<void>[] = [];
+    tasks.push(
+      this.emailProvider
+        .send({
+          to: data.email,
+          subject: 'Session Update',
+          body: message,
+        })
+        .catch(err => this.logger.error(`Failed to send session change email to ${data.email}`, err))
+    );
+    tasks.push(
+      this.textLkProvider
+        .send({
+          to: data.phone,
+          message,
+        })
+        .catch(err => this.logger.error(`Failed to send session change SMS to ${data.phone}`, err))
+    );
+    await Promise.all(tasks);
   }
 
   async sendInvoiceUpdate(data: InvoiceUpdateData) {
     const message = `Your invoice status has been updated to: ${data.status}`;
     if (data.email) {
-      await this.emailProvider.send({
-        to: data.email,
-        subject: 'Invoice Update',
-        body: message,
-      });
+      await this.emailProvider
+        .send({
+          to: data.email,
+          subject: 'Invoice Update',
+          body: message,
+        })
+        .catch(err => this.logger.error(`Failed to send invoice update email to ${data.email}`, err));
+    }
+    if (data.phone) {
+      await this.textLkProvider
+        .send({
+          to: data.phone,
+          message,
+        })
+        .catch(err => this.logger.error(`Failed to send invoice update SMS to ${data.phone}`, err));
     }
   }
 
   async sendRegistrationApproved(data: RegistrationApprovedData) {
     const name = data.parentName ?? 'there';
     const message = `Hello ${name}, your Grow Fitness account has been approved. You can now sign in.`;
-    const promises: Promise<void>[] = [];
+    const tasks: Promise<void>[] = [];
     if (data.email) {
-      promises.push(
-        this.emailProvider.send({
-          to: data.email,
-          subject: 'Account Approved',
-          body: message,
-        })
+      tasks.push(
+        this.emailProvider
+          .send({
+            to: data.email,
+            subject: 'Account Approved',
+            body: message,
+          })
+          .catch(err => this.logger.error(`Failed to send registration approval email to ${data.email}`, err))
       );
     }
-    if (promises.length) await Promise.all(promises);
+    if (data.phone) {
+      tasks.push(
+        this.textLkProvider
+          .send({ to: data.phone, message })
+          .catch(err => this.logger.error(`Failed to send registration approval SMS to ${data.phone}`, err))
+      );
+    }
+    if (tasks.length) await Promise.all(tasks);
   }
 
   async sendCoachPayoutPaid(data: CoachPayoutPaidData) {
     const name = data.coachName ?? 'Coach';
     const message = `Hello ${name}, your monthly payment has been processed.`;
-    const promises: Promise<void>[] = [];
+    const tasks: Promise<void>[] = [];
     if (data.email) {
-      promises.push(
-        this.emailProvider.send({
-          to: data.email,
-          subject: 'Payment Processed',
-          body: message,
-        })
+      tasks.push(
+        this.emailProvider
+          .send({
+            to: data.email,
+            subject: 'Payment Processed',
+            body: message,
+          })
+          .catch(err => this.logger.error(`Failed to send payout email to ${data.email}`, err))
       );
     }
-    if (promises.length) await Promise.all(promises);
+    if (data.phone) {
+      tasks.push(
+        this.textLkProvider
+          .send({ to: data.phone, message })
+          .catch(err => this.logger.error(`Failed to send payout SMS to ${data.phone}`, err))
+      );
+    }
+    if (tasks.length) await Promise.all(tasks);
   }
 
   async sendNewInvoiceToParent(data: NewInvoiceData) {
     const name = data.recipientName ?? 'there';
     const message = `Hello ${name}, you have a new invoice from Grow Fitness. Please log in to view and pay.`;
-    const promises: Promise<void>[] = [];
+    const tasks: Promise<void>[] = [];
     if (data.email) {
-      promises.push(
-        this.emailProvider.send({
-          to: data.email,
-          subject: 'New Invoice',
-          body: message,
-        })
+      tasks.push(
+        this.emailProvider
+          .send({
+            to: data.email,
+            subject: 'New Invoice',
+            body: message,
+          })
+          .catch(err => this.logger.error(`Failed to send new invoice email to ${data.email}`, err))
       );
     }
-    if (promises.length) await Promise.all(promises);
+    if (data.phone) {
+      tasks.push(
+        this.textLkProvider
+          .send({ to: data.phone, message })
+          .catch(err => this.logger.error(`Failed to send new invoice SMS to ${data.phone}`, err))
+      );
+    }
+    if (tasks.length) await Promise.all(tasks);
   }
 
   async sendPaymentReminder(data: NewInvoiceData) {
     const name = data.recipientName ?? 'there';
     const message = `Hello ${name}, friendly reminder: you have an outstanding invoice from Grow Fitness. Please log in to view and pay before month end.`;
-    const promises: Promise<void>[] = [];
+    const tasks: Promise<void>[] = [];
     if (data.email) {
-      promises.push(
-        this.emailProvider.send({
-          to: data.email,
-          subject: 'Reminder: Outstanding Invoice',
-          body: message,
-        })
+      tasks.push(
+        this.emailProvider
+          .send({
+            to: data.email,
+            subject: 'Reminder: Outstanding Invoice',
+            body: message,
+          })
+          .catch(err => this.logger.error(`Failed to send payment reminder email to ${data.email}`, err))
       );
     }
-    if (promises.length) await Promise.all(promises);
+    if (data.phone) {
+      tasks.push(
+        this.textLkProvider
+          .send({ to: data.phone, message })
+          .catch(err => this.logger.error(`Failed to send payment reminder SMS to ${data.phone}`, err))
+      );
+    }
+    if (tasks.length) await Promise.all(tasks);
   }
 
   async createNotification(dto: CreateInAppNotificationDto): Promise<NotificationDocument> {
