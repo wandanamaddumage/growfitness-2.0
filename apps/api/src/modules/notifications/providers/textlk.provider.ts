@@ -13,7 +13,7 @@ export class TextLkProvider {
   private readonly enabled: boolean;
   private readonly apiToken: string;
   private readonly senderId: string;
-  private readonly baseUrl = 'https://app.text.lk/api/v3/sms/send';
+  private readonly baseUrl = 'https://app.text.lk/api/http/sms/send';
 
   constructor(private configService: ConfigService) {
     this.enabled = this.configService.get<string>('TEXTLK_ENABLED', 'false') === 'true';
@@ -48,18 +48,19 @@ export class TextLkProvider {
     }
 
     try {
-      const url = new URL(this.baseUrl);
-      url.searchParams.append('recipient', recipient);
-      url.searchParams.append('sender_id', this.senderId);
-      url.searchParams.append('message', data.message);
-
-      const response = await fetch(url.toString(), {
-        method: 'GET',
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+        body: JSON.stringify({
+          api_token: this.apiToken,
+          recipient: recipient,
+          sender_id: this.senderId,
+          type: 'plain',
+          message: data.message,
+        }),
       });
 
       const result = await response.json();
