@@ -62,7 +62,8 @@ jobs:
             --max-instances=10 \
             --memory=512Mi \
             --cpu=1 \
-            --project="${{ steps.auth.outputs.project_id }}"
+            --project="${{ steps.auth.outputs.project_id }}" \
+            --set-env-vars="MONGODB_URI=${{ secrets.MONGODB_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},TEXTLK_API_TOKEN=${{ secrets.TEXTLK_API_TOKEN }},TEXTLK_SENDER_ID=${{ secrets.TEXTLK_SENDER_ID }},CORS_ORIGIN=${{ secrets.CORS_ORIGIN }},GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
 
       - name: Output service URL
         run: |
