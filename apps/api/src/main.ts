@@ -34,6 +34,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
+  console.log('CORS allowed origins:', allowedOrigins === true ? '*' : allowedOrigins);
 
   // Global prefix
   app.setGlobalPrefix('api');
