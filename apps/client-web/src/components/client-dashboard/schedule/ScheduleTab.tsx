@@ -1,26 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { addDays, endOfDay, startOfDay, startOfWeek, endOfWeek } from 'date-fns';
 import type { PaginatedResponse, Session } from '@grow-fitness/shared-types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
 import { Button } from '@/components/ui/button';
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-} from 'lucide-react';
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar as CalendarIcon, Plus, List, CalendarDays } from 'lucide-react';
 import { sessionsService } from '@/services/sessions.service';
 import SessionDetailsModal from '@/components/common/SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useKid } from '@/contexts/kid/useKid';
 import BookSessionModal from './BookSessionModal';
+import { formatDateTime } from '@/lib/formatters';
 
-type CalendarEvent = {
-  _id: string;
-  title: string;
-  date: Date;
-  session: Session;
-};
+type ScheduleView = 'list' | 'calendar';
 
 const getSessionLabel = (session: Session): string => {
   switch (session.type) {
@@ -33,29 +26,44 @@ const getSessionLabel = (session: Session): string => {
   }
 };
 
+const LIST_VIEW_DAYS = 90;
+
 export default function ScheduleTab() {
   const { selectedKid } = useKid();
-
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView] = useState<ScheduleView>('list');
+  const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
   const [openBooking, setOpenBooking] = useState(false);
 
-  /* ---------------- Month Range ---------------- */
+  const listRange = useMemo(() => {
+    const start = startOfDay(new Date());
+    const end = endOfDay(addDays(new Date(), LIST_VIEW_DAYS));
+    return { start: start.toISOString(), end: end.toISOString() };
+  }, []);
 
-  const [startDate, endDate] = useMemo(() => {
-    const y = currentDate.getFullYear();
-    const m = currentDate.getMonth();
+  const calendarInitialRange = useMemo(() => {
+    const start = startOfWeek(new Date(), { weekStartsOn: 0 });
+    const end = endOfWeek(new Date(), { weekStartsOn: 0 });
+    return { start: start.toISOString(), end: end.toISOString() };
+  }, []);
 
-    return [
-      new Date(y, m, 1).toISOString(),
-      new Date(y, m + 1, 0, 23, 59, 59, 999).toISOString(),
-    ] as const;
-  }, [currentDate]);
+  useEffect(() => {
+    if (view === 'calendar' && !dateRange) {
+      setDateRange(calendarInitialRange);
+    }
+  }, [view, dateRange, calendarInitialRange]);
 
-  /* ---------------- Fetch Sessions ---------------- */
+  const effectiveRange =
+    view === 'list' ? listRange : dateRange ?? calendarInitialRange;
 
-  const { data: sessionsData } = useApiQuery<PaginatedResponse<Session>>(
-    ['sessions', selectedKid?.id || '', startDate, endDate],
+  const { data: sessionsData, isLoading } = useApiQuery<PaginatedResponse<Session>>(
+    [
+      'sessions',
+      selectedKid?.id ?? '',
+      view,
+      effectiveRange.start,
+      effectiveRange.end,
+    ],
     () => {
       if (!selectedKid?.id) {
         return Promise.resolve({
@@ -66,139 +74,116 @@ export default function ScheduleTab() {
           totalPages: 0,
         });
       }
-
-      return sessionsService.getSessions(1, 50, {
+      return sessionsService.getSessions(1, 100, {
         kidId: selectedKid.id,
-        startDate,
-        endDate,
+        startDate: effectiveRange.start,
+        endDate: effectiveRange.end,
       });
     },
     { enabled: Boolean(selectedKid?.id) }
   );
 
-  /* ---------------- Map Events ---------------- */
+  const sessions = sessionsData?.data ?? [];
 
-  const events: CalendarEvent[] = useMemo(() => {
-    const sessions: Session[] = sessionsData?.data ?? [];
+  const events = useMemo(() => {
+    return sessions.map((session) =>
+      sessionToCalendarEvent(session, {
+        formatTitle: (s) => s.title?.trim() || getSessionLabel(s),
+      })
+    );
+  }, [sessions]);
 
-    return sessions.map(session => ({
-      _id: session.id,
-      title: getSessionLabel(session),
-      date: new Date(session.dateTime),
-      session,
-    }));
-  }, [sessionsData]);
-
-  /* ---------------- Calendar Grid ---------------- */
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const calendarDays: (Date | null)[] = [];
-  for (let i = 0; i < firstDay; i++) calendarDays.push(null);
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push(new Date(year, month, i));
-  }
-
-  const monthLabel = currentDate.toLocaleString('default', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const sortedSessions = useMemo(() => {
+    return [...sessions].sort(
+      (a, b) =>
+        new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+    );
+  }, [sessions]);
 
   return (
     <>
       <Card className="border-[#23B685]/20 shadow-sm">
-        <CardHeader className="flex items-center justify-between flex-row">
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center text-base font-semibold">
             <CalendarIcon className="mr-2 h-5 w-5 text-[#23B685]" />
-            {monthLabel}
+            Schedule
           </CardTitle>
-
-          <div className="flex gap-2 items-center">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))
-              }
-            >
-              <ChevronLeft className="h-4 w-4" />
+          {selectedKid?.sessionType === 'INDIVIDUAL' && (
+            <Button size="sm" onClick={() => setOpenBooking(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Book Extra Session
             </Button>
-
-            <Button size="sm" variant="ghost" onClick={() => setCurrentDate(new Date())}>
-              Today
-            </Button>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))
-              }
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-
-            {/* Show button only if sessionType is INDIVIDUAL */}
-            {selectedKid?.sessionType === 'INDIVIDUAL' && (
-              <Button size="sm" onClick={() => setOpenBooking(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Book Extra Session
-              </Button>
-            )}
-          </div>
+          )}
         </CardHeader>
-
         <CardContent>
-          <div className="grid grid-cols-7 gap-[1px] bg-muted rounded-lg overflow-hidden text-xs">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="p-2 text-center font-medium bg-muted/50">
-                {day}
-              </div>
-            ))}
+          <Tabs value={view} onValueChange={(v) => setView(v as ScheduleView)}>
+            <TabsList className="mb-4 grid w-full max-w-[240px] grid-cols-2">
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                List
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4" />
+                Calendar
+              </TabsTrigger>
+            </TabsList>
 
-            {calendarDays.map((day, idx) => {
-              const dayEvents = events.filter(
-                e => day && e.date.toDateString() === day.toDateString()
-              );
-
-              return (
-                <div key={idx} className="min-h-[100px] p-2 bg-white">
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {day?.getDate()}
-                  </div>
-
-                  {dayEvents.map(event => (
-                    <div
-                      key={event._id}
-                      onClick={() => setSelectedSession(event.session)}
-                      className="cursor-pointer mb-1 rounded bg-primary/15 p-1 text-primary truncate"
-                    >
-                      {event.title}
-                    </div>
-                  ))}
+            <TabsContent value="list" className="mt-0">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
+                  Loading sessions…
                 </div>
-              );
-            })}
-          </div>
+              ) : sortedSessions.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30 py-12 text-center text-muted-foreground text-sm">
+                  No upcoming sessions in the next {LIST_VIEW_DAYS} days.
+                </div>
+              ) : (
+                <ul className="divide-y divide-border rounded-lg border border-border">
+                  {sortedSessions.map((session) => (
+                    <li key={session.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSession(session)}
+                        className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+                      >
+                        <span className="min-w-[140px] text-sm text-muted-foreground">
+                          {formatDateTime(session.dateTime)}
+                        </span>
+                        <span className="flex-1 font-medium text-foreground">
+                          {session.title?.trim() || getSessionLabel(session)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {session.duration} min
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </TabsContent>
+
+            <TabsContent value="calendar" className="mt-0">
+              <SessionsCalendar
+                events={events}
+                onSessionClick={setSelectedSession}
+                onDatesSet={(start, end) => setDateRange({ start, end })}
+                loading={isLoading}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
       <SessionDetailsModal
         open={Boolean(selectedSession)}
-        session={selectedSession || undefined}
+        session={selectedSession ?? undefined}
         onClose={() => setSelectedSession(null)}
         kidId={selectedKid?.id}
         onReschedule={() => {}}
       />
 
       {selectedKid?.sessionType === 'INDIVIDUAL' && (
-        <BookSessionModal
-          open={openBooking}
-          onClose={() => setOpenBooking(false)}
-        />
+        <BookSessionModal open={openBooking} onClose={() => setOpenBooking(false)} />
       )}
     </>
   );

@@ -3,14 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FormMessage } from '@/components/ui/form-message';
+import { FormSubmitError } from '@/components/ui/form-submit-error';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginSchema } from '@grow-fitness/shared-schemas';
@@ -30,7 +26,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<{ email: string; password: string }>({
     resolver: zodResolver(LoginSchema),
   });
@@ -41,7 +37,11 @@ export default function LoginPage() {
       await login(data.email, data.password);
       navigate('/dashboard', { replace: true });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const message =
+        err instanceof Error
+          ? err.message
+          : "We couldn't sign you in. Check your email and password and try again.";
+      setError(message);
     }
   };
 
@@ -61,10 +61,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary to-accent py-12 px-4 sm:px-6 lg:px-8 pt-36">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center !text-white hover:!text-gray-200 mb-4"
-          >
+          <Link to="/" className="inline-flex items-center !text-white hover:!text-gray-200 mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
@@ -76,20 +73,22 @@ export default function LoginPage() {
         <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="text-foreground">Sign In</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your dashboard
-            </CardDescription>
+            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
           </CardHeader>
           <CardContent>
-             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   {...register('email')}
-                  required
                 />
+                <FormMessage id="email-error" variant="error">
+                  {errors.email?.message}
+                </FormMessage>
               </div>
 
               <div>
@@ -97,16 +96,17 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
+                  aria-invalid={Boolean(errors.password)}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register('password')}
-                  required
                 />
+                <FormMessage id="password-error" variant="error">
+                  {errors.password?.message}
+                </FormMessage>
               </div>
 
               <div className="flex items-center justify-between">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -122,19 +122,16 @@ export default function LoginPage() {
               <div>
                 <div className="text-center">
                   <span className="text-gray-600">Don't have an account? </span>
-                  <Link
-                    to="/sign-up"
-                    className="text-primary hover:underline font-medium"
-                  >
+                  <Link to="/sign-up" className="text-primary hover:underline font-medium">
                     Sign up
                   </Link>
                 </div>
               </div>
             </form>
             {error && (
-              <p className="mt-4 text-sm text-red-500" role="alert">
-                {error}
-              </p>
+              <div className="mt-4">
+                <FormSubmitError message={error} />
+              </div>
             )}
           </CardContent>
         </Card>

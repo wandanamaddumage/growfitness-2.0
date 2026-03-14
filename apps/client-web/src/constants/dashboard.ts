@@ -25,7 +25,8 @@ export const coachTabs = [
 export const parentIndividualTabs = [
   { id: 'overview', label: 'Overview', icon: Home },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
-  { id: 'achievements', label: 'Achievements', icon: Trophy },
+  // TODO: Add achievements tab later
+  // { id: 'achievements', label: 'Achievements', icon: Trophy },
   { id: 'kidProfile', label: 'Kid Profile', icon: User },
 ];
 
@@ -60,10 +61,7 @@ export const parentQuickActions = [
    Tab Resolver
 ========================= */
 
-export function getTabsForUser(
-  role: 'COACH' | 'PARENT',
-  kidType?: 'GROUP' | 'INDIVIDUAL'
-) {
+export function getTabsForUser(role: 'COACH' | 'PARENT', kidType?: 'GROUP' | 'INDIVIDUAL') {
   if (role === 'COACH') return coachTabs;
 
   if (role === 'PARENT') {

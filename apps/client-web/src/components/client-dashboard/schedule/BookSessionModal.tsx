@@ -77,7 +77,9 @@ export default function BookSessionModal({ open, onClose }: Props) {
 
     if (!selectedCoachId || !selectedLocationId || !preferredDateTime) {
       toast({
-        title: 'Please fill all fields',
+        title: 'Missing information',
+        description: 'Please select a coach, a location, and your preferred date and time.',
+        variant: 'destructive',
       });
       return;
     }
@@ -105,11 +107,15 @@ export default function BookSessionModal({ open, onClose }: Props) {
     } catch (error: unknown) {
       console.error('Failed to create extra session request', error);
 
-      if (error && typeof error === 'object' && 'message' in error) {
-        alert((error as { message?: string }).message || 'Something went wrong');
-      } else {
-        alert('Something went wrong');
-      }
+      const message =
+        error && typeof error === 'object' && 'message' in error
+          ? (error as { message?: string }).message
+          : null;
+      toast({
+        title: 'Request failed',
+        description: message || "We couldn't submit your request. Please try again.",
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

@@ -1,30 +1,28 @@
-import { useState, useEffect } from "react";
-import { TabsContent } from "@/components/ui/tabs";
+import { useState, useEffect } from 'react';
+import { TabsContent } from '@/components/ui/tabs';
 
-import { DesktopTabs } from "@/components/common/DashboardTabs";
-import { MobileTabNav } from "@/components/common/footerTabNavbar";
-import { DashboardHeader } from "@/components/common/DashboardHeader";
-import { OverviewTab } from "@/components/client-dashboard/OverviewTab";
-import { AchievementsTab } from "@/components/client-dashboard/achievements/AchievementsTab";
-import ScheduleTab from "@/components/client-dashboard/schedule/ScheduleTab";
-import { SessionType, UserRole, type Kid } from "@grow-fitness/shared-types";
-import { useKid } from "@/contexts/kid/useKid";
+import { DesktopTabs } from '@/components/common/DashboardTabs';
+import { MobileTabNav } from '@/components/common/footerTabNavbar';
+import { DashboardHeader } from '@/components/common/DashboardHeader';
+import { OverviewTab } from '@/components/client-dashboard/OverviewTab';
+import { AchievementsTab } from '@/components/client-dashboard/achievements/AchievementsTab';
+import ScheduleTab from '@/components/client-dashboard/schedule/ScheduleTab';
+import { SessionType, UserRole, type Kid } from '@grow-fitness/shared-types';
+import { useKid } from '@/contexts/kid/useKid';
 
-import { kidsService } from "@/services/kids.service";
-import { getTabsForUser } from "@/constants/dashboard";
-import { KidProfileTab } from "@/components/client-dashboard/KidProfileTab";
-import { useAuth } from "@/contexts/useAuth";
-
+import { kidsService } from '@/services/kids.service';
+import { getTabsForUser } from '@/constants/dashboard';
+import { KidProfileTab } from '@/components/client-dashboard/KidProfileTab';
+import { useAuth } from '@/contexts/useAuth';
 
 export default function ParentDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [kidData, setKidData] = useState<Kid | null>(null);
   const [isKidDataLoading, setIsKidDataLoading] = useState(false);
 
   const { selectedKid, isLoading: isKidLoading } = useKid();
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  /* ------------------ FETCH KID ------------------ */
   useEffect(() => {
     const kidId = selectedKid?.id || selectedKid?.id;
     if (!kidId) return;
@@ -44,38 +42,33 @@ export default function ParentDashboard() {
     fetchKidData();
   }, [selectedKid]);
 
-  /* ------------------ RESOLVE TABS ------------------ */
-  // Convert SessionType enum to string literals for getTabsForUser
-  const kidTypeForTabs = kidData?.sessionType === SessionType.GROUP 
-    ? 'GROUP' as const
-    : kidData?.sessionType === SessionType.INDIVIDUAL 
-    ? 'INDIVIDUAL' as const
-    : undefined;
+  const kidTypeForTabs =
+    kidData?.sessionType === SessionType.GROUP
+      ? ('GROUP' as const)
+      : kidData?.sessionType === SessionType.INDIVIDUAL
+        ? ('INDIVIDUAL' as const)
+        : undefined;
 
   const tabs = getTabsForUser(user?.role as 'COACH' | 'PARENT', kidTypeForTabs);
 
-  /* ✅ KEEP ACTIVE TAB VALID (MUST BE BEFORE RETURNS) */
   useEffect(() => {
-    if (tabs.length && !tabs.some((t) => t.id === activeTab)) {
+    if (tabs.length && !tabs.some(t => t.id === activeTab)) {
       setActiveTab(tabs[0].id);
     }
   }, [tabs, activeTab]);
 
-  /* ------------------ SAFEGUARDS ------------------ */
   if (isAuthLoading || isKidLoading || isKidDataLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <DashboardHeader />
-        <div className="flex justify-center py-20 text-gray-500">
-          Loading dashboard...
-        </div>
+        <div className="flex justify-center py-20 text-gray-500">Loading dashboard...</div>
       </div>
     );
   }
 
   if (!user || user.role !== UserRole.PARENT || !kidData) {
     return (
-       <div className="min-h-screen bg-white mt-24">
+      <div className="min-h-screen bg-white mt-24">
         <DashboardHeader />
         <div className="flex justify-center py-20 text-gray-500">
           Please select a child to continue.
@@ -89,7 +82,7 @@ export default function ParentDashboard() {
     overview: <OverviewTab kid={kidData} />,
     schedule: <ScheduleTab />,
     achievements: <AchievementsTab />,
-    kidProfile: <KidProfileTab/>,
+    kidProfile: <KidProfileTab />,
   };
 
   /* ------------------ RENDER ------------------ */
@@ -103,12 +96,8 @@ export default function ParentDashboard() {
         user={user}
         kidType={kidData.sessionType}
       >
-        {tabs.map((tab) => (
-          <TabsContent
-            key={tab.id}
-            value={tab.id}
-            className="space-y-6 pb-20 md:pb-6"
-          >
+        {tabs.map(tab => (
+          <TabsContent key={tab.id} value={tab.id} className="space-y-6 pb-20 md:pb-6">
             {tabComponents[tab.id]}
           </TabsContent>
         ))}

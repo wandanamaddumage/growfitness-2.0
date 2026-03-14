@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FormSubmitError } from '@/components/ui/form-submit-error';
 import { authService } from '@/services/auth';
 
 export default function ForgotPasswordForm() {
@@ -28,7 +29,7 @@ export default function ForgotPasswordForm() {
       await authService.forgotPassword(email);
       setIsSubmitted(true);
     } catch (err) {
-      setError('Failed to send reset link. Please try again.');
+      setError("We couldn't send the reset link. Check your email address and try again.");
       console.error('Forgot password error:', err);
     } finally {
       setIsLoading(false);
@@ -68,11 +69,7 @@ export default function ForgotPasswordForm() {
           <CardContent>
             {!isSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                  <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-                    {error}
-                  </div>
-                )}
+                {error && <FormSubmitError message={error} />}
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
