@@ -1,17 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-
+import { startOfWeek, endOfWeek } from 'date-fns';
 import { sessionsService } from '@/services/sessions.service';
 import type { Session } from '@grow-fitness/shared-types';
 import SessionDetailsModal from '@/components/common/SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useAuth } from '@/contexts/useAuth';
+import {
+  ScheduleCalendar,
+  type ScheduleCalendarEvent,
+  type ScheduleView,
+} from '@/components/schedule/ScheduleCalendar';
 
 /* ------------------------------------------------------------------ */
 /* Helpers */
@@ -38,20 +36,25 @@ export default function ScheduleTab() {
 
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView] = useState<ScheduleView>('month');
 
   /* ------------------------------------------------------------------
-   * Month range
+   * Date range (month or week)
    * ------------------------------------------------------------------ */
 
   const [startDate, endDate] = useMemo(() => {
+    if (view === 'week') {
+      const start = startOfWeek(currentDate, { weekStartsOn: 0 });
+      const end = endOfWeek(currentDate, { weekStartsOn: 0 });
+      return [start.toISOString(), end.toISOString()] as const;
+    }
     const y = currentDate.getFullYear();
     const m = currentDate.getMonth();
-
     return [
       new Date(y, m, 1).toISOString(),
       new Date(y, m + 1, 0, 23, 59, 59, 999).toISOString(),
     ] as const;
-  }, [currentDate]);
+  }, [currentDate, view]);
 
   /* ------------------------------------------------------------------
    * Fetch sessions (coach-based)
@@ -68,13 +71,13 @@ export default function ScheduleTab() {
     () => {
       if (!coachId) {
         throw new Error('Coach ID is required to fetch sessions');
-    }
-    return sessionsService.getSessions(1, 50, {
-      coachId,
-      startDate,
-      endDate,
-    });
-  },
+      }
+      return sessionsService.getSessions(1, 50, {
+        coachId,
+        startDate,
+        endDate,
+      });
+    },
   {
     enabled: Boolean(coachId && startDate),
   }
@@ -84,9 +87,8 @@ export default function ScheduleTab() {
    * Map calendar events
    * ------------------------------------------------------------------ */
 
-  const events = useMemo(() => {
+  const events: ScheduleCalendarEvent[] = useMemo(() => {
     const sessions: Session[] = sessionsData?.data ?? [];
-
     return sessions.map(session => ({
       _id: session.id,
       title: getSessionLabel(session),
@@ -96,106 +98,19 @@ export default function ScheduleTab() {
   }, [sessionsData?.data]);
 
   /* ------------------------------------------------------------------
-   * Calendar grid
-   * ------------------------------------------------------------------ */
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const calendarDays: (Date | null)[] = [];
-  for (let i = 0; i < firstDay; i++) calendarDays.push(null);
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push(new Date(year, month, i));
-  }
-
-  const monthLabel = currentDate.toLocaleString('default', {
-    month: 'long',
-    year: 'numeric',
-  });
-
-  /* ------------------------------------------------------------------
    * Render
    * ------------------------------------------------------------------ */
 
   return (
     <>
-      <Card className="border-[#23B685]/20 shadow-sm">
-        <CardHeader className="flex items-center justify-between flex-row">
-          <CardTitle className="flex items-center text-base font-semibold">
-            <CalendarIcon className="mr-2 h-5 w-5 text-[#23B685]" />
-            {monthLabel}
-          </CardTitle>
-
-          <div className="flex gap-2 items-center">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))
-              }
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setCurrentDate(new Date())}
-            >
-              Today
-            </Button>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))
-              }
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid grid-cols-7 gap-[1px] bg-muted rounded-lg overflow-hidden text-xs">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div
-                key={day}
-                className="p-2 text-center font-medium bg-muted/50"
-              >
-                {day}
-              </div>
-            ))}
-
-            {calendarDays.map((day, idx) => {
-              const dayEvents = events.filter(
-                e => day && e.date.toDateString() === day.toDateString()
-              );
-
-              return (
-                <div key={idx} className="min-h-[100px] p-2 bg-white">
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {day?.getDate()}
-                  </div>
-
-                  {dayEvents.map(event => (
-                    <div
-                      key={event._id}
-                      onClick={() => setSelectedSession(event.session)}
-                      className="cursor-pointer mb-1 rounded bg-primary/15 p-1 text-primary truncate"
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      <ScheduleCalendar
+        view={view}
+        currentDate={currentDate}
+        events={events}
+        onDateChange={setCurrentDate}
+        onViewChange={setView}
+        onEventClick={setSelectedSession}
+      />
 
       <SessionDetailsModal
         open={Boolean(selectedSession)}
