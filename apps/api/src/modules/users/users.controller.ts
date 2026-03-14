@@ -280,7 +280,7 @@ export class UsersController {
     @Body(new ZodValidationPipe(UpdateCoachSchema)) updateCoachDto: UpdateCoachBodyDto,
     @CurrentUser('sub') actorId: string
   ) {
-    return this.usersService.updateCoach(id, updateCoachDto, actorId);
+    return this.usersService.updateCoach(id, updateCoachDto as UpdateCoachDto, actorId);
   }
 
   @Delete('coaches/:id')

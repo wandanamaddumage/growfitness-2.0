@@ -32,7 +32,7 @@ export class CreateCoachBodyDto {
   school?: string;
 
   @Allow()
-  availableTimes?: Array<{ dayOfWeek: string; startTime: string; endTime: string }>;
+  availableTimes?: unknown;
 
   @Allow()
   employmentType?: string;
