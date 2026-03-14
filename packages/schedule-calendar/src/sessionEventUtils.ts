@@ -1,5 +1,6 @@
 import type { EventInput } from '@fullcalendar/core';
-import { Session, SessionStatus } from '@grow-fitness/shared-types';
+import { SessionStatus } from '@grow-fitness/shared-types';
+import type { Session } from '@grow-fitness/shared-types';
 
 export function getStatusColor(status: SessionStatus): string {
   switch (status) {
