@@ -88,7 +88,7 @@ export function parseApiError(error: unknown): AppError {
     // Handle 422 Unprocessable Entity (validation errors)
     if (status === 422 && data && typeof data === 'object' && 'errors' in data) {
       return {
-        message: 'Validation error. Please check your input.',
+        message: 'Please check your entries and try again.',
         validationErrors: (data as { errors: unknown }).errors,
         status,
       };

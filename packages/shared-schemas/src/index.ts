@@ -10,8 +10,8 @@ import {
 
 // Auth Schemas
 export const LoginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Enter a valid email address.'),
+  password: z.string().min(6, 'Use at least 6 characters for your password.'),
 });
 
 export type LoginDto = z.infer<typeof LoginSchema>;
@@ -32,17 +32,17 @@ export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema>;
 // User Schemas
 export const CreateParentSchema = z
   .object({
-    name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().min(1, 'Phone is required'),
+    name: z.string().min(1, 'Enter your name.'),
+    email: z.string().email('Enter a valid email address.'),
+    phone: z.string().min(1, 'Enter your phone number.'),
     location: z.string().optional(),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z.string().min(6, 'Use at least 6 characters for your password.'),
+    confirmPassword: z.string().min(6, 'Use at least 6 characters for your password.'),
     kids: z
       .array(
         z.object({
-          name: z.string().min(1, 'Kid name is required'),
-          gender: z.string().min(1, 'Gender is required'),
+          name: z.string().min(1, 'Enter the child\'s name.'),
+          gender: z.string().min(1, 'Select a gender.'),
           birthDate: z.string().or(z.date()),
           goal: z.string().optional(),
           currentlyInSports: z.boolean(),
@@ -50,13 +50,13 @@ export const CreateParentSchema = z
           sessionType: z.nativeEnum(SessionType),
         })
       )
-      .min(1, 'At least one kid is required'),
+      .min(1, 'Add at least one child.'),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Passwords don't match",
+        message: "Passwords don't match. Enter the same password in both fields.",
         path: ['confirmPassword'],
       });
     }
@@ -164,10 +164,10 @@ export type UpdateSessionDto = z.infer<typeof UpdateSessionSchema>;
 
 // Free Session Request Schema
 export const CreateFreeSessionRequestSchema = z.object({
-  parentName: z.string().min(1, 'Parent name is required'),
-  phone: z.string().min(1, 'Phone is required'),
-  email: z.string().email('Invalid email address'),
-  kidName: z.string().min(1, 'Kid name is required'),
+  parentName: z.string().min(1, 'Enter the parent\'s name.'),
+  phone: z.string().min(1, 'Enter your phone number.'),
+  email: z.string().email('Enter a valid email address.'),
+  kidName: z.string().min(1, 'Enter the child\'s name.'),
   sessionType: z.nativeEnum(SessionType),
   selectedSessionId: z.string().optional(),
   preferredDateTime: z.string().or(z.date()),

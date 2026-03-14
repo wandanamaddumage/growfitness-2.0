@@ -111,8 +111,8 @@ export function KidProfileTab() {
 
     if (!formData.name?.trim() || !formData.gender || !formData.birthDate) {
       toast({
-        title: "Validation error",
-        description: "Please fill all required fields.",
+        title: "Missing information",
+        description: "Please fill in all required fields (name, gender, and birth date).",
         variant: "destructive",
       });
       return;

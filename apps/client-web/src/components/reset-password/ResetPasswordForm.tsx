@@ -11,6 +11,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FormSubmitError } from '@/components/ui/form-submit-error';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { authService } from '@/services/auth';
 
 export default function ResetPasswordForm() {
@@ -29,12 +31,12 @@ export default function ResetPasswordForm() {
     e.preventDefault();
 
     if (!token) {
-      setError('Invalid or expired reset link.');
+      setError('This reset link is invalid or has expired. Request a new one from the login page.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords don't match. Please enter the same password in both fields.");
       return;
     }
 
@@ -51,7 +53,7 @@ export default function ResetPasswordForm() {
       }, 2000);
 
     } catch (err) {
-      setError('Invalid or expired reset link.');
+      setError('This reset link is invalid or has expired. Request a new one from the login page.');
       console.error('Password reset error:', err);
     } finally {
       setIsLoading(false);
@@ -60,10 +62,12 @@ export default function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500 font-medium">
-          Invalid or expired reset link.
-        </p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription>
+            This reset link is invalid or has expired. Request a new one from the login page.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -103,12 +107,7 @@ export default function ResetPasswordForm() {
           <CardContent>
             {!isSuccess ? (
               <form onSubmit={handleSubmit} className="space-y-4">
-
-                {error && (
-                  <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-                    {error}
-                  </div>
-                )}
+                {error && <FormSubmitError message={error} />}
 
                 <div>
                   <Label>New Password</Label>

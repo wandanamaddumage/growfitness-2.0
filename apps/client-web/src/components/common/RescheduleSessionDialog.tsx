@@ -65,8 +65,8 @@ export default function RescheduleSessionDialog({
     
     if (!newDateTime || !reason.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please fill all fields',
+        title: 'Missing information',
+        description: 'Please enter a new date and time and a reason for rescheduling.',
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -75,8 +75,8 @@ export default function RescheduleSessionDialog({
 
     if (newDateTime <= new Date()) {
       toast({
-        title: 'Error',
-        description: 'Please select a future date and time',
+        title: 'Invalid date',
+        description: 'Please choose a date and time in the future.',
         variant: 'destructive',
       });
       setIsSubmitting(false);

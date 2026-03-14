@@ -9,6 +9,7 @@ import type {
 } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Controller } from 'react-hook-form';
+import { FormMessage } from '@/components/ui/form-message';
 import type { QuestionConfig, QuestionOption } from '@/types/question-config';
 
 interface QuestionRendererProps<TFormValues extends FieldValues = FieldValues> {
@@ -67,7 +68,7 @@ const QuestionRenderer = <TFormValues extends FieldValues = FieldValues>({
           setOptions(fetchedOptions);
         } catch (err) {
           console.error('Error loading options:', err);
-          setOptionsError('Failed to load options. Please try again.');
+          setOptionsError("We couldn't load the options. Please try again.");
           setOptions([]);
         } finally {
           setIsLoadingOptions(false);
@@ -754,9 +755,9 @@ const QuestionRenderer = <TFormValues extends FieldValues = FieldValues>({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="text-red-500 text-sm sm:text-base font-medium px-2"
+            className="px-2"
           >
-            {error.message}
+            <FormMessage variant="error">{error.message}</FormMessage>
           </motion.div>
         )}
       </AnimatePresence>
