@@ -97,9 +97,14 @@ export class InvoicePdfService {
 
     const puppeteer = await import('puppeteer');
 
-    const launchOpts: Parameters<typeof puppeteer.launch>[0] = {
+    const launchOpts: any = {
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
     };
 
     if (process.env.PUPPETEER_EXECUTABLE_PATH) {
@@ -112,7 +117,13 @@ export class InvoicePdfService {
       const page = await browser.newPage();
       // A4 at ~96dpi so vw/% match the admin invoice preview (default Puppeteer viewport skews layout).
       await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
+      
+      // Use ['load', 'networkidle2'] instead of 'networkidle0' to be more resilient to slow external assets.
+      await page.setContent(html, { 
+        waitUntil: ['load', 'networkidle2'], 
+        timeout: 60_000 
+      });
+
       const pdf = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -120,7 +131,7 @@ export class InvoicePdfService {
       });
       return Buffer.from(pdf);
     } catch (err) {
-      this.logger.error('Puppeteer PDF failed', err);
+      this.logger.error(`Puppeteer PDF failed for invoice ${invoice.id || 'unknown'}`, err instanceof Error ? err.stack : err);
       throw err;
     } finally {
       await browser.close();
