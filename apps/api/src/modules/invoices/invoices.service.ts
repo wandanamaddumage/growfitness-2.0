@@ -182,10 +182,28 @@ export class InvoicesService {
       status: inv.status,
       dueDate: inv.dueDate,
       paidAt: inv.paidAt,
+      pdfEmailedAt: inv.pdfEmailedAt,
       exportFields: inv.exportFields,
       createdAt: inv.createdAt,
       updatedAt: inv.updatedAt,
     };
+  }
+
+  /**
+   * Records that the invoice PDF was emailed (updates timestamp on each successful send).
+   */
+  async markInvoicePdfEmailed(invoiceId: string): Promise<Date> {
+    const at = new Date();
+    const updated = await this.invoiceModel
+      .findByIdAndUpdate(invoiceId, { $set: { pdfEmailedAt: at } }, { new: true })
+      .exec();
+    if (!updated) {
+      throw new NotFoundException({
+        errorCode: ErrorCode.INVOICE_NOT_FOUND,
+        message: 'Invoice not found',
+      });
+    }
+    return at;
   }
 
   async create(createInvoiceDto: CreateInvoiceDto, actorId: string) {
@@ -398,7 +416,16 @@ export class InvoicesService {
       .exec();
 
     // Simple CSV generation
-    const headers = ['ID', 'Type', 'Parent/Coach', 'Total Amount', 'Status', 'Due Date', 'Paid At'];
+    const headers = [
+      'ID',
+      'Type',
+      'Parent/Coach',
+      'Total Amount',
+      'Status',
+      'Due Date',
+      'Paid At',
+      'PDF Emailed At',
+    ];
     const rows = invoices.map(invoice => [
       invoice._id.toString(),
       invoice.type,
@@ -409,6 +436,7 @@ export class InvoicesService {
       invoice.status,
       invoice.dueDate.toISOString(),
       invoice.paidAt?.toISOString() || 'N/A',
+      invoice.pdfEmailedAt?.toISOString() || 'N/A',
     ]);
 
     const csv = [headers, ...rows].map(row => row.join(',')).join('\n');

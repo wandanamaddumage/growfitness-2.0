@@ -46,4 +46,7 @@ export const invoicesService = {
   },
   /** Server-generated PDF (Puppeteer + shared HTML template). */
   downloadInvoicePdf: (id: string) => fetchAuthorizedBlob(`/invoices/${id}/pdf`),
+  /** Email PDF to parent or coach address on file; returns persisted pdfEmailedAt. */
+  sendInvoicePdfEmail: (id: string) =>
+    api.post<{ pdfEmailedAt: string }>(`/invoices/${id}/send-email`),
 };

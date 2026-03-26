@@ -54,6 +54,7 @@ export function renderInvoicePrintToFullHtml(data: InvoicePdfViewModel): string 
   const bodyInner = renderToStaticMarkup(
     createElement(InvoiceTemplatePrint, {
       data,
+      renderMode: 'pdf',
       includeStyles: false,
       mascotSrc: readMascotDataUri() ?? '',
       logoSrc: readInvoiceLogoDataUri() ?? '',

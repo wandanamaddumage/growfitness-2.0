@@ -6,8 +6,13 @@ function labelWithColon(label: string): string {
   return label.endsWith(':') ? label : `${label}:`;
 }
 
+/** `preview` = admin UI (original look). `pdf` = Puppeteer / print route (reliable attachment output). */
+export type InvoiceRenderMode = 'preview' | 'pdf';
+
 export interface InvoiceTemplatePrintProps {
   data: InvoicePdfViewModel;
+  /** Admin modal: `preview` (default). Server PDF + `/print/invoice`: `pdf`. */
+  renderMode?: InvoiceRenderMode;
   /** When false, omit embedded &lt;style&gt; (e.g. if styles injected once at document level). */
   includeStyles?: boolean;
   /**
@@ -47,29 +52,37 @@ function resolveLogoSrc(logoSrc: string | undefined): string | undefined {
 
 /**
  * Print-safe HTML invoice matching the Grow Fitness branded template.
- * Same markup is server-rendered for Puppeteer PDF generation.
+ * Default `renderMode="preview"` for admin UI; Puppeteer uses `renderMode="pdf"` (see render-html).
  */
 export function InvoiceTemplatePrint({
   data,
+  renderMode = 'preview',
   includeStyles = true,
   mascotSrc,
   logoSrc,
 }: InvoiceTemplatePrintProps) {
   const mascotUrl = resolveMascotSrc(mascotSrc);
   const logoUrl = resolveLogoSrc(logoSrc);
+  const rootClass = renderMode === 'pdf' ? 'inv-root inv-root--pdf' : 'inv-root inv-root--preview';
 
   return (
     <>
       {includeStyles ? (
         <style dangerouslySetInnerHTML={{ __html: INVOICE_PRINT_CSS_EMBEDDED }} />
       ) : null}
-      <div className="inv-root">
+      <div className={rootClass}>
         <div className="inv-white-curve" aria-hidden="true" />
         {mascotUrl ? <img className="inv-mascot" src={mascotUrl} alt="" /> : null}
 
         <div className="inv-content">
           <header className="inv-header">
             <div className="inv-title-wrap">
+              {renderMode === 'pdf' ? (
+                <>
+                  <span className="inv-title-ring inv-title-ring--outer" aria-hidden="true" />
+                  <span className="inv-title-ring inv-title-ring--inner" aria-hidden="true" />
+                </>
+              ) : null}
               <div className="inv-sketch-oval">INVOICE</div>
             </div>
             <div className="inv-logo">

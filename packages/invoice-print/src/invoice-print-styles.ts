@@ -9,16 +9,26 @@
 const INVOICE_TAIL = `
 .inv-white-curve {
   position: absolute;
-  right: -9%;
-  bottom: -7%;
-  width: 38%;
-  height: 34%;
   background: #fff;
   border-radius: 58% 0 0 42% / 36% 0 0 64%;
   transform: rotate(6deg);
   z-index: 0;
   pointer-events: none;
   opacity: 0.97;
+}
+/* Admin modal / default preview — original responsive corner blob */
+.inv-root--preview .inv-white-curve {
+  right: -9%;
+  bottom: -7%;
+  width: 38%;
+  height: 34%;
+}
+/* Puppeteer email attachment: fixed mm + A4 viewport so layout is stable */
+.inv-root--pdf .inv-white-curve {
+  right: -4mm;
+  bottom: -3mm;
+  width: 44mm;
+  height: 36mm;
 }
 .inv-mascot {
   position: absolute;
@@ -54,12 +64,48 @@ const INVOICE_TAIL = `
   min-width: 310px;
   margin-left: -10px;
 }
+/* PDF only: real ring nodes (Chromium print often drops one ::before/::after ring) */
+.inv-root--pdf .inv-title-ring {
+  position: absolute;
+  border: 4px solid #111;
+  pointer-events: none;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.inv-root--pdf .inv-title-ring--outer {
+  inset: -8px -16px -6px -14px;
+  transform: rotate(-4deg);
+  z-index: 0;
+}
+.inv-root--pdf .inv-title-ring--inner {
+  inset: -1px -4px -1px -4px;
+  transform: rotate(-2deg);
+  z-index: 1;
+}
+/* Preview only: original hand-drawn double ring */
+.inv-root--preview .inv-title-wrap::before,
+.inv-root--preview .inv-title-wrap::after {
+  content: '';
+  position: absolute;
+  border: 4px solid #111;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.inv-root--preview .inv-title-wrap::before {
+  inset: -8px -16px -6px -14px;
+  transform: rotate(-4deg);
+  z-index: 0;
+}
+.inv-root--preview .inv-title-wrap::after {
+  inset: -1px -4px -1px -4px;
+  transform: rotate(-2deg);
+  z-index: 1;
+}
 .inv-sketch-oval {
   display: inline-block;
   font-size: clamp(1.9rem, 4vw, 2.8rem);
   font-weight: 800;
   letter-spacing: 0.05em;
-  font-family: 'Insanibc', 'Now-Regular', system-ui, sans-serif;
   color: #fff;
   padding: 16px 34px 18px;
   transform: rotate(-3deg);
@@ -68,24 +114,11 @@ const INVOICE_TAIL = `
   position: relative;
   z-index: 2;
 }
-.inv-title-wrap::before,
-.inv-title-wrap::after {
-  content: '';
-  position: absolute;
-  border: 4px solid #111;
-  pointer-events: none;
-  border-radius: 50%;
+.inv-root--preview .inv-sketch-oval {
+  font-family: 'Insanibc', 'Now-Regular', system-ui, sans-serif;
 }
-.inv-title-wrap::before {
-  inset: -8px -16px -6px -14px;
-  transform: rotate(-4deg);
-  z-index: 0;
-}
-
-.inv-title-wrap::after {
-  inset: -1px -4px -1px -4px;
-  transform: rotate(-2deg);
-  z-index: 1;
+.inv-root--pdf .inv-sketch-oval {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
 }
 
 .inv-logo {

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Res,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -20,7 +30,11 @@ import type { JwtPayload } from '../auth/auth.service';
 import { UserRole, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { CreateInvoiceDto, UpdateInvoicePaymentStatusDto } from '@grow-fitness/shared-schemas';
 import { GetInvoicesQueryDto } from './dto/get-invoices-query.dto';
-import { InvoiceResponseDto, PaginatedInvoiceResponseDto } from './dto/invoice-response.dto';
+import {
+  InvoiceResponseDto,
+  PaginatedInvoiceResponseDto,
+  SendInvoicePdfEmailResponseDto,
+} from './dto/invoice-response.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 
 @ApiTags('invoices')
@@ -102,6 +116,27 @@ export class InvoicesController {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.send(buffer);
+  }
+
+  @Post(':id/send-email')
+  @Roles(UserRole.ADMIN, UserRole.PARENT, UserRole.COACH)
+  @ApiOperation({
+    summary: 'Email invoice PDF to recipient',
+    description:
+      'Generates the same PDF as download and sends it to the parent (PARENT_INVOICE) or coach (COACH_PAYOUT) email on file. Sets pdfEmailedAt on the invoice.',
+  })
+  @ApiOkResponse({
+    description: 'Email sent; returns persisted pdfEmailedAt timestamp',
+    type: SendInvoicePdfEmailResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid ID or no recipient email on file' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Invoice not found' })
+  async sendInvoicePdfEmail(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @CurrentUser() user: JwtPayload
+  ): Promise<SendInvoicePdfEmailResponseDto> {
+    return this.invoicePdfService.sendInvoicePdfByEmail(id, user);
   }
 
   @Get(':id')

@@ -6,5 +6,9 @@ export {
   INVOICE_PRINT_CSS,
   INVOICE_PRINT_CSS_EMBEDDED,
 } from './invoice-print-styles';
-export { InvoiceTemplatePrint, type InvoiceTemplatePrintProps } from './InvoiceTemplatePrint';
+export {
+  InvoiceTemplatePrint,
+  type InvoiceTemplatePrintProps,
+  type InvoiceRenderMode,
+} from './InvoiceTemplatePrint';
 export { renderInvoicePrintToFullHtml } from './render-html';

@@ -43,7 +43,7 @@ export function PrintInvoicePage() {
             Print / Save as PDF
           </Button>
         </div>
-        <InvoiceTemplatePrint data={viewModel} />
+        <InvoiceTemplatePrint data={viewModel} renderMode="pdf" />
       </div>
     </div>
   );
