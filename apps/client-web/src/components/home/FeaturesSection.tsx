@@ -1,12 +1,4 @@
 import { Heart, Users, Trophy } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { MascotCharacter as CircleImage } from '@/components/ui/mascot-character';
 import { Container } from '../layout/Container';
 
 export function FeaturesSection() {

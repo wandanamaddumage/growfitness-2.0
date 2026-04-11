@@ -1,11 +1,22 @@
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Container } from './Container';
 
 const logo = "/Grow Logo Versions-01.svg";
 
+interface FooterLink {
+  label: string;
+  href: string;
+  icon?: LucideIcon;
+}
+
+interface FooterSection {
+  title: string;
+  links: FooterLink[];
+}
+
 export function Footer() {
-  const footerSections = [
+  const footerSections: FooterSection[] = [
     {
       title: 'For Parents',
       links: [
