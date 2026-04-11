@@ -299,6 +299,7 @@ export interface Location {
 export interface Testimonial {
   id: string;
   authorName: string;
+  authorAvatar?: string;
   content: string;
   childName?: string;
   childAge?: number;
