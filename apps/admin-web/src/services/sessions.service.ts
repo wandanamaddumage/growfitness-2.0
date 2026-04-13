@@ -22,6 +22,8 @@ export const sessionsService = {
       status?: SessionStatus;
       startDate?: string;
       endDate?: string;
+      sortBy?: 'dateTime' | 'createdAt';
+      sortOrder?: 'asc' | 'desc';
     }
   ) => {
     const params = new URLSearchParams({
@@ -33,6 +35,8 @@ export const sessionsService = {
     if (filters?.status) params.append('status', filters.status);
     if (filters?.startDate) params.append('startDate', filters.startDate);
     if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     return api.get<PaginatedResponse<Session>>(`/sessions?${params.toString()}`);
   },
   getSessionById: (id: string) => api.get<Session>(`/sessions/${id}`),

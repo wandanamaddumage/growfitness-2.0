@@ -88,6 +88,18 @@ export class SessionsController {
     type: String,
     description: 'Filter sessions until this date (ISO format)',
   })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['dateTime', 'createdAt'],
+    description: 'Sort field (default: dateTime)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    description: 'Sort direction (default: asc)',
+  })
   @ApiOkResponse({
     description:
       'Paginated list of sessions. Each session includes coachId/locationId as IDs and optional coach/location when expanded.',
@@ -95,7 +107,7 @@ export class SessionsController {
   })
   @ApiResponse({ status: 400, description: 'Validation error (e.g. invalid query params)' })
   findAll(@Query() query: GetSessionsQueryDto) {
-    const { page, limit, search, coachId, locationId, kidId, status, startDate, endDate } = query;
+    const { page, limit, search, coachId, locationId, kidId, status, startDate, endDate, sortBy, sortOrder } = query;
     return this.sessionsService.findAll(
       { page, limit, search },
       {
@@ -105,6 +117,8 @@ export class SessionsController {
         status,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
+        sortBy,
+        sortOrder,
       }
     );
   }

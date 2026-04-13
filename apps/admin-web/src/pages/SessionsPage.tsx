@@ -152,9 +152,11 @@ export function SessionsPage() {
         coachId: coachFilter || undefined,
         locationId: locationFilter || undefined,
         status: statusFilter || undefined,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
       }),
     {
-      enabled: currentTab === 'list'
+      enabled: currentTab === 'list',
     }
   );
 

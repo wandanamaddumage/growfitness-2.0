@@ -182,6 +182,8 @@ export class SessionsService {
       startDate?: Date;
       endDate?: Date;
       isFreeSession?: boolean;
+      sortBy?: 'dateTime' | 'createdAt';
+      sortOrder?: 'asc' | 'desc';
     }
   ) {
     const query: Record<string, unknown> = {};
@@ -217,6 +219,8 @@ export class SessionsService {
       query.dateTime = dateTimeFilter;
     }
 
+    const sortField = filters?.sortBy ?? 'dateTime';
+    const sortDirection = filters?.sortOrder === 'desc' ? -1 : 1;
     const skip = (pagination.page - 1) * pagination.limit;
     const [data, total] = await Promise.all([
       this.sessionModel
@@ -224,7 +228,7 @@ export class SessionsService {
         .populate('coachId', 'email coachProfile')
         .populate('locationId')
         .populate('kids')
-        .sort({ dateTime: 1 })
+        .sort({ [sortField]: sortDirection })
         .skip(skip)
         .limit(pagination.limit)
         .lean()
