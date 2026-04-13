@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -7,21 +6,12 @@ import {
   SelectValue,
 } from "../ui/select";
 
-import { kidsService } from "@/services/kids.service";
 import { useKid } from "@/contexts/kid/useKid";
 import { useAuth } from '@/contexts/useAuth';
-import type { Kid } from "@grow-fitness/shared-types";
 
 export function DashboardHeader() {
   const { user, role, isLoading } = useAuth();
-  const {
-    kids,
-    setKids,
-    selectedKid,
-    setSelectedKid,
-    isLoading: isKidLoading,
-    setIsLoading: setIsKidLoading,
-  } = useKid();
+  const { kids, selectedKid, setSelectedKid, isLoading: isKidLoading } = useKid();
 
   /* ---------- ROLE CONFIG ---------- */
   const roleConfig = {
@@ -35,55 +25,9 @@ export function DashboardHeader() {
     },
   };
 
-  /* ---------- FETCH KIDS (PARENT ONLY) ---------- */
-  useEffect(() => {
-    if (role !== "PARENT" || !user?.id) return;
-
-    const fetchKids = async () => {
-      try {
-        setIsKidLoading(true);
-
-        const res = await kidsService.getKids(1, 50, user.id);
-
-        const mappedKids = res.data
-          .map((kid: Kid & { _id?: string }) => {
-            const id = kid.id || kid._id;
-            if (!id) return null;
-            return {
-              id,
-              parentId: kid.parentId,
-              name: kid.name,
-              gender: kid.gender,
-              birthDate: new Date(kid.birthDate),
-              currentlyInSports: kid.currentlyInSports,
-              medicalConditions: kid.medicalConditions || [],
-              sessionType: kid.sessionType,
-              createdAt: kid.createdAt ? new Date(kid.createdAt) : new Date(),
-              updatedAt: kid.updatedAt ? new Date(kid.updatedAt) : new Date(),
-            };
-          })
-          .filter((k): k is NonNullable<typeof k> => k != null);
-
-        setKids(mappedKids);
-
-        // Drop stale selection (e.g. localStorage kid from a previous account) and pick a valid kid.
-        setSelectedKid((prev) => {
-          if (prev && mappedKids.some((k) => k.id === prev.id)) {
-            return prev;
-          }
-          return mappedKids[0] ?? null;
-        });
-      } catch (error) {
-        console.error("❌ Failed to fetch kids", error);
-      } finally {
-        setIsKidLoading(false);
-      }
-    };
-
-    fetchKids();
-  }, [role, user?.id, setKids, setSelectedKid, setIsKidLoading]);
-
   /* ---------- LOADING STATE ---------- */
+  const config = role ? roleConfig[role] : null;
+
   if (isLoading || !user) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -91,13 +35,6 @@ export function DashboardHeader() {
       </div>
     );
   }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    console.log("🧒 Selected kid changed:", selectedKid);
-  }, [selectedKid]);
-
-  const config = role ? roleConfig[role] : null;
 
   /* ---------- UI ---------- */
   return (

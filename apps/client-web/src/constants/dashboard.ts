@@ -61,6 +61,9 @@ export const parentQuickActions = [
    Tab Resolver
 ========================= */
 
+/** Stable empty list so consumers’ effect deps are not a new [] every render. */
+const EMPTY_TABS = [] as typeof coachTabs;
+
 export function getTabsForUser(role: 'COACH' | 'PARENT', kidType?: 'GROUP' | 'INDIVIDUAL') {
   if (role === 'COACH') return coachTabs;
 
@@ -69,5 +72,5 @@ export function getTabsForUser(role: 'COACH' | 'PARENT', kidType?: 'GROUP' | 'IN
     if (kidType === 'INDIVIDUAL') return parentIndividualTabs;
   }
 
-  return [];
+  return EMPTY_TABS;
 }

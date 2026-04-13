@@ -23,14 +23,15 @@ export default function ParentDashboard() {
   const { selectedKid, isLoading: isKidLoading } = useKid();
   const { user, isLoading: isAuthLoading } = useAuth();
 
+  const selectedKidId = selectedKid?.id;
+
   useEffect(() => {
-    const kidId = selectedKid?.id || selectedKid?.id;
-    if (!kidId) return;
+    if (!selectedKidId) return;
 
     const fetchKidData = async () => {
       setIsKidDataLoading(true);
       try {
-        const response = await kidsService.getKidById(kidId);
+        const response = await kidsService.getKidById(selectedKidId);
         setKidData(response);
       } catch {
         setKidData(null);
@@ -40,7 +41,7 @@ export default function ParentDashboard() {
     };
 
     fetchKidData();
-  }, [selectedKid]);
+  }, [selectedKidId]);
 
   const kidTypeForTabs =
     kidData?.sessionType === SessionType.GROUP
@@ -49,68 +50,59 @@ export default function ParentDashboard() {
         ? ('INDIVIDUAL' as const)
         : undefined;
 
-  const tabs = getTabsForUser(user?.role as 'COACH' | 'PARENT', kidTypeForTabs);
-
   useEffect(() => {
-    if (tabs.length && !tabs.some(t => t.id === activeTab)) {
-      setActiveTab(tabs[0].id);
+    const resolved = getTabsForUser(user?.role as 'COACH' | 'PARENT', kidTypeForTabs);
+    if (resolved.length && !resolved.some(t => t.id === activeTab)) {
+      setActiveTab(resolved[0].id);
     }
-  }, [tabs, activeTab]);
+  }, [user?.role, kidTypeForTabs, activeTab]);
 
-  if (isAuthLoading || isKidLoading || isKidDataLoading) {
-    return (
-      <div className="bg-gray-50 flex items-center justify-center py-20 rounded-2xl border border-dashed border-gray-200">
-        <div className="flex flex-col items-center gap-4">
-          <DashboardHeader />
-          <p className="text-gray-500 animate-pulse">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const isDashboardLoading = isAuthLoading || isKidLoading || isKidDataLoading;
+  const showDashboard = Boolean(user && user.role === UserRole.PARENT && kidData);
+  const tabs = showDashboard
+    ? getTabsForUser(user.role as 'COACH' | 'PARENT', kidData.sessionType as 'GROUP' | 'INDIVIDUAL')
+    : [];
 
-  if (!user || user.role !== UserRole.PARENT || !kidData) {
-    return (
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
-        <DashboardHeader />
-        <div className="text-gray-500">
-          Please select a child to continue.
-        </div>
-      </div>
-    );
-  }
-
-  /* ------------------ TAB COMPONENTS ------------------ */
-  const tabComponents: Record<string, JSX.Element> = {
-    overview: <OverviewTab kid={kidData} />,
-    schedule: <ScheduleTab />,
-    achievements: <AchievementsTab />,
-    kidProfile: <KidProfileTab />,
-  };
-
-  /* ------------------ RENDER ------------------ */
   return (
     <div className="space-y-6">
       <DashboardHeader />
+      {isDashboardLoading ? (
+        <div className="bg-gray-50 flex items-center justify-center py-20 rounded-2xl border border-dashed border-gray-200">
+          <p className="text-gray-500 animate-pulse">Loading dashboard...</p>
+        </div>
+      ) : showDashboard && user && kidData ? (
+        <>
+          {/* ------------------ TAB COMPONENTS ------------------ */}
+          <DesktopTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            user={user}
+            kidType={kidData.sessionType}
+          >
+            {tabs.map((tab) => (
+              <TabsContent key={tab.id} value={tab.id} className="space-y-6 pb-20 md:pb-6">
+                {tab.id === 'overview' && <OverviewTab kid={kidData} />}
+                {tab.id === 'schedule' && <ScheduleTab />}
+                {tab.id === 'achievements' && <AchievementsTab />}
+                {tab.id === 'kidProfile' && <KidProfileTab />}
+              </TabsContent>
+            ))}
+          </DesktopTabs>
 
-      <DesktopTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        user={user}
-        kidType={kidData.sessionType}
-      >
-        {tabs.map(tab => (
-          <TabsContent key={tab.id} value={tab.id} className="space-y-6 pb-20 md:pb-6">
-            {tabComponents[tab.id]}
-          </TabsContent>
-        ))}
-      </DesktopTabs>
-
-      <MobileTabNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        user={UserRole.PARENT}
-        kidType={kidData.sessionType}
-      />
+          <MobileTabNav
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            user={UserRole.PARENT}
+            kidType={kidData.sessionType}
+          />
+        </>
+      ) : (
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <div className="text-gray-500">
+            Please select a child to continue.
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { KidContextType } from "./types";
 import { KidContext } from "./KidContext";
 import type { Kid } from "@grow-fitness/shared-types";
+import { useAuth } from "@/contexts/useAuth";
+import { kidsService } from "@/services/kids.service";
 
 export function KidProvider({ children }: { children: ReactNode }) {
+  const { role, user } = useAuth();
   const [kids, setKids] = useState<Kid[]>([]);
   const [selectedKid, setSelectedKid] = useState<Kid | null>(() => {
     try {
@@ -27,18 +30,86 @@ export function KidProvider({ children }: { children: ReactNode }) {
     }
   }, [selectedKid]);
 
-  const value: KidContextType = {
-    kids,
-    setKids,
-    selectedKid,
-    setSelectedKid,
-    isLoading,
-    setIsLoading,
-    selectedKidId: null,
-    setSelectedKidId: function (): void {
-      throw new Error("Function not implemented.");
+  useEffect(() => {
+    if (role !== "PARENT" || !user?.id) {
+      setKids([]);
+      setSelectedKid(null);
+      setIsLoading(false);
+      return;
     }
-  };
+
+    let cancelled = false;
+
+    const fetchKids = async () => {
+      try {
+        setIsLoading(true);
+        const response = await kidsService.getKids(1, 50, user.id);
+
+        const mappedKids = response.data
+          .map((kid: Kid & { _id?: string }) => {
+            const id = kid.id || kid._id;
+            if (!id) return null;
+            return {
+              ...kid,
+              id,
+              birthDate: new Date(kid.birthDate),
+              createdAt: kid.createdAt ? new Date(kid.createdAt) : new Date(),
+              updatedAt: kid.updatedAt ? new Date(kid.updatedAt) : new Date(),
+            };
+          })
+          .filter((kid): kid is Kid => kid !== null);
+
+        if (cancelled) return;
+
+        setKids(mappedKids);
+        setSelectedKid((prev) => {
+          if (prev && mappedKids.some((kid) => kid.id === prev.id)) {
+            return prev;
+          }
+          return mappedKids[0] ?? null;
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.error("❌ Failed to fetch kids", error);
+          setKids([]);
+          setSelectedKid(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchKids();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [role, user?.id]);
+
+  const setSelectedKidId = useCallback(
+    (id: string | null) => {
+      if (!id) {
+        setSelectedKid(null);
+        return;
+      }
+      setSelectedKid(kids.find((kid) => kid.id === id) ?? null);
+    },
+    [kids]
+  );
+
+  const value = useMemo<KidContextType>(
+    () => ({
+      kids,
+      selectedKid,
+      setSelectedKid,
+      isLoading,
+      selectedKidId: selectedKid?.id ?? null,
+      setSelectedKidId,
+    }),
+    [kids, selectedKid, isLoading, setSelectedKidId]
+  );
 
   return (
     <KidContext.Provider value={value}>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { sessionsService } from '@/services/sessions.service';
 import { SessionStatus, type Session } from '@grow-fitness/shared-types';
 import SessionDetailsModal from './SessionDetailsModal';
+import { useApiQuery } from '@/hooks/useApiQuery';
 
 type UpcomingSessionsProps = {
   kidId?: string;
@@ -9,29 +10,22 @@ type UpcomingSessionsProps = {
 };
 
 export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
-  useEffect(() => {
-    const fetchUpcomingSessions = async () => {
-      try {
-        // Get next 3 sessions
-        const response = await sessionsService.getSessions(1, 3, {
-          kidId,
-          coachId,
-        });
-
-        setSessions(response.data); // adjust if your API returns PaginatedResponse
-      } catch (error) {
-        console.error('Failed to fetch upcoming sessions', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUpcomingSessions();
-  }, [kidId, coachId]);
+  const { data: sessions = [], isLoading } = useApiQuery<Session[]>(
+    ['upcoming-sessions', kidId ?? '', coachId ?? ''],
+    async () => {
+      const response = await sessionsService.getSessions(1, 3, {
+        kidId,
+        coachId,
+      });
+      return response.data;
+    },
+    {
+      enabled: Boolean(kidId || coachId),
+      staleTime: 5 * 60 * 1000,
+    }
+  );
 
   const getStatusBadge = (status: SessionStatus) => {
     switch (status) {
@@ -44,7 +38,7 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
     }
   };
 
-  if (loading) return <p>Loading upcoming sessions...</p>;
+  if (isLoading) return <p>Loading upcoming sessions...</p>;
 
   if (!sessions.length) {
     return <p>No upcoming sessions.</p>;

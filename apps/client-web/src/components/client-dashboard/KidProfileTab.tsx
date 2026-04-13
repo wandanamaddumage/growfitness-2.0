@@ -88,7 +88,7 @@ export function KidProfileTab() {
     };
 
     fetchKidDetails();
-  }, [selectedKid, selectedKid?.id, toast]);
+  }, [selectedKid?.id, toast]);
 
   const handleInputChange = (field: keyof UpdateKidDto, value: string | boolean) =>
     setFormData((prev) => ({ ...prev, [field]: value }));

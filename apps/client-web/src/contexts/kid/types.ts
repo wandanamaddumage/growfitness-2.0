@@ -8,12 +8,9 @@ export interface KidContextType {
 
   // setters
   setSelectedKid: Dispatch<SetStateAction<Kid | null>>;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
 
   // state
   isLoading: boolean;
 
-  setKids: (kids: Kid[]) => void;
   setSelectedKidId: (id: string | null) => void;
-
 }
