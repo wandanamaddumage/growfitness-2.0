@@ -16,7 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Eye, LayoutList, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  LayoutList,
+  Calendar as CalendarIcon,
+  Repeat,
+} from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import { formatDateTime, formatSessionType } from '@/lib/formatters';
@@ -190,7 +198,17 @@ export function SessionsPage() {
     {
       accessorKey: 'title',
       header: 'Title',
-      cell: ({ row }) => row.original.title || 'N/A',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <span>{row.original.title || 'N/A'}</span>
+          {row.original.recurringGroupId ? (
+            <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+              <Repeat className="h-3 w-3" />
+              Recurring
+            </span>
+          ) : null}
+        </div>
+      ),
     },
     {
       accessorKey: 'dateTime',

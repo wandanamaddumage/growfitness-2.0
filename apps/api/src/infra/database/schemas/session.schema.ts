@@ -58,6 +58,12 @@ export class Session {
 
   @Prop({ required: true, default: false })
   isFreeSession: boolean;
+
+  @Prop({ type: String, required: false })
+  recurringGroupId?: string;
+
+  @Prop({ type: Number, required: false, min: 0 })
+  recurringIndex?: number;
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
@@ -93,6 +99,8 @@ SessionSchema.set('toObject', {
     ret.coachId = formatRef(ret.coachId);
     ret.locationId = formatRef(ret.locationId);
     ret.kids = Array.isArray(ret.kids) ? ret.kids.map(normalizeKid) : ret.kids;
+    ret.recurringGroupId = ret.recurringGroupId;
+    ret.recurringIndex = ret.recurringIndex;
     return ret;
   },
 });
@@ -106,6 +114,8 @@ SessionSchema.set('toJSON', {
     ret.coachId = formatRef(ret.coachId);
     ret.locationId = formatRef(ret.locationId);
     ret.kids = Array.isArray(ret.kids) ? ret.kids.map(normalizeKid) : ret.kids;
+    ret.recurringGroupId = ret.recurringGroupId;
+    ret.recurringIndex = ret.recurringIndex;
     return ret;
   },
 });
@@ -116,3 +126,4 @@ SessionSchema.index({ coachId: 1 });
 SessionSchema.index({ status: 1 });
 SessionSchema.index({ locationId: 1 });
 SessionSchema.index({ isFreeSession: 1 });
+SessionSchema.index({ recurringGroupId: 1 });

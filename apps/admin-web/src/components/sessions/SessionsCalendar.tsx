@@ -73,7 +73,8 @@ export function SessionsCalendar({
   const events = (data?.data || []).map((session) =>
     sessionToCalendarEvent(session, {
       formatTitle: (s) => {
-        if (s.title) return s.title;
+        const recurringPrefix = s.recurringGroupId ? '↻ ' : '';
+        if (s.title) return `${recurringPrefix}${s.title}`;
         let coachName = 'Session';
         if (s.coachId && typeof s.coachId === 'object') {
           const c = s.coachId as Record<string, unknown>;
@@ -83,7 +84,7 @@ export function SessionsCalendar({
             (c.firstName as string) ||
             'Coach';
         }
-        return `${formatSessionType(s.type)} - ${coachName}`;
+        return `${recurringPrefix}${formatSessionType(s.type)} - ${coachName}`;
       },
     })
   );

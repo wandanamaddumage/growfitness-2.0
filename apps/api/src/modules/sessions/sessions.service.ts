@@ -1,11 +1,21 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { randomUUID } from 'crypto';
 import { Session, SessionDocument } from '../../infra/database/schemas/session.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
-import { SessionType, SessionStatus, NotificationType } from '@grow-fitness/shared-types';
-import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
+import {
+  SessionType,
+  SessionStatus,
+  NotificationType,
+  RecurrenceFrequency,
+} from '@grow-fitness/shared-types';
+import {
+  CreateSessionDto,
+  UpdateSessionDto,
+  CreateRecurringSessionDto,
+} from '@grow-fitness/shared-schemas';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
@@ -53,6 +63,113 @@ export class SessionsService {
       if (pid) parentIds.add(pid);
     }
     return Array.from(parentIds);
+  }
+
+  private getStartOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  private parseStartDateAndTime(startDate: string | Date, time: string): Date {
+    const [hoursStr, minutesStr] = time.split(':');
+    const hours = Number(hoursStr);
+    const minutes = Number(minutesStr);
+    const baseDate = new Date(startDate);
+
+    if (Number.isNaN(baseDate.getTime()) || Number.isNaN(hours) || Number.isNaN(minutes)) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_INPUT,
+        message: 'Invalid start date or time format',
+      });
+    }
+
+    return new Date(
+      baseDate.getFullYear(),
+      baseDate.getMonth(),
+      baseDate.getDate(),
+      hours,
+      minutes,
+      0,
+      0
+    );
+  }
+
+  private getWeekDifference(startDate: Date, date: Date): number {
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+    const start = this.getStartOfDay(startDate);
+    const current = this.getStartOfDay(date);
+    return Math.floor((current.getTime() - start.getTime()) / msPerWeek);
+  }
+
+  private generateRecurringDates(dto: CreateRecurringSessionDto): Date[] {
+    const maxSessions = 52;
+    const start = this.parseStartDateAndTime(dto.startDate, dto.time);
+    const endDate = dto.recurrence.endDate ? new Date(dto.recurrence.endDate) : null;
+    const endBoundary = endDate
+      ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999)
+      : null;
+    const occurrencesLimit = Math.min(dto.recurrence.occurrences ?? maxSessions, maxSessions);
+    const dates: Date[] = [];
+
+    if (dto.recurrence.frequency === RecurrenceFrequency.DAILY) {
+      let cursor = new Date(start);
+      while (dates.length < occurrencesLimit) {
+        if (endBoundary && cursor > endBoundary) break;
+        dates.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + dto.recurrence.interval);
+      }
+      return dates;
+    }
+
+    if (dto.recurrence.frequency === RecurrenceFrequency.WEEKLY) {
+      const selectedDays = Array.from(new Set(dto.recurrence.daysOfWeek ?? [])).sort();
+      let cursor = new Date(start);
+
+      while (dates.length < occurrencesLimit) {
+        if (endBoundary && cursor > endBoundary) break;
+
+        const dayOfWeek = cursor.getDay();
+        const weekDiff = this.getWeekDifference(start, cursor);
+        const isIntervalWeek = weekDiff % dto.recurrence.interval === 0;
+
+        if (isIntervalWeek && selectedDays.includes(dayOfWeek) && cursor >= start) {
+          dates.push(new Date(cursor));
+        }
+
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      return dates;
+    }
+
+    const anchorDay = start.getDate();
+    let monthStep = 0;
+    while (dates.length < occurrencesLimit) {
+      const monthOffset = monthStep * dto.recurrence.interval;
+      const year = start.getFullYear();
+      const month = start.getMonth() + monthOffset;
+      const monthStart = new Date(year, month, 1);
+      const lastDay = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+      const day = Math.min(anchorDay, lastDay);
+
+      const candidate = new Date(
+        monthStart.getFullYear(),
+        monthStart.getMonth(),
+        day,
+        start.getHours(),
+        start.getMinutes(),
+        0,
+        0
+      );
+
+      if (candidate >= start) {
+        if (endBoundary && candidate > endBoundary) break;
+        dates.push(candidate);
+      }
+
+      monthStep += 1;
+    }
+
+    return dates;
   }
 
   async findAll(
@@ -275,6 +392,119 @@ export class SessionsService {
       );
 
     return this.findById(sessionIdStr);
+  }
+
+  async createRecurring(createRecurringSessionDto: CreateRecurringSessionDto, actorId: string) {
+    const kids =
+      createRecurringSessionDto.type === SessionType.INDIVIDUAL && createRecurringSessionDto.kidId
+        ? [createRecurringSessionDto.kidId]
+        : createRecurringSessionDto.kids ?? [];
+
+    if (!kids.length) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_INPUT,
+        message: 'At least one kid ID is required',
+      });
+    }
+
+    if (createRecurringSessionDto.type === SessionType.INDIVIDUAL && kids.length !== 1) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_INPUT,
+        message: 'Individual sessions require exactly one kid ID',
+      });
+    }
+
+    const capacity =
+      createRecurringSessionDto.capacity ??
+      (createRecurringSessionDto.type === SessionType.GROUP ? 10 : 1);
+
+    if (createRecurringSessionDto.type === SessionType.GROUP && kids.length > capacity) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_SESSION_CAPACITY,
+        message: 'Number of kids exceeds session capacity',
+      });
+    }
+
+    const dates = this.generateRecurringDates(createRecurringSessionDto);
+    if (!dates.length) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_INPUT,
+        message: 'Recurring configuration produced no valid session dates',
+      });
+    }
+
+    const recurringGroupId = randomUUID();
+    const coachObjectId = this.toObjectId(createRecurringSessionDto.coachId, 'coachId');
+    const locationObjectId = this.toObjectId(createRecurringSessionDto.locationId, 'locationId');
+    const kidObjectIds = this.toObjectIdArray(kids, 'kids');
+
+    const docs = dates.map((dateTime, index) => ({
+      title: createRecurringSessionDto.title,
+      type: createRecurringSessionDto.type,
+      coachId: coachObjectId,
+      locationId: locationObjectId,
+      dateTime,
+      duration: createRecurringSessionDto.duration,
+      capacity,
+      kids: kidObjectIds,
+      isFreeSession: createRecurringSessionDto.isFreeSession,
+      recurringGroupId,
+      recurringIndex: index,
+    }));
+
+    const createdSessions = await this.sessionModel.insertMany(docs);
+
+    await this.auditService.log({
+      actorId,
+      action: 'CREATE_RECURRING_SESSION',
+      entityType: 'SessionRecurringGroup',
+      entityId: recurringGroupId,
+      metadata: {
+        totalSessions: createdSessions.length,
+        title: createRecurringSessionDto.title,
+        recurrence: createRecurringSessionDto.recurrence,
+      },
+    });
+
+    const parentIds = await this.getParentIdsFromKidIds(kidObjectIds ?? []);
+    const coachIdStr = coachObjectId.toString();
+    const title = 'Recurring sessions scheduled';
+    const body = `${createdSessions.length} recurring sessions for "${createRecurringSessionDto.title}" were scheduled.`;
+
+    await this.notificationService.createNotification({
+      userId: coachIdStr,
+      type: NotificationType.SESSION_CREATED,
+      title,
+      body,
+      entityType: 'SessionRecurringGroup',
+      entityId: recurringGroupId,
+    });
+
+    for (const parentId of parentIds) {
+      await this.notificationService.createNotification({
+        userId: parentId,
+        type: NotificationType.SESSION_CREATED,
+        title,
+        body,
+        entityType: 'SessionRecurringGroup',
+        entityId: recurringGroupId,
+      });
+    }
+
+    for (const createdSession of createdSessions) {
+      const sessionIdStr = createdSession._id.toString();
+      this.googleCalendarSync
+        .syncSessionCreated(sessionIdStr)
+        .catch(err =>
+          this.logger.warn(`Google Calendar sync failed for session ${sessionIdStr}`, err)
+        );
+    }
+
+    return {
+      created: createdSessions.length,
+      recurringGroupId,
+      sessions: await Promise.all(createdSessions.map(session => this.findById(session._id.toString()))),
+    };
   }
 
   async update(id: string, updateSessionDto: UpdateSessionDto, actorId: string) {

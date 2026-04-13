@@ -25,7 +25,11 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole, SessionStatus } from '@grow-fitness/shared-types';
-import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
+import {
+  CreateSessionDto,
+  UpdateSessionDto,
+  CreateRecurringSessionDto,
+} from '@grow-fitness/shared-schemas';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 import { GetSessionsQueryDto } from './dto/get-sessions-query.dto';
 import { SessionResponseDto, PaginatedSessionResponseDto } from './dto/session-response.dto';
@@ -242,6 +246,69 @@ export class SessionsController {
   })
   create(@Body() createSessionDto: CreateSessionDto, @CurrentUser('sub') actorId: string) {
     return this.sessionsService.create(createSessionDto, actorId);
+  }
+
+  @Post('recurring')
+  @ApiOperation({ summary: 'Create recurring sessions' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        type: { type: 'string', enum: ['INDIVIDUAL', 'GROUP'] },
+        coachId: { type: 'string' },
+        locationId: { type: 'string' },
+        startDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Recurring start date (YYYY-MM-DD)',
+        },
+        time: {
+          type: 'string',
+          description: 'Session start time in HH:mm',
+          example: '09:00',
+        },
+        duration: { type: 'number', minimum: 1 },
+        capacity: { type: 'number', minimum: 1 },
+        kids: { type: 'array', items: { type: 'string' } },
+        kidId: { type: 'string' },
+        isFreeSession: { type: 'boolean' },
+        recurrence: {
+          type: 'object',
+          properties: {
+            frequency: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY'] },
+            interval: { type: 'number', minimum: 1, maximum: 12 },
+            daysOfWeek: {
+              type: 'array',
+              items: { type: 'number', minimum: 0, maximum: 6 },
+            },
+            endDate: { type: 'string', format: 'date' },
+            occurrences: { type: 'number', minimum: 1, maximum: 52 },
+          },
+          required: ['frequency'],
+        },
+      },
+      required: [
+        'title',
+        'type',
+        'coachId',
+        'locationId',
+        'startDate',
+        'time',
+        'duration',
+        'recurrence',
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Recurring sessions created successfully.',
+  })
+  createRecurring(
+    @Body() createRecurringSessionDto: CreateRecurringSessionDto,
+    @CurrentUser('sub') actorId: string
+  ) {
+    return this.sessionsService.createRecurring(createRecurringSessionDto, actorId);
   }
 
   @Patch(':id')

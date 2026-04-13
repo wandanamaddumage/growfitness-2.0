@@ -1,6 +1,16 @@
 import { api } from './api';
 import { Session, PaginatedResponse, SessionStatus } from '@grow-fitness/shared-types';
-import { CreateSessionDto, UpdateSessionDto } from '@grow-fitness/shared-schemas';
+import {
+  CreateSessionDto,
+  UpdateSessionDto,
+  CreateRecurringSessionDto,
+} from '@grow-fitness/shared-schemas';
+
+interface CreateRecurringSessionsResponse {
+  created: number;
+  recurringGroupId: string;
+  sessions: Session[];
+}
 
 export const sessionsService = {
   getSessions: (
@@ -27,6 +37,8 @@ export const sessionsService = {
   },
   getSessionById: (id: string) => api.get<Session>(`/sessions/${id}`),
   createSession: (data: CreateSessionDto) => api.post<Session>('/sessions', data),
+  createRecurringSessions: (data: CreateRecurringSessionDto) =>
+    api.post<CreateRecurringSessionsResponse>('/sessions/recurring', data),
   updateSession: (id: string, data: UpdateSessionDto) =>
     api.patch<Session>(`/sessions/${id}`, data),
   deleteSession: (id: string) => api.delete<void>(`/sessions/${id}`),

@@ -24,6 +24,12 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED',
 }
 
+export enum RecurrenceFrequency {
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
+}
+
 export enum RequestStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -192,6 +198,8 @@ export interface Session {
   kidId?: string; // for individual sessions
   status: SessionStatus;
   isFreeSession: boolean;
+  recurringGroupId?: string;
+  recurringIndex?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -390,6 +398,7 @@ export default {
   UserStatus,
   SessionType,
   SessionStatus,
+  RecurrenceFrequency,
   RequestStatus,
   InvoiceType,
   InvoiceStatus,

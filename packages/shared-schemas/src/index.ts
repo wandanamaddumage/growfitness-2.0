@@ -192,6 +192,65 @@ export const CreateSessionSchema = z
 
 export type CreateSessionDto = z.infer<typeof CreateSessionSchema>;
 
+export const RecurrenceConfigSchema = z
+  .object({
+    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
+    interval: z.number().int().min(1).max(12).default(1),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+    endDate: z.string().or(z.date()).optional(),
+    occurrences: z.number().int().min(1).max(52).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.frequency === 'WEEKLY' &&
+      (!Array.isArray(data.daysOfWeek) || data.daysOfWeek.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Select at least one weekday for weekly recurrence',
+        path: ['daysOfWeek'],
+      });
+    }
+
+    if (!data.endDate && !data.occurrences) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Provide an end date or number of occurrences',
+        path: ['endDate'],
+      });
+    }
+  });
+
+export const CreateRecurringSessionSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    type: z.nativeEnum(SessionType),
+    coachId: z.string().min(1, 'Coach ID is required'),
+    locationId: z.string().min(1, 'Location ID is required'),
+    startDate: z.string().or(z.date()),
+    time: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format'),
+    duration: z.number().min(1, 'Duration must be at least 1 minute'),
+    capacity: z.number().min(1, 'Capacity must be at least 1').optional(),
+    kids: z.array(z.string()).optional(),
+    kidId: z.string().optional(),
+    isFreeSession: z.boolean().default(false),
+    recurrence: RecurrenceConfigSchema,
+  })
+  .refine(
+    data => {
+      if (data.type === SessionType.GROUP) {
+        return data.kids && data.kids.length > 0;
+      } else {
+        return !!data.kidId;
+      }
+    },
+    {
+      message: 'Group sessions require kids array, individual sessions require kidId',
+    }
+  );
+
+export type CreateRecurringSessionDto = z.infer<typeof CreateRecurringSessionSchema>;
+
 export const UpdateSessionSchema = z.object({
   title: z.string().min(1).optional(),
   coachId: z.string().min(1).optional(),
