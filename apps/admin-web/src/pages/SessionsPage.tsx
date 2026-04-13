@@ -406,7 +406,7 @@ export function SessionsPage() {
             status={statusFilter}
             onSessionClick={(session) => {
               setSelectedSession(session);
-              openModal(session.id, 'details');
+              openModal(session.id, 'edit');
             }}
           />
         </TabsContent>
