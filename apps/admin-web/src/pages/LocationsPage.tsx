@@ -24,7 +24,6 @@ export function LocationsPage() {
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
 
-  // Sync selectedLocation with URL params
   useEffect(() => {
     if (entityId && modal) {
       // Fetch location if we have ID in URL but no selectedLocation
