@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useApiQuery, useApiMutation } from '@/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { notificationsService, type Notification } from '@/services/notifications.service';
@@ -69,6 +70,7 @@ function playNotificationSound() {
 
 export function NotificationBell() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [bubbleMessage, setBubbleMessage] = useState('');
@@ -109,6 +111,11 @@ export function NotificationBell() {
           clearTimeout(bubbleAutoDismissRef.current);
         }
 
+        // Notification updates can originate from other roles/screens (e.g., admin approval),
+        // so refresh session-dependent widgets in the parent dashboard.
+        void queryClient.invalidateQueries({ queryKey: ['sessions'] });
+        void queryClient.invalidateQueries({ queryKey: ['upcoming-sessions'] });
+
         bubbleAutoDismissRef.current = setTimeout(() => {
           setBubbleVisible(false);
           bubbleAutoDismissRef.current = null;
@@ -117,7 +124,7 @@ export function NotificationBell() {
     }
 
     previousUnreadCountRef.current = unreadCount;
-  }, [unreadCount]);
+  }, [unreadCount, queryClient]);
 
   const markReadMutation = useApiMutation((id: string) => notificationsService.markAsRead(id), {
     invalidateQueries: [

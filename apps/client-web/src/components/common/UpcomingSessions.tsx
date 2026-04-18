@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { sessionsService } from '@/services/sessions.service';
 import { SessionStatus, type Session } from '@grow-fitness/shared-types';
 import SessionDetailsModal from './SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { CalendarDays } from 'lucide-react';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 
 type UpcomingSessionsProps = {
   kidId?: string;
@@ -12,13 +13,24 @@ type UpcomingSessionsProps = {
 
 export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const { startDate, endDate } = useMemo(() => {
+    const now = new Date();
+    return {
+      startDate: startOfDay(now).toISOString(),
+      endDate: endOfDay(addDays(now, 90)).toISOString(),
+    };
+  }, []);
 
   const { data: sessions = [], isLoading } = useApiQuery<Session[]>(
-    ['upcoming-sessions', kidId ?? '', coachId ?? ''],
+    ['upcoming-sessions', kidId ?? '', coachId ?? '', startDate, endDate],
     async () => {
       const response = await sessionsService.getSessions(1, 5, {
         kidId,
         coachId,
+        startDate,
+        endDate,
+        sortBy: 'dateTime',
+        sortOrder: 'asc',
       });
       return response.data;
     },

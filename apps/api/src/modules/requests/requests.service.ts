@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   InternalServerErrorException,
   ForbiddenException,
@@ -23,6 +24,7 @@ import {
   CreateFreeSessionRequestDto,
   CreateRescheduleRequestDto,
   CreateExtraSessionRequestDto,
+  CreateSessionDto,
 } from '@grow-fitness/shared-schemas';
 import {
   UserRegistrationRequest,
@@ -31,7 +33,13 @@ import {
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
 import { Session, SessionDocument } from '../../infra/database/schemas/session.schema';
-import { RequestStatus, UserStatus, UserRole, NotificationType } from '@grow-fitness/shared-types';
+import {
+  RequestStatus,
+  UserStatus,
+  UserRole,
+  NotificationType,
+  SessionType,
+} from '@grow-fitness/shared-types';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
 import { SessionsService } from '../sessions/sessions.service';
@@ -41,6 +49,8 @@ import { Types } from 'mongoose';
 
 @Injectable()
 export class RequestsService {
+  private readonly logger = new Logger(RequestsService.name);
+
   constructor(
     @InjectModel(FreeSessionRequest.name)
     private freeSessionRequestModel: Model<FreeSessionRequestDocument>,
@@ -540,8 +550,68 @@ export class RequestsService {
       });
     }
 
-    request.status = RequestStatus.APPROVED;
-    await request.save();
+    if (request.status === RequestStatus.DENIED) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_INPUT,
+        message: 'This extra session request has already been denied.',
+      });
+    }
+
+    const sessionType =
+      request.sessionType === SessionType.GROUP ? SessionType.GROUP : SessionType.INDIVIDUAL;
+    const preferredDateTime = request.preferredDateTime;
+
+    // Idempotency: if a session already exists for this kid+coach at the requested
+    // date/time, do not materialize a duplicate. Covers replays and retried approvals.
+    const existingSession = await this.sessionModel
+      .findOne({
+        coachId: request.coachId,
+        kids: request.kidId,
+        dateTime: preferredDateTime,
+      })
+      .lean()
+      .exec();
+
+    if (!existingSession) {
+      const createSessionPayload: CreateSessionDto = {
+        title: `Extra ${sessionType === SessionType.GROUP ? 'Group' : 'Private'} Session`,
+        type: sessionType,
+        coachId: request.coachId.toString(),
+        locationId: request.locationId.toString(),
+        dateTime: preferredDateTime.toISOString(),
+        duration: 60,
+        capacity: sessionType === SessionType.GROUP ? 10 : 1,
+        kids: [request.kidId.toString()],
+        isFreeSession: false,
+      };
+
+      this.logger.log(
+        `Approving extra-session request ${id}: materializing session for kid=${request.kidId.toString()} coach=${request.coachId.toString()} at ${createSessionPayload.dateTime}`
+      );
+
+      try {
+        const createdSession = await this.sessionsService.create(createSessionPayload, actorId);
+        const createdSessionId = (createdSession as { id?: string })?.id;
+        this.logger.log(
+          `Extra-session request ${id} materialized as session ${createdSessionId ?? 'unknown'}`
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to materialize session for extra-session request ${id}`,
+          error instanceof Error ? error.stack : String(error)
+        );
+        throw error;
+      }
+    } else {
+      this.logger.log(
+        `Extra-session request ${id} already has a matching session ${String((existingSession as { _id?: unknown })._id)}; skipping creation.`
+      );
+    }
+
+    if (request.status !== RequestStatus.APPROVED) {
+      request.status = RequestStatus.APPROVED;
+      await request.save();
+    }
 
     const parentId = request.parentId?.toString?.();
     if (parentId) {
