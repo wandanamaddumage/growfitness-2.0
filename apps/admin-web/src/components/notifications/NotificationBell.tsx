@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, X } from 'lucide-react';
 import {
   DropdownMenu,
@@ -14,8 +15,7 @@ import { NotificationBubble } from './NotificationBubble';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
-const NOTIFICATION_SOUND_URL =
-  `${(import.meta.env.BASE_URL || '/').replace(/\/*$/, '')}/sounds/notification.mp3`;
+const NOTIFICATION_SOUND_URL = `${(import.meta.env.BASE_URL || '/').replace(/\/*$/, '')}/sounds/notification.mp3`;
 
 /** Single Audio instance so we can reuse after unlock. */
 let notificationAudio: HTMLAudioElement | null = null;
@@ -33,7 +33,10 @@ function unlockNotificationSound() {
   const audio = getNotificationAudio();
   if (audio.paused) {
     audio.currentTime = 0;
-    audio.play().then(() => audio.pause()).catch(() => {});
+    audio
+      .play()
+      .then(() => audio.pause())
+      .catch(() => {});
   }
 }
 
@@ -44,7 +47,10 @@ function playNotificationSound() {
   audio.play().catch(() => {
     // Fallback: file failed or autoplay blocked – use Web Audio beep
     try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const ctx = new (
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      )();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -62,6 +68,7 @@ function playNotificationSound() {
 }
 
 export function NotificationBell() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [bubbleMessage, setBubbleMessage] = useState('');
@@ -88,9 +95,7 @@ export function NotificationBell() {
     if (prev !== undefined && unreadCount > prev) {
       const added = unreadCount - prev;
       setBubbleMessage(
-        added === 1
-          ? 'You have 1 new notification'
-          : `You have ${added} new notifications`
+        added === 1 ? 'You have 1 new notification' : `You have ${added} new notifications`
       );
       setBubbleVisible(true);
       playNotificationSound();
@@ -103,22 +108,30 @@ export function NotificationBell() {
     previousUnreadCountRef.current = unreadCount;
   }, [unreadCount]);
 
-  const markReadMutation = useApiMutation(
-    (id: string) => notificationsService.markAsRead(id),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
-  const markAllReadMutation = useApiMutation(
-    () => notificationsService.markAllAsRead(),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
-  const deleteOneMutation = useApiMutation(
-    (id: string) => notificationsService.deleteOne(id),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
-  const clearAllMutation = useApiMutation(
-    () => notificationsService.clearAll(),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
+  const markReadMutation = useApiMutation((id: string) => notificationsService.markAsRead(id), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
+  const markAllReadMutation = useApiMutation(() => notificationsService.markAllAsRead(), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
+  const deleteOneMutation = useApiMutation((id: string) => notificationsService.deleteOne(id), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
+  const clearAllMutation = useApiMutation(() => notificationsService.clearAll(), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -127,6 +140,30 @@ export function NotificationBell() {
 
   const handleMarkAsRead = (n: Notification) => {
     if (!n.read) markReadMutation.mutate(n.id);
+
+    const sessionNotificationTypes = new Set([
+      'FREE_SESSION_REQUEST',
+      'RESCHEDULE_REQUEST',
+      'EXTRA_SESSION_REQUEST',
+      'FREE_SESSION_SELECTED',
+      'RESCHEDULE_APPROVED',
+      'RESCHEDULE_DENIED',
+      'EXTRA_SESSION_APPROVED',
+      'EXTRA_SESSION_DENIED',
+      'SESSION_CREATED',
+      'SESSION_UPDATED',
+      'SESSION_CANCELLED',
+      'SESSION_COMPLETED',
+      'SESSION_DELETED',
+      'UPCOMING_SESSION_REMINDER',
+    ]);
+    const isSessionEntityType =
+      n.entityType === 'Session' || n.entityType === 'SessionRecurringGroup';
+
+    if (sessionNotificationTypes.has(n.type) || isSessionEntityType) {
+      navigate('/sessions');
+      setOpen(false);
+    }
   };
 
   const handleClearAll = async () => {
@@ -187,7 +224,9 @@ export function NotificationBell() {
                     <button
                       type="button"
                       className="text-xs text-destructive hover:underline"
-                      onClick={handleClearAll}
+                      onClick={() => {
+                        void handleClearAll();
+                      }}
                     >
                       Clear all
                     </button>
@@ -202,7 +241,7 @@ export function NotificationBell() {
                 No notifications
               </p>
             ) : (
-              notifications.map((n) => (
+              notifications.map(n => (
                 <div
                   key={n.id}
                   className={cn(
@@ -225,7 +264,7 @@ export function NotificationBell() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 shrink-0 opacity-70 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       deleteOneMutation.mutate(n.id);
                     }}
@@ -241,7 +280,7 @@ export function NotificationBell() {
       </DropdownMenu>
       <ConfirmDialog
         open={confirmState.open}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) confirmState.onCancel();
         }}
         title={confirmState.options?.title ?? ''}

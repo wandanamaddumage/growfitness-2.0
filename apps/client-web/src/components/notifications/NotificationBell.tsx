@@ -15,8 +15,7 @@ import { NotificationBubble } from './NotificationBubble';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
-const NOTIFICATION_SOUND_URL =
-  `${(import.meta.env.BASE_URL || '/').replace(/\/*$/, '')}/sounds/notification.mp3`;
+const NOTIFICATION_SOUND_URL = `${(import.meta.env.BASE_URL || '/').replace(/\/*$/, '')}/sounds/notification.mp3`;
 
 let notificationAudio: HTMLAudioElement | null = null;
 
@@ -32,7 +31,10 @@ function unlockNotificationSound() {
   const audio = getNotificationAudio();
   if (audio.paused) {
     audio.currentTime = 0;
-    audio.play().then(() => audio.pause()).catch(() => {});
+    audio
+      .play()
+      .then(() => audio.pause())
+      .catch(() => {});
   }
 }
 
@@ -41,8 +43,10 @@ function playNotificationSound() {
   audio.currentTime = 0;
   audio.play().catch(() => {
     try {
-      const ctx = new (window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const ctx = new (
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      )();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -95,9 +99,7 @@ export function NotificationBell() {
 
       setTimeout(() => {
         setBubbleMessage(
-          added === 1
-            ? 'You have 1 new notification'
-            : `You have ${added} new notifications`
+          added === 1 ? 'You have 1 new notification' : `You have ${added} new notifications`
         );
 
         setBubbleVisible(true);
@@ -117,25 +119,33 @@ export function NotificationBell() {
     previousUnreadCountRef.current = unreadCount;
   }, [unreadCount]);
 
-  const markReadMutation = useApiMutation(
-    (id: string) => notificationsService.markAsRead(id),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
+  const markReadMutation = useApiMutation((id: string) => notificationsService.markAsRead(id), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
 
-  const markAllReadMutation = useApiMutation(
-    () => notificationsService.markAllAsRead(),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
+  const markAllReadMutation = useApiMutation(() => notificationsService.markAllAsRead(), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
 
-  const deleteOneMutation = useApiMutation(
-    (id: string) => notificationsService.deleteOne(id),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
+  const deleteOneMutation = useApiMutation((id: string) => notificationsService.deleteOne(id), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
 
-  const clearAllMutation = useApiMutation(
-    () => notificationsService.clearAll(),
-    { invalidateQueries: [['notifications', 'unread-count'], ['notifications', 'list']] }
-  );
+  const clearAllMutation = useApiMutation(() => notificationsService.clearAll(), {
+    invalidateQueries: [
+      ['notifications', 'unread-count'],
+      ['notifications', 'list'],
+    ],
+  });
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -165,8 +175,10 @@ export function NotificationBell() {
       'UPCOMING_SESSION_REMINDER',
     ];
 
-    if (sessionNotificationTypes.includes(n.type) || n.entityType === 'SESSION') {
-      navigate('/dashboard');
+    const isSessionEntityType =
+      n.entityType === 'Session' || n.entityType === 'SessionRecurringGroup';
+    if (sessionNotificationTypes.includes(n.type) || isSessionEntityType) {
+      navigate('/dashboard?tab=schedule');
       setOpen(false); // Close dropdown
     }
   };
@@ -174,8 +186,7 @@ export function NotificationBell() {
   const handleClearAll = async () => {
     const confirmed = await confirm({
       title: 'Clear all notifications',
-      description:
-        'Are you sure you want to remove all notifications? This cannot be undone.',
+      description: 'Are you sure you want to remove all notifications? This cannot be undone.',
       confirmText: 'Clear all',
       cancelText: 'Cancel',
       variant: 'destructive',
@@ -259,7 +270,7 @@ export function NotificationBell() {
                 No notifications
               </p>
             ) : (
-              notifications.map((n) => (
+              notifications.map(n => (
                 <div
                   key={n.id}
                   className={cn(
@@ -273,9 +284,7 @@ export function NotificationBell() {
                     onClick={() => handleMarkAsRead(n)}
                   >
                     <p className="font-medium truncate text-sm">{n.title}</p>
-                    <p className="text-muted-foreground text-xs line-clamp-2 mt-0.5">
-                      {n.body}
-                    </p>
+                    <p className="text-muted-foreground text-xs line-clamp-2 mt-0.5">{n.body}</p>
                     <p className="text-muted-foreground text-[10px] mt-1">
                       {formatDistanceToNow(new Date(n.createdAt), {
                         addSuffix: true,
@@ -287,7 +296,7 @@ export function NotificationBell() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 shrink-0 opacity-70 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       deleteOneMutation.mutate(n.id);
                     }}
