@@ -6,13 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 import {
@@ -21,19 +15,12 @@ import {
   Lock,
   Calendar,
   Loader2,
-  Save,
   MapPin,
   Building2,
   Briefcase,
   FileText,
-  Plus,
-  Trash2,
 } from 'lucide-react';
 
-import type {
-  UpdateParentDto,
-  UpdateCoachDto,
-} from '@grow-fitness/shared-schemas';
 import { useAuth } from '@/contexts/useAuth';
 import type { CoachProfileAvailableTime } from '@grow-fitness/shared-types';
 
@@ -51,7 +38,6 @@ export default function ProfilePage() {
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [calendarBusy, setCalendarBusy] = useState(false);
   const [calendarConnected, setCalendarConnected] = useState(false);
@@ -61,11 +47,11 @@ export default function ProfilePage() {
     phone: '',
     address: '',
   });
-  const [coachData, setCoachData] = useState<Awaited<ReturnType<typeof usersService.getCoachById>> | null>(null);
+  const [coachData, setCoachData] = useState<Awaited<
+    ReturnType<typeof usersService.getCoachById>
+  > | null>(null);
 
-  const isGmail = Boolean(
-    user?.email && /@(gmail|googlemail)\.com$/i.test(user.email)
-  );
+  const isGmail = Boolean(user?.email && /@(gmail|googlemail)\.com$/i.test(user.email));
 
   /**
    * Fetch profile (UPDATE ONLY)
@@ -99,7 +85,7 @@ export default function ProfilePage() {
             homeAddress: data.coachProfile?.homeAddress ?? '',
             photoUrl: data.coachProfile?.photoUrl ?? '',
             availableTimes:
-              data.coachProfile?.availableTimes?.map((t) => ({
+              data.coachProfile?.availableTimes?.map(t => ({
                 dayOfWeek: t.dayOfWeek,
                 startTime: t.startTime,
                 endTime: t.endTime,
@@ -148,76 +134,15 @@ export default function ProfilePage() {
     };
   }, [user?.id, isGmail]);
 
-  /**
-   * Input handler
-   */
-  const onChange = (key: keyof FormState, value: string | CoachProfileAvailableTime[] | undefined) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const addAvailableSlot = () => {
-    setForm((prev) => ({
-      ...prev,
-      availableTimes: [...(prev.availableTimes ?? []), { dayOfWeek: 'Monday', startTime: '09:00', endTime: '17:00' }],
-    }));
-  };
-
-  const removeAvailableSlot = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      availableTimes: prev.availableTimes?.filter((_, i) => i !== index) ?? [],
-    }));
-  };
-
-  const updateAvailableSlot = (index: number, field: keyof CoachProfileAvailableTime, value: string) => {
-    setForm((prev) => {
-      const list = [...(prev.availableTimes ?? [])];
-      if (!list[index]) return prev;
-      list[index] = { ...list[index], [field]: value };
-      return { ...prev, availableTimes: list };
-    });
-  };
-
-  const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-  /**
-   * UPDATE ONLY
-   */
-  const onSubmit = async () => {
-    if (!user?.id || !user?.role) return;
-
-    setSaving(true);
-
-    try {
-      if (user.role === 'PARENT') {
-        const dto: UpdateParentDto = {
-          phone: form.phone,
-          name: `${form.firstName} ${form.lastName}`.trim(),
-          location: form.address,
-        };
-        await usersService.updateParent(user.id, dto);
-      }
-
-      if (user.role === 'COACH') {
-        const dto: UpdateCoachDto = {
-          name: `${form.firstName} ${form.lastName}`.trim(),
-          phone: form.phone,
-          homeAddress: form.homeAddress || undefined,
-          photoUrl: form.photoUrl || undefined,
-          availableTimes:
-            form.availableTimes && form.availableTimes.length > 0
-              ? form.availableTimes
-              : undefined,
-        };
-        const updated = await usersService.updateCoach(user.id, dto);
-        setCoachData(updated);
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    } finally {
-      setSaving(false);
-    }
-  };
+  const DAYS_OF_WEEK = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
   const onConnectGoogleCalendar = async () => {
     setCalendarBusy(true);
@@ -255,11 +180,7 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Please log in
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center">Please log in</div>;
   }
 
   return (
@@ -268,9 +189,7 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="text-start space-y-1">
           <h1 className="text-3xl font-bold">Your Profile</h1>
-          <p className="text-muted-foreground">
-            Update your personal information
-          </p>
+          <p className="text-muted-foreground">View your personal information</p>
         </div>
 
         <Card>
@@ -278,9 +197,7 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Personal Information</CardTitle>
-                <CardDescription>
-                  Account & contact details
-                </CardDescription>
+                <CardDescription>Account & contact details</CardDescription>
               </div>
               <Badge variant="outline">{user.role}</Badge>
             </div>
@@ -303,7 +220,7 @@ export default function ProfilePage() {
                 <Label className="flex items-center gap-2 text-muted-foreground">
                   <User className="h-4 w-4" /> Status
                 </Label>
-                <Input disabled value={user.status ?? "ACTIVE"} />
+                <Input disabled value={user.status ?? 'ACTIVE'} />
               </div>
             </div>
 
@@ -311,35 +228,23 @@ export default function ProfilePage() {
             <div className="border-t pt-6 grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>First Name</Label>
-                <Input
-                  value={form.firstName}
-                  onChange={(e) => onChange('firstName', e.target.value)}
-                />
+                <Input value={form.firstName} disabled />
               </div>
 
               <div className="space-y-2">
                 <Label>Last Name</Label>
-                <Input
-                  value={form.lastName}
-                  onChange={(e) => onChange('lastName', e.target.value)}
-                />
+                <Input value={form.lastName} disabled />
               </div>
 
               <div className="space-y-2">
                 <Label>Phone</Label>
-                <Input
-                  value={form.phone}
-                  onChange={(e) => onChange('phone', e.target.value)}
-                />
+                <Input value={form.phone} disabled />
               </div>
 
               {user.role === 'PARENT' && (
                 <div className="space-y-2">
                   <Label>Address</Label>
-                  <Input
-                    value={form.address}
-                    onChange={(e) => onChange('address', e.target.value)}
-                  />
+                  <Input value={form.address} disabled />
                 </div>
               )}
 
@@ -352,8 +257,8 @@ export default function ProfilePage() {
                     <Textarea
                       rows={2}
                       value={form.homeAddress ?? ''}
-                      onChange={(e) => onChange('homeAddress', e.target.value)}
                       placeholder="Full address"
+                      disabled
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
@@ -362,50 +267,28 @@ export default function ProfilePage() {
                       type="url"
                       placeholder="https://..."
                       value={form.photoUrl ?? ''}
-                      onChange={(e) => onChange('photoUrl', e.target.value)}
+                      disabled
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <div className="flex items-center justify-between">
                       <Label>Available times</Label>
-                      <Button type="button" variant="outline" size="sm" onClick={addAvailableSlot}>
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add slot
-                      </Button>
                     </div>
                     {(form.availableTimes ?? []).map((slot, index) => (
                       <div key={index} className="flex gap-2 items-center flex-wrap">
                         <select
                           className="flex h-9 w-[130px] rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                           value={slot.dayOfWeek}
-                          onChange={(e) => updateAvailableSlot(index, 'dayOfWeek', e.target.value)}
+                          disabled
                         >
-                          {DAYS_OF_WEEK.map((d) => (
+                          {DAYS_OF_WEEK.map(d => (
                             <option key={d} value={d}>
                               {d}
                             </option>
                           ))}
                         </select>
-                        <Input
-                          type="time"
-                          className="w-28"
-                          value={slot.startTime}
-                          onChange={(e) => updateAvailableSlot(index, 'startTime', e.target.value)}
-                        />
-                        <Input
-                          type="time"
-                          className="w-28"
-                          value={slot.endTime}
-                          onChange={(e) => updateAvailableSlot(index, 'endTime', e.target.value)}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeAvailableSlot(index)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <Input type="time" className="w-28" value={slot.startTime} disabled />
+                        <Input type="time" className="w-28" value={slot.endTime} disabled />
                       </div>
                     ))}
                   </div>
@@ -465,24 +348,6 @@ export default function ProfilePage() {
                 )}
               </div>
             )}
-
-            <Button
-              onClick={onSubmit}
-              disabled={saving}
-              className="w-full h-12"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-5 w-5" />
-                  Update Profile
-                </>
-              )}
-            </Button>
           </CardContent>
         </Card>
 
