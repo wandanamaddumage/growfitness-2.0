@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { usersService } from '@/services/users.service';
 import { locationsService } from '@/services/locations.service';
 import { requestsService } from '@/services/requests.service';
 import { useKid } from '@/contexts/kid/useKid';
-import type { User, Location } from '@grow-fitness/shared-types';
+import { SessionType, type User, type Location } from '@grow-fitness/shared-types';
 import { useAuth } from '@/contexts/useAuth';
 import { toast } from '@/hooks/use-toast';
 
@@ -33,6 +28,9 @@ export default function BookSessionModal({ open, onClose }: Props) {
   const [selectedLocationId, setSelectedLocationId] = useState('');
   const [preferredDateTime, setPreferredDateTime] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const requestSessionType: SessionType =
+    selectedKid?.sessionType === SessionType.GROUP ? SessionType.GROUP : SessionType.INDIVIDUAL;
 
   /* ---------------- Fetch Coaches & Locations ---------------- */
   useEffect(() => {
@@ -90,7 +88,7 @@ export default function BookSessionModal({ open, onClose }: Props) {
       await requestsService.createExtraSessionRequest({
         kidId,
         coachId: selectedCoachId,
-        sessionType: 'INDIVIDUAL',
+        sessionType: requestSessionType,
         locationId: selectedLocationId,
         preferredDateTime: new Date(preferredDateTime).toISOString(),
         parentId,
@@ -125,7 +123,7 @@ export default function BookSessionModal({ open, onClose }: Props) {
   return (
     <Dialog
       open={open}
-      onOpenChange={(value) => {
+      onOpenChange={value => {
         if (!value) onClose();
       }}
     >
@@ -141,11 +139,11 @@ export default function BookSessionModal({ open, onClose }: Props) {
             <select
               className="w-full border rounded-md p-2 mt-1"
               value={selectedCoachId}
-              onChange={(e) => setSelectedCoachId(e.target.value)}
+              onChange={e => setSelectedCoachId(e.target.value)}
               disabled={loading}
             >
               <option value="">Select a coach</option>
-              {coaches.map((coach) => (
+              {coaches.map(coach => (
                 <option key={coach.id} value={coach.id}>
                   {coach.coachProfile?.name || 'Coach'}
                 </option>
@@ -159,11 +157,11 @@ export default function BookSessionModal({ open, onClose }: Props) {
             <select
               className="w-full border rounded-md p-2 mt-1"
               value={selectedLocationId}
-              onChange={(e) => setSelectedLocationId(e.target.value)}
+              onChange={e => setSelectedLocationId(e.target.value)}
               disabled={loading}
             >
               <option value="">Select a location</option>
-              {locations.map((location) => (
+              {locations.map(location => (
                 <option key={location.id} value={location.id}>
                   {location.name}
                 </option>
@@ -173,23 +171,17 @@ export default function BookSessionModal({ open, onClose }: Props) {
 
           {/* DateTime */}
           <div>
-            <label className="text-sm font-medium">
-              Preferred Date & Time
-            </label>
+            <label className="text-sm font-medium">Preferred Date & Time</label>
             <Input
               type="datetime-local"
               value={preferredDateTime}
               className="mt-1"
-              onChange={(e) => setPreferredDateTime(e.target.value)}
+              onChange={e => setPreferredDateTime(e.target.value)}
               disabled={loading}
             />
           </div>
 
-          <Button
-            className="w-full"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
+          <Button className="w-full" onClick={handleSubmit} disabled={loading}>
             {loading ? 'Sending...' : 'Request Extra Session'}
           </Button>
         </div>

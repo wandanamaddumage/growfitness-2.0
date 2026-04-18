@@ -34,6 +34,11 @@ export default function ScheduleTab() {
   const [view, setView] = useState<ScheduleView>('list');
   const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
   const [openBooking, setOpenBooking] = useState(false);
+  const canRequestExtraSession =
+    Boolean(selectedKid) &&
+    (selectedKid.sessionType === 'INDIVIDUAL' ||
+      selectedKid.sessionType === 'GROUP' ||
+      selectedKid.sessionType === 'BOTH');
 
   const listRange = useMemo(() => {
     const start = startOfDay(new Date());
@@ -53,17 +58,10 @@ export default function ScheduleTab() {
     }
   }, [view, dateRange, calendarInitialRange]);
 
-  const effectiveRange =
-    view === 'list' ? listRange : dateRange ?? calendarInitialRange;
+  const effectiveRange = view === 'list' ? listRange : (dateRange ?? calendarInitialRange);
 
   const { data: sessionsData, isLoading } = useApiQuery<PaginatedResponse<Session>>(
-    [
-      'sessions',
-      selectedKid?.id ?? '',
-      view,
-      effectiveRange.start,
-      effectiveRange.end,
-    ],
+    ['sessions', selectedKid?.id ?? '', view, effectiveRange.start, effectiveRange.end],
     () => {
       if (!selectedKid?.id) {
         return Promise.resolve({
@@ -86,17 +84,16 @@ export default function ScheduleTab() {
   const sessions = sessionsData?.data ?? [];
 
   const events = useMemo(() => {
-    return sessions.map((session) =>
+    return sessions.map(session =>
       sessionToCalendarEvent(session, {
-        formatTitle: (s) => s.title?.trim() || getSessionLabel(s),
+        formatTitle: s => s.title?.trim() || getSessionLabel(s),
       })
     );
   }, [sessions]);
 
   const sortedSessions = useMemo(() => {
     return [...sessions].sort(
-      (a, b) =>
-        new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+      (a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
     );
   }, [sessions]);
 
@@ -108,7 +105,7 @@ export default function ScheduleTab() {
             <CalendarIcon className="mr-2 h-5 w-5 text-[#23B685]" />
             Schedule
           </CardTitle>
-          {selectedKid?.sessionType === 'INDIVIDUAL' && (
+          {canRequestExtraSession && (
             <Button size="sm" onClick={() => setOpenBooking(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Book Extra Session
@@ -116,7 +113,7 @@ export default function ScheduleTab() {
           )}
         </CardHeader>
         <CardContent>
-          <Tabs value={view} onValueChange={(v) => setView(v as ScheduleView)}>
+          <Tabs value={view} onValueChange={v => setView(v as ScheduleView)}>
             <TabsList className="mb-4 grid w-full max-w-[240px] grid-cols-2">
               <TabsTrigger value="list" className="flex items-center gap-2">
                 <List className="h-4 w-4" />
@@ -139,7 +136,7 @@ export default function ScheduleTab() {
                 </div>
               ) : (
                 <ul className="divide-y divide-border rounded-lg border border-border">
-                  {sortedSessions.map((session) => (
+                  {sortedSessions.map(session => (
                     <li key={session.id}>
                       <button
                         type="button"
@@ -182,7 +179,7 @@ export default function ScheduleTab() {
         onReschedule={() => {}}
       />
 
-      {selectedKid?.sessionType === 'INDIVIDUAL' && (
+      {canRequestExtraSession && (
         <BookSessionModal open={openBooking} onClose={() => setOpenBooking(false)} />
       )}
     </>
