@@ -18,7 +18,7 @@ type ScheduleView = 'list' | 'calendar';
 const getSessionLabel = (session: Session): string => {
   switch (session.type) {
     case 'INDIVIDUAL':
-      return 'Individual Session';
+      return 'Private Session';
     case 'GROUP':
       return 'Group Session';
     default:

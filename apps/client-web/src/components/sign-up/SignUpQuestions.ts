@@ -183,9 +183,9 @@ export const kidAttributeQuestions: KidQuestion[] = [
     perChildLabel: 'Preferred session type',
     required: true,
     options: [
-      { value: SessionType.INDIVIDUAL, label: 'Individual (One-on-one training)' },
+      { value: SessionType.INDIVIDUAL, label: 'Private (One-on-one training)' },
       { value: SessionType.GROUP, label: 'Group (Train with others)' },
-      { value: SessionType.BOTH, label: 'Both (Individual & Group)' },
+      { value: SessionType.BOTH, label: 'Both (Private & Group)' },
     ],
   },
 ];

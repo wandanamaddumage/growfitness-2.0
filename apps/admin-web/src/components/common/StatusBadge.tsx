@@ -13,10 +13,13 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-const statusVariantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline'> = {
+const statusVariantMap: Record<
+  string,
+  'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline'
+> = {
   // User Status
   ACTIVE: 'success',
-  INACTIVE: 'info',
+  INACTIVE: 'secondary',
   DELETED: 'destructive',
   // Session Status
   SCHEDULED: 'warning',
@@ -38,10 +41,17 @@ const statusVariantMap: Record<string, 'default' | 'secondary' | 'destructive' |
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const variant = statusVariantMap[status] || 'default';
+  const isInactive = status === UserStatus.INACTIVE;
+  const variant = isInactive ? 'outline' : statusVariantMap[status] || 'default';
 
   return (
-    <Badge variant={variant} className={cn(className)}>
+    <Badge
+      variant={variant}
+      className={cn(
+        isInactive && 'border-border bg-muted text-muted-foreground hover:bg-muted/80',
+        className
+      )}
+    >
       {String(status).replace('_', ' ')}
     </Badge>
   );
