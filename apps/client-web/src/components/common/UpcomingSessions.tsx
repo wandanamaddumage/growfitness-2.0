@@ -24,7 +24,7 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
   const { data: sessions = [], isLoading } = useApiQuery<Session[]>(
     ['upcoming-sessions', kidId ?? '', coachId ?? '', startDate, endDate],
     async () => {
-      const response = await sessionsService.getSessions(1, 5, {
+      const response = await sessionsService.getSessions(1, 50, {
         kidId,
         coachId,
         startDate,

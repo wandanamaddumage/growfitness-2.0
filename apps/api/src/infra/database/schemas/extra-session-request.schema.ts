@@ -26,6 +26,9 @@ export class ExtraSessionRequest {
 
   @Prop({ required: true, type: String, enum: RequestStatus, default: RequestStatus.PENDING })
   status: RequestStatus;
+
+  @Prop({ type: Types.ObjectId, ref: 'Session', required: false })
+  materializedSessionId?: Types.ObjectId;
 }
 
 export const ExtraSessionRequestSchema = SchemaFactory.createForClass(ExtraSessionRequest);

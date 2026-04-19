@@ -560,19 +560,11 @@ export class RequestsService {
     const sessionType =
       request.sessionType === SessionType.GROUP ? SessionType.GROUP : SessionType.INDIVIDUAL;
     const preferredDateTime = request.preferredDateTime;
+    const hasMaterializedSession = request.materializedSessionId
+      ? await this.sessionModel.exists({ _id: request.materializedSessionId })
+      : null;
 
-    // Idempotency: if a session already exists for this kid+coach at the requested
-    // date/time, do not materialize a duplicate. Covers replays and retried approvals.
-    const existingSession = await this.sessionModel
-      .findOne({
-        coachId: request.coachId,
-        kids: request.kidId,
-        dateTime: preferredDateTime,
-      })
-      .lean()
-      .exec();
-
-    if (!existingSession) {
+    if (!hasMaterializedSession) {
       const createSessionPayload: CreateSessionDto = {
         title: `Extra ${sessionType === SessionType.GROUP ? 'Group' : 'Private'} Session`,
         type: sessionType,
@@ -592,8 +584,11 @@ export class RequestsService {
       try {
         const createdSession = await this.sessionsService.create(createSessionPayload, actorId);
         const createdSessionId = (createdSession as { id?: string })?.id;
+        if (createdSessionId) {
+          request.materializedSessionId = new Types.ObjectId(createdSessionId);
+        }
         this.logger.log(
-          `Extra-session request ${id} materialized as session ${createdSessionId ?? 'unknown'}`
+          `Extra-session request ${id} materialized as session ${createdSessionId ?? 'unknown'} (kid=${request.kidId.toString()} coach=${request.coachId.toString()} dateTime=${createSessionPayload.dateTime})`
         );
       } catch (error) {
         this.logger.error(
@@ -604,14 +599,12 @@ export class RequestsService {
       }
     } else {
       this.logger.log(
-        `Extra-session request ${id} already has a matching session ${String((existingSession as { _id?: unknown })._id)}; skipping creation.`
+        `Extra-session request ${id} already materialized as session ${request.materializedSessionId?.toString()}; skipping creation.`
       );
     }
 
-    if (request.status !== RequestStatus.APPROVED) {
-      request.status = RequestStatus.APPROVED;
-      await request.save();
-    }
+    request.status = RequestStatus.APPROVED;
+    await request.save();
 
     const parentId = request.parentId?.toString?.();
     if (parentId) {

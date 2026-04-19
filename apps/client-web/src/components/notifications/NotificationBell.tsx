@@ -76,6 +76,8 @@ export function NotificationBell() {
   const [bubbleMessage, setBubbleMessage] = useState('');
   const previousUnreadCountRef = useRef<number | undefined>(undefined);
   const bubbleAutoDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const seenNotificationIdsRef = useRef<Set<string>>(new Set());
+  const initializedNotificationListRef = useRef(false);
   const { confirm, confirmState } = useConfirm();
 
   const { data: unreadData } = useApiQuery(
@@ -87,7 +89,7 @@ export function NotificationBell() {
   const { data: listData } = useApiQuery(
     ['notifications', 'list', open ? 'open' : 'closed'],
     () => notificationsService.getNotifications(1, 20),
-    { enabled: open }
+    { refetchInterval: 30_000 }
   );
 
   const unreadCount = unreadData?.count ?? 0;
@@ -125,6 +127,46 @@ export function NotificationBell() {
 
     previousUnreadCountRef.current = unreadCount;
   }, [unreadCount, queryClient]);
+
+  useEffect(() => {
+    const sessionNotificationTypes = new Set([
+      'SESSION_CREATED',
+      'SESSION_UPDATED',
+      'SESSION_CANCELLED',
+      'SESSION_DELETED',
+      'SESSION_COMPLETED',
+      'EXTRA_SESSION_APPROVED',
+      'RESCHEDULE_APPROVED',
+    ]);
+    const notifications = listData?.data ?? [];
+    if (!notifications.length) {
+      return;
+    }
+
+    if (!initializedNotificationListRef.current) {
+      notifications.forEach(n => seenNotificationIdsRef.current.add(n.id));
+      initializedNotificationListRef.current = true;
+      return;
+    }
+
+    const hasNewSessionAffectingNotification = notifications.some(n => {
+      const isSeen = seenNotificationIdsRef.current.has(n.id);
+      if (!isSeen) {
+        seenNotificationIdsRef.current.add(n.id);
+      }
+      if (isSeen) {
+        return false;
+      }
+
+      const isSessionEntityType = n.entityType === 'Session' || n.entityType === 'SessionRecurringGroup';
+      return sessionNotificationTypes.has(n.type) || isSessionEntityType;
+    });
+
+    if (hasNewSessionAffectingNotification) {
+      void queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      void queryClient.invalidateQueries({ queryKey: ['upcoming-sessions'] });
+    }
+  }, [listData?.data, queryClient]);
 
   const markReadMutation = useApiMutation((id: string) => notificationsService.markAsRead(id), {
     invalidateQueries: [

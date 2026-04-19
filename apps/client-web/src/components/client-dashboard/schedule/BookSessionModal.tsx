@@ -9,6 +9,7 @@ import { useKid } from '@/contexts/kid/useKid';
 import { SessionType, type User, type Location } from '@grow-fitness/shared-types';
 import { useAuth } from '@/contexts/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   open: boolean;
@@ -18,6 +19,7 @@ interface Props {
 export default function BookSessionModal({ open, onClose }: Props) {
   const { selectedKid } = useKid();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const kidId = selectedKid?.id;
   const parentId = user?.role === 'PARENT' ? user.id : null;
@@ -93,6 +95,12 @@ export default function BookSessionModal({ open, onClose }: Props) {
         preferredDateTime: new Date(preferredDateTime).toISOString(),
         parentId,
       });
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['requests'] }),
+        queryClient.invalidateQueries({ queryKey: ['sessions'] }),
+        queryClient.invalidateQueries({ queryKey: ['upcoming-sessions'] }),
+      ]);
 
       console.log('Extra session request sent successfully');
 
