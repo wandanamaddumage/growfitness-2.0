@@ -35,7 +35,7 @@ export const CTASection = () => {
                Book a free session
              </AnimatedButton>
              
-             <div className="flex flex-wrap justify-center gap-6 mt-10 text-white/70 text-sm font-medium">
+             <div className="flex flex-wrap justify-center gap-6 mt-10 text-white/70 text-sm font-medium leading-relaxed">
                <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-brand-accent rounded-full"></div>
                  No credit card required

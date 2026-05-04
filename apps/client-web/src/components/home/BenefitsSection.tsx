@@ -22,7 +22,7 @@ export function BenefitsSection() {
               <span className="text-brand-green">three major challenges</span>
             </h2>
             <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
-              These affect confidence, attention, and long-term health. We battle them through physical activity.Increased screen addiction
+              These affect confidence, attention, and long-term health. We battle them through physical activity.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-6">
@@ -31,7 +31,7 @@ export function BenefitsSection() {
                   <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center shrink-0">
                     <Check className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-gray-700 font-semibold text-lg">
+                  <span className="text-gray-700 font-semibold text-base leading-relaxed">
                     {benefit.text}
                   </span>
                 </div>

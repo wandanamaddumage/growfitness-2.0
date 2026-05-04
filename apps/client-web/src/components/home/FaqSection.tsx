@@ -32,7 +32,7 @@ export function FaqSection() {
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl uppercase tracking-wide text-white mb-4">
+            <h2 className="font-insanibc text-4xl md:text-5xl uppercase tracking-wide text-white mb-4 font-bold">
               Frequently Asked Questions
             </h2>
             <p className="text-white/70 text-lg max-w-2xl mx-auto">
@@ -68,7 +68,7 @@ export function FaqSection() {
 
             {/* CTA at bottom */}
             <div className="mt-8 pt-8 border-t border-border/40 text-center">
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 leading-relaxed">
                 Still have questions?
               </p>
               <div className="inline-flex items-center gap-2 text-primary font-semibold hover:underline cursor-pointer">

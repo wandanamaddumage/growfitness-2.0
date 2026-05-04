@@ -27,7 +27,7 @@ export function HowItWorksSection() {
   return (
     <section className="py-20 bg-primary/10">
       <Container>
-        <h2 className="font-display text-3xl md:text-4xl text-center text-foreground uppercase tracking-wide mb-12">
+        <h2 className="font-insanibc text-3xl md:text-4xl text-center text-foreground uppercase tracking-wide mb-12 font-bold">
           How Grow Fitness Works
         </h2>
 
@@ -52,9 +52,9 @@ export function HowItWorksSection() {
               <div className={`text-xs font-bold mb-2 ${s.dark ? "text-accent" : "text-primary"}`}> 
                 Step {i + 1}
               </div>
-              <h3 className="font-display text-2xl mb-3 leading-snug">{s.title}</h3>
+              <h3 className="font-insanibc text-2xl mb-3 leading-snug font-bold">{s.title}</h3>
               <div className={`h-px w-12 mb-3 ${s.dark ? "bg-white/20" : "bg-border"}`} />
-              <p className={`text-sm leading-relaxed ${s.dark ? "text-white/80" : "text-muted-foreground"}`}>
+              <p className={`text-base leading-relaxed ${s.dark ? "text-white/80" : "text-muted-foreground"}`}>
                 {s.desc}
               </p>
             </div>
