@@ -21,7 +21,7 @@ export const MidStats = () => {
          We Host Sessions Weekly For  <br />
         </h2>
         
-        <p className="text-gray-300 text-2xl mb-16 max-w-2xl mx-auto">
+        <p className="text-gray-300 text-xl mb-16 max-w-2xl mx-auto leading-relaxed">
           <span className="text-brand-green font-bold">We've been helping kids get fit since 2023. That's why parents like you trust us.</span> 
         </p>
 
@@ -34,14 +34,14 @@ export const MidStats = () => {
               <div className="text-4xl md:text-5xl font-bold text-white mb-2 font-insanibc">
                 {stat.number}
               </div>
-              <div className="text-gray-400 font-medium">
+              <div className="text-gray-400 font-medium text-sm leading-relaxed">
                 {stat.label}
               </div>
             </div>
           ))}
         </div>
 
-        <p className="text-gray-300 text-2xl mt-16 max-w-2xl mx-auto">
+        <p className="text-gray-300 text-xl mt-16 max-w-2xl mx-auto leading-relaxed">
           Join GROW Kids Fitness Center where children develop healthy habits, build confidence, and have <span className="text-brand-green font-bold">FUN</span> while staying active!
         </p>
       </Container>

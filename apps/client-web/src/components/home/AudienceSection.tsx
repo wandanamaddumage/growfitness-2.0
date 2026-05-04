@@ -23,7 +23,7 @@ export function AudienceSection() {
       <Container className="grid md:grid-cols-2 gap-6">
         {/* NOT FOR */}
         <div className="bg-card text-foreground rounded-3xl p-8 md:p-10 shadow-card">
-          <h3 className="font-display text-3xl text-foreground leading-tight">
+          <h3 className="font-insanibc text-3xl text-foreground leading-tight font-bold">
             THIS IS <span className="text-primary">NOT</span> FOR PARENTS
           </h3>
           <p className="text-xs uppercase tracking-wider text-muted-foreground mt-2 mb-6">
@@ -35,7 +35,7 @@ export function AudienceSection() {
                 <span className="grid place-items-center w-6 h-6 rounded-full bg-destructive/10 text-destructive shrink-0 mt-0.5">
                   <X className="w-3.5 h-3.5" strokeWidth={3} />
                 </span>
-                <span className="text-sm leading-relaxed">{t}</span>
+                <span className="text-base leading-relaxed">{t}</span>
               </li>
             ))}
           </ul>
@@ -46,7 +46,7 @@ export function AudienceSection() {
           <span className="absolute -top-3 left-8 text-[10px] font-bold uppercase tracking-wider bg-accent text-slate-dark px-3 py-1 rounded-full">
             For You
           </span>
-          <h3 className="font-display text-3xl text-foreground leading-tight">
+          <h3 className="font-insanibc text-3xl text-foreground leading-tight font-bold">
             THIS IS <span className="text-primary">FOR</span> PARENTS
           </h3>
           <p className="text-xs uppercase tracking-wider text-muted-foreground mt-2 mb-6">
@@ -58,7 +58,7 @@ export function AudienceSection() {
                 <span className="grid place-items-center w-6 h-6 rounded-full bg-primary/15 text-primary shrink-0 mt-0.5">
                   <Check className="w-3.5 h-3.5" strokeWidth={3} />
                 </span>
-                <span className="text-sm leading-relaxed">{t}</span>
+                <span className="text-base leading-relaxed">{t}</span>
               </li>
             ))}
           </ul>
