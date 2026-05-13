@@ -52,6 +52,15 @@ export class UploadsService {
     );
   }
 
+  /** v4 signed URLs on Cloud Run use IAM signBlob; failures do not always match isGoogleCredentialsError. */
+  private isGoogleSignedUrlIamError(error: unknown): boolean {
+    return (
+      error instanceof Error &&
+      (error.message.includes('signBlob') ||
+        error.message.includes('iam.serviceAccounts'))
+    );
+  }
+
   private extensionForContentType(contentType: string): string {
     const map: Record<string, string> = {
       'image/jpeg': 'jpg',
@@ -140,10 +149,10 @@ export class UploadsService {
         contentType: dto.contentType,
       });
     } catch (error) {
-      if (this.isGoogleCredentialsError(error)) {
+      if (this.isGoogleCredentialsError(error) || this.isGoogleSignedUrlIamError(error)) {
         throw new ServiceUnavailableException({
           message:
-            'File uploads are not configured with Google credentials. Set GOOGLE_APPLICATION_CREDENTIALS locally or configure the Cloud Run service account permissions.',
+            'File uploads: Google signing failed. Locally, set GOOGLE_APPLICATION_CREDENTIALS to a service account JSON key. On Cloud Run, grant the runtime service account Storage access on the bucket and roles/iam.serviceAccountTokenCreator on that same service account (required for v4 signed URLs). See apps/api/.env.example.',
         });
       }
       throw error;
