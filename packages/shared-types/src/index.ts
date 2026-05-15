@@ -426,4 +426,5 @@ export default {
   ReportStatus,
   EmploymentType,
   NotificationType,
+  UploadKind,
 };
