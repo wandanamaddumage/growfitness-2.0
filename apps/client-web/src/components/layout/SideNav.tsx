@@ -18,10 +18,9 @@ export function SideNav() {
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `${linkClasses} ${
-              isActive
-                ? 'bg-primary text-white shadow-md'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            `${linkClasses} ${isActive
+              ? 'bg-primary text-white shadow-md hover:bg-primary/80 hover:text-white'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             }`
           }
         >
@@ -32,10 +31,9 @@ export function SideNav() {
         <NavLink
           to="/payments"
           className={({ isActive }) =>
-            `${linkClasses} ${
-              isActive
-                ? 'bg-primary text-white shadow-md'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            `${linkClasses} ${isActive
+              ? 'bg-primary text-white shadow-md hover:bg-primary/80 hover:text-white'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             }`
           }
         >
@@ -46,10 +44,9 @@ export function SideNav() {
         <NavLink
           to="/profile"
           className={({ isActive }) =>
-            `${linkClasses} ${
-              isActive
-                ? 'bg-primary text-white shadow-md'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            `${linkClasses} ${isActive
+              ? 'bg-primary text-white shadow-md hover:bg-primary/80 hover:text-white'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             }`
           }
         >

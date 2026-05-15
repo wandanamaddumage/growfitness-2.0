@@ -24,9 +24,9 @@ export function OverviewTab({ kid }: OverviewTabProps) {
       </Card>
 
       <Card className="border-[#23B685]/15">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-[#243E36] text-base flex items-center">
-            <User className="mr-2 h-4 w-4" />
+        <CardHeader className="rounded-t-xl bg-[#23B685]/8 border-b border-[#23B685]/20">
+          <CardTitle className="text-[#243E36] text-xl sm:text-2xl flex items-center">
+            <User className="mr-2 h-6 w-6" />
             Child Profile Summary
           </CardTitle>
         </CardHeader>
