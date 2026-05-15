@@ -9,6 +9,10 @@ import {
   EmploymentType,
   UploadKind,
 } from '@grow-fitness/shared-types';
+import { personNameField, phoneField } from './field-validators';
+
+export { PHONE_REGEX, personNameField, phoneField } from './field-validators';
+export type { PersonNameOptions } from './field-validators';
 
 // Auth Schemas
 export const LoginSchema = z.object({
@@ -357,12 +361,19 @@ export type UpdateSessionDto = z.infer<typeof UpdateSessionSchema>;
 
 // Free Session Request Schema
 export const CreateFreeSessionRequestSchema = z.object({
-  parentName: z.string().min(1, 'Enter the parent\'s name.'),
-  phone: z.string().min(1, 'Enter your phone number.'),
-  email: z.string().email('Enter a valid email address.'),
-  kidName: z.string().min(1, 'Enter the child\'s name.'),
+  parentName: personNameField({
+    fieldLabel: 'your full name',
+    requireFullName: true,
+  }),
+  phone: phoneField('your phone number'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Enter your email address.')
+    .email('Enter a valid email address.'),
+  kidName: personNameField({ fieldLabel: "your child's name" }),
   sessionType: z.nativeEnum(SessionType),
-  selectedSessionId: z.string().optional(),
+  selectedSessionId: z.string().min(1, 'Select an available session.').optional(),
   preferredDateTime: z.string().or(z.date()),
   locationId: z.string().min(1, 'Location ID is required'),
 });
