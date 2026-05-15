@@ -8,7 +8,7 @@ import { useCoachProfile } from '@/contexts/coach-profile/CoachProfileProvider';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import { Dumbbell, Users, Phone, Info, Menu, X, LogOut } from 'lucide-react';
+import { Dumbbell, Users, Info, Menu, X, LogOut } from 'lucide-react';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { Container } from './Container';
 
@@ -18,7 +18,7 @@ const navLinks = [
   { label: 'About Us', href: '#about', icon: Info },
   { label: 'Our Plans', href: '#plans', icon: Dumbbell },
   { label: 'Programs', href: '#programs', icon: Users },
-  { label: 'Contact Us', href: '#contact', icon: Phone },
+  { label: 'FAQ', href: '#faq', icon: Info },
 ];
 
 type HeaderProps = {
