@@ -182,6 +182,23 @@ export interface Kid {
   updatedAt: Date;
 }
 
+/** Kid summary when session.kids is populated */
+export type SessionKidRef = Pick<
+  Kid,
+  | 'id'
+  | 'parentId'
+  | 'name'
+  | 'gender'
+  | 'birthDate'
+  | 'goal'
+  | 'profilePhotoUrl'
+  | 'currentlyInSports'
+  | 'medicalConditions'
+  | 'sessionType'
+  | 'createdAt'
+  | 'updatedAt'
+>;
+
 /** Populated coach reference (when coachId is expanded) */
 export interface SessionCoachRef {
   id: string;
@@ -212,7 +229,7 @@ export interface Session {
   dateTime: Date;
   duration: number; // minutes
   capacity: number;
-  kids?: string[]; // for group sessions
+  kids?: (string | SessionKidRef)[]; // kid IDs or populated summaries
   kidId?: string; // for individual sessions
   status: SessionStatus;
   isFreeSession: boolean;
