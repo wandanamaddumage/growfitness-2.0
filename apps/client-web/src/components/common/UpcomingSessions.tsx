@@ -3,16 +3,18 @@ import { sessionsService } from '@/services/sessions.service';
 import { SessionStatus, type Session } from '@grow-fitness/shared-types';
 import SessionDetailsModal from './SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { CalendarDays } from 'lucide-react';
-import { addDays, endOfDay, startOfDay } from 'date-fns';
+import { CalendarDays, Clock, MapPin, Tag, User } from 'lucide-react';
+import { addDays, addMinutes, endOfDay, format, startOfDay } from 'date-fns';
 
 type UpcomingSessionsProps = {
   kidId?: string;
   coachId?: string;
+  limit?: number;
 };
 
-export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
+export const UpcomingSessions = ({ kidId, coachId, limit = 3 }: UpcomingSessionsProps) => {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+
   const { startDate, endDate } = useMemo(() => {
     const now = new Date();
     return {
@@ -32,6 +34,7 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
         sortBy: 'dateTime',
         sortOrder: 'asc',
       });
+
       return response.data;
     },
     {
@@ -40,28 +43,17 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
     }
   );
 
-  const getStatusBadge = (status: SessionStatus) => {
-    switch (status) {
-      case SessionStatus.CONFIRMED:
-        return (
-          <span className="inline-flex rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
-            Confirmed
-          </span>
-        );
-      case SessionStatus.CANCELLED:
-        return (
-          <span className="inline-flex rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
-            Cancelled
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
-            Scheduled
-          </span>
-        );
-    }
-  };
+  // ✅ ensure correct ordering + limit
+  const upcomingSessions = useMemo(() => {
+    return [...sessions]
+      .filter((s) => new Date(s.dateTime) >= new Date())
+      .sort(
+        (a, b) =>
+          new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+      )
+      .slice(0, limit);
+  }, [sessions, limit]);
+
 
   const getSessionAccent = (status: SessionStatus) => {
     switch (status) {
@@ -73,19 +65,6 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
         return 'border-l-primary';
     }
   };
-
-  const formatDate = (dateTime: string | Date) =>
-    new Date(dateTime).toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-
-  const formatTime = (dateTime: string | Date) =>
-    new Date(dateTime).toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
 
   if (isLoading) {
     return (
@@ -100,12 +79,16 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
     );
   }
 
-  if (!sessions.length) {
+  if (!upcomingSessions.length) {
     return (
       <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-[#23B685]/25 bg-[#23B685]/5 px-6 text-center">
         <CalendarDays className="h-8 w-8 text-[#23B685]" />
-        <p className="mt-3 text-sm font-medium text-[#243E36]">No upcoming sessions</p>
-        <p className="mt-1 text-sm text-gray-500">Your next sessions will appear here once they are scheduled.</p>
+        <p className="mt-3 text-sm font-medium text-[#243E36]">
+          No upcoming sessions
+        </p>
+        <p className="mt-1 text-sm text-gray-500">
+          Your next sessions will appear here once they are scheduled.
+        </p>
       </div>
     );
   }
@@ -113,22 +96,76 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
   return (
     <div>
       <ul className="space-y-3">
-        {sessions.map((session) => (
+        {upcomingSessions.map((session) => (
           <li key={session.id}>
             <div
               onClick={() => setSelectedSession(session)}
-              className={`cursor-pointer rounded-xl border border-[#23B685]/20 border-l-4 bg-white px-4 py-3 transition-colors hover:bg-[#23B685]/5 ${getSessionAccent(session.status)}`}
+              className={`cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-[#23B685]/30 ${getSessionAccent(
+                session.status
+              )}`}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-[#243E36]">{session.type}</h3>
-                  <p className="mt-1 text-sm text-gray-600">{formatDate(session.dateTime)}</p>
+              <div className="flex items-center gap-4">
+                {/* Date Box */}
+                <div className="flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-[#CDEEE3] text-[#243E36]">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide">
+                    {format(new Date(session.dateTime), 'MMM')}
+                  </span>
+
+                  <span className="text-xl font-bold leading-none">
+                    {format(new Date(session.dateTime), 'dd')}
+                  </span>
                 </div>
-                <p className="text-sm font-medium text-[#243E36]">
-                  {formatTime(session.dateTime)}
-                </p>
+
+                {/* Session Details */}
+                <div className="min-w-0 flex-1">
+                  {/* Title + Status */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="truncate text-xl font-semibold text-[#243E36]">
+                      {session.title}
+                    </h3>
+
+                    <span className="rounded-full bg-[#CDEEE3] px-2 py-0.5 text-xs font-medium text-[#1B7F5D]">
+                      • {session.status}
+                    </span>
+                  </div>
+
+                  {/* Meta Details */}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-gray-600">
+                    {/* Time */}
+                    <div className="flex items-center gap-1">
+                      <Clock size={14} />
+                      <span>
+                        {format(new Date(session.dateTime), 'hh:mm a')} -{' '}
+                        {format(
+                          addMinutes(
+                            new Date(session.dateTime),
+                            session.duration
+                          ),
+                          'hh:mm a'
+                        )}
+                      </span>
+                    </div>
+
+                    {/* Coach */}
+                    <div className="flex items-center gap-1">
+                      <User size={14} />
+                      <span>{session.coach?.coachProfile?.name || '-'}</span>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-1">
+                      <MapPin size={14} />
+                      <span>{session.location?.name || '-'}</span>
+                    </div>
+
+                    {/* Type */}
+                    <div className="flex items-center gap-1">
+                      <Tag size={14} />
+                      <span>{session.type}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="mt-2">{getStatusBadge(session.status)}</div>
             </div>
           </li>
         ))}
@@ -139,7 +176,7 @@ export const UpcomingSessions = ({ kidId, coachId }: UpcomingSessionsProps) => {
         session={selectedSession || undefined}
         onClose={() => setSelectedSession(null)}
         kidId={kidId}
-        onReschedule={() => {}}
+        onReschedule={() => { }}
       />
     </div>
   );

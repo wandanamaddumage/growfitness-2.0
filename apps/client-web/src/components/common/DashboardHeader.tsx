@@ -11,7 +11,7 @@ export function DashboardHeader() {
   const roleConfig = {
     PARENT: {
       greeting: `Hi, Welcome Back! 👋`,
-      subtitle: "Track your child's fitness journey",
+      subtitle: "Track your kid's fitness journey",
     },
     COACH: {
       greeting: `Hi Coach 👋`,
@@ -36,7 +36,7 @@ export function DashboardHeader() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {/* ---------- LEFT ---------- */}
         <div className="text-center md:text-left">
-          <h1 className="text-base sm:text-lg font-semibold text-gray-800">{config?.greeting}</h1>
+          <h1 className="text-base sm:text-2xl font-bold text-gray-800">{config?.greeting}</h1>
           <p className="text-xs sm:text-sm text-gray-500">{config?.subtitle}</p>
 
           {role === 'PARENT' && selectedKid && (
