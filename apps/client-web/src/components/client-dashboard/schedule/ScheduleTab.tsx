@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { addDays, endOfDay, startOfDay, startOfWeek, endOfWeek } from 'date-fns';
+import { addDays, endOfDay, startOfDay, startOfWeek, endOfWeek, format } from 'date-fns';
 import type { PaginatedResponse, Session } from '@grow-fitness/shared-types';
 import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import SessionDetailsModal from '@/components/common/SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useKid } from '@/contexts/kid/useKid';
 import BookSessionModal from './BookSessionModal';
-import { formatDateTime } from '@/lib/formatters';
+import { StatusBadge } from '@/components/common/StatusBadge';
 
 type ScheduleView = 'list' | 'calendar';
 
@@ -123,35 +123,77 @@ export default function ScheduleTab() {
 
             <TabsContent value="list" className="mt-0">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
+                <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
                   Loading sessions…
                 </div>
               ) : sortedSessions.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30 py-12 text-center text-muted-foreground text-sm">
+                <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30 py-12 text-center text-sm text-muted-foreground">
                   No upcoming sessions in the next {LIST_VIEW_DAYS} days.
                 </div>
               ) : (
-                <ul className="divide-y divide-border rounded-lg border border-border">
-                  {sortedSessions.map(session => (
-                    <li key={session.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSession(session)}
-                        className="flex w-full flex-col items-start gap-1 px-4 py-3 text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none sm:flex-row sm:items-center sm:gap-4"
-                      >
-                        <span className="text-xs text-muted-foreground sm:min-w-[140px] sm:text-sm">
-                          {formatDateTime(session.dateTime)}
-                        </span>
-                        <span className="w-full font-medium text-foreground sm:flex-1">
-                          {session.title?.trim() || getSessionLabel(session)}
-                        </span>
-                        <span className="text-xs text-muted-foreground sm:ml-auto">
-                          {session.duration} min
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                <div className="w-full overflow-x-auto rounded-lg border border-border">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-muted/40 text-left text-xs font-semibold uppercase text-muted-foreground">
+                      <tr>
+                        <th className="px-4 py-3">Title</th>
+                        <th className="px-4 py-3">Date</th>
+                        <th className="px-4 py-3">Type</th>
+                        <th className="px-4 py-3">Time</th>
+                        <th className="px-4 py-3">Location</th>
+                        <th className="px-4 py-3">Duration</th>
+                        <th className="px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-border bg-white">
+                      {sortedSessions.map((session) => (
+                        <tr
+                          key={session.id}
+                          onClick={() => setSelectedSession(session)}
+                          className="cursor-pointer transition-colors hover:bg-muted/50"
+                        >
+                          {/* Title */}
+                          <td className="px-4 py-3 font-medium text-foreground">
+                            {session.title?.trim() || getSessionLabel(session)}
+                          </td>
+
+                          {/* Date */}
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {format(new Date(session.dateTime), 'dd MMM yyyy')}
+                          </td>
+
+                          {/* Type */}
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {session.type}
+                          </td>
+
+                          {/* Time */}
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {format(new Date(session.dateTime), 'hh:mm a')} - {format(
+                              new Date(new Date(session.dateTime).getTime() + session.duration * 60000),
+                              'hh:mm a'
+                            )}
+                          </td>
+
+                          {/* Location */}
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {session.location?.name ?? '-'}
+                          </td>
+
+                          {/* Duration */}
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {session.duration} min
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-4 py-3">
+                            <StatusBadge status={session.status} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </TabsContent>
 
@@ -172,7 +214,7 @@ export default function ScheduleTab() {
         session={selectedSession ?? undefined}
         onClose={() => setSelectedSession(null)}
         kidId={selectedKid?.id}
-        onReschedule={() => {}}
+        onReschedule={() => { }}
       />
 
       {canRequestExtraSession && (
