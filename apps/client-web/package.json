@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "pnpm --filter @grow-fitness/invoice-print run build && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@grow-fitness/invoice-print": "workspace:*",
     "@grow-fitness/schedule-calendar": "workspace:*",
     "@grow-fitness/shared-schemas": "workspace:*",
     "@grow-fitness/shared-types": "workspace:*",

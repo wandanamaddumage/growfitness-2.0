@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { invoicesService } from '@/services/invoices.service';
 import { type Invoice, InvoiceStatus } from '@grow-fitness/shared-types';
@@ -13,9 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
-import { useToast } from '@/hooks/useToast';
 import { formatDate, formatCurrency, formatInvoiceType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -33,7 +32,6 @@ export function Payments() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const loadedInvoiceId = useRef<string | null>(null);
 
-  const { toast } = useToast();
   const { user } = useAuth();
 
   // Role-based filters
@@ -88,25 +86,6 @@ export function Payments() {
       })
   );
 
-  const handleDownloadPdf = useCallback(
-    async (invoice: Invoice) => {
-      try {
-        const blob = await invoicesService.downloadInvoicePdf(invoice.id);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `invoice-${invoice.id}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('Invoice downloaded');
-      } catch (err) {
-        console.error(err);
-        toast.error('Download failed');
-      }
-    },
-    [toast]
-  );
-
   const columns: ColumnDef<Invoice>[] = [
     {
       accessorKey: 'type',
@@ -149,14 +128,6 @@ export function Payments() {
               }}
             >
               <Eye className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => void handleDownloadPdf(invoice)}
-            >
-              <Download className="h-4 w-4" />
             </Button>
           </div>
         );
