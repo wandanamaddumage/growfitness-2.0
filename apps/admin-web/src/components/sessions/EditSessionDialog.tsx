@@ -32,6 +32,8 @@ import {
   SessionStatus,
   SessionType,
   RecurrenceFrequency,
+  UserStatus,
+  type User,
 } from '@grow-fitness/shared-types';
 import { useApiMutation, useApiQuery } from '@/hooks';
 import { sessionsService } from '@/services/sessions.service';
@@ -74,6 +76,18 @@ function extractId(value: unknown): string {
     return (value as { id: string }).id;
   }
   return '';
+}
+
+/** Active coaches only for new assignments; keep current coach visible if inactive. */
+function coachesForSessionAssignment(coaches: User[] | undefined, currentCoachId: string): User[] {
+  const raw = coaches ?? [];
+  const active = raw.filter(c => c.status === UserStatus.ACTIVE);
+  if (!currentCoachId) return active;
+  const current = raw.find(c => c.id === currentCoachId);
+  if (current && current.status !== UserStatus.ACTIVE && !active.some(c => c.id === current.id)) {
+    return [current, ...active];
+  }
+  return active;
 }
 
 function getErrorMessage(error: unknown): string | undefined {
@@ -378,14 +392,16 @@ export function EditSessionDialog({
                     <SelectValue placeholder="Select coach" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(coachesData?.data || []).map(coach => {
-                      const coachId = coach.id;
-                      return (
-                        <SelectItem key={coachId} value={coachId}>
-                          {coach.coachProfile?.name || coach.email}
-                        </SelectItem>
-                      );
-                    })}
+                    {coachesForSessionAssignment(coachesData?.data, extractId(session.coachId)).map(
+                      coach => {
+                        const coachId = coach.id;
+                        return (
+                          <SelectItem key={coachId} value={coachId}>
+                            {coach.coachProfile?.name || coach.email}
+                          </SelectItem>
+                        );
+                      }
+                    )}
                   </SelectContent>
                 </Select>
               </CustomFormField>

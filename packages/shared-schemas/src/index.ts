@@ -82,7 +82,7 @@ export const UpdateParentSchema = z.object({
   phone: z.string().min(1).optional(),
   location: z.string().optional(),
   photoUrl: z.string().url().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'DELETED']).optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
 
 export type UpdateParentDto = z.infer<typeof UpdateParentSchema>;

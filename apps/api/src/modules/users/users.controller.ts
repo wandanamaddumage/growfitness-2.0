@@ -126,8 +126,8 @@ export class UsersController {
         location: { type: 'string', description: 'Parent location' },
         status: {
           type: 'string',
-          enum: ['ACTIVE', 'INACTIVE', 'DELETED'],
-          description: 'Parent status',
+          enum: ['ACTIVE', 'INACTIVE'],
+          description: 'Parent status (use DELETE /users/parents/:id to remove an account permanently)',
         },
       },
     },
@@ -144,7 +144,7 @@ export class UsersController {
   }
 
   @Delete('parents/:id')
-  @ApiOperation({ summary: 'Delete parent' })
+  @ApiOperation({ summary: 'Hard-delete parent (permanent, removes kids & related data)' })
   @ApiResponse({ status: 200, description: 'Parent deleted successfully' })
   @ApiResponse({ status: 404, description: 'Parent not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
@@ -157,7 +157,10 @@ export class UsersController {
 
   // Coaches
   @Get('coaches')
-  @ApiOperation({ summary: 'Get all coaches' })
+  @ApiOperation({
+    summary:
+      'Get coaches (active and inactive). Use DELETE /users/coaches/:id for permanent removal.',
+  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -284,8 +287,8 @@ export class UsersController {
   }
 
   @Delete('coaches/:id')
-  @ApiOperation({ summary: 'Deactivate coach' })
-  @ApiResponse({ status: 200, description: 'Coach deactivated successfully' })
+  @ApiOperation({ summary: 'Hard-delete coach (permanent, removes coached sessions)' })
+  @ApiResponse({ status: 200, description: 'Coach deleted successfully' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @ApiResponse({ status: 400, description: 'Invalid ID format' })
   deactivateCoach(
