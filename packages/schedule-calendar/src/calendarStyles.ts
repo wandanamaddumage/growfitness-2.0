@@ -121,4 +121,44 @@ export const CALENDAR_STYLES = `
   border-bottom-color: transparent;
   left: -1px;
 }
+
+/* Make Scheduled events in Day/Week view look like Month view */
+.fc-timegrid-event.gf-status-scheduled {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.fc-timegrid-event.gf-status-scheduled .fc-event-main {
+  color: #3c4043 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  padding: 2px 4px !important;
+}
+.fc-timegrid-event.gf-status-scheduled .fc-event-main-frame {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.fc-timegrid-event.gf-status-scheduled .fc-event-main::before,
+.fc-timegrid-event.gf-status-scheduled .fc-event-main-frame::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #23B685;
+  margin-right: 6px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.fc-timegrid-event.gf-status-scheduled .fc-event-time {
+  color: #3c4043 !important;
+  margin-right: 4px;
+}
+.fc-timegrid-event.gf-status-scheduled .fc-event-title,
+.fc-timegrid-event.gf-status-scheduled .fc-event-title-container {
+  color: #3c4043 !important;
+  font-weight: 500;
+}
 `;
