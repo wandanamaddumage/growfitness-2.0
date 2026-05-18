@@ -24,7 +24,7 @@ import {
   CreateSessionDto,
   CreateRecurringSessionDto,
 } from '@grow-fitness/shared-schemas';
-import { SessionType, RecurrenceFrequency } from '@grow-fitness/shared-types';
+import { SessionType, RecurrenceFrequency, UserStatus } from '@grow-fitness/shared-types';
 import { useApiMutation, useApiQuery } from '@/hooks';
 import { sessionsService } from '@/services/sessions.service';
 import { usersService } from '@/services/users.service';
@@ -189,6 +189,7 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
       capacity: submitData.capacity,
       kids: submitData.kids,
       isFreeSession: submitData.isFreeSession ?? false,
+      isExtraSession: submitData.isExtraSession ?? false,
       recurrence: {
         frequency: repeatMode as RecurrenceFrequency,
         interval,
@@ -274,11 +275,13 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(coachesData?.data || []).map(coach => (
-                        <SelectItem key={coach.id} value={coach.id}>
-                          {coach.coachProfile?.name || coach.email}
-                        </SelectItem>
-                      ))}
+                      {(coachesData?.data ?? []).filter(c => c.status === UserStatus.ACTIVE).map(
+                        coach => (
+                          <SelectItem key={coach.id} value={coach.id}>
+                            {coach.coachProfile?.name || coach.email}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                 </CustomFormField>
@@ -323,7 +326,9 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                   }
                   onSelect={date => {
                     if (date) {
-                      form.setValue('dateTime', format(date, "yyyy-MM-dd'T'HH:mm"));
+                      // ISO-8601 with Z so the API stores the same instant as the picker (avoids
+                      // naive "yyyy-MM-ddTHH:mm" being parsed in the server's local TZ, e.g. UTC on Cloud Run).
+                      form.setValue('dateTime', date.toISOString());
                     } else {
                       form.setValue('dateTime', '');
                     }

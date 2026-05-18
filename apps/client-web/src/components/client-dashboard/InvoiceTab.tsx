@@ -7,7 +7,7 @@ import { DataTable } from "@/components/common/DataTable";
 import { Pagination } from "@/components/common/Pagination";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
-import { Eye, Download } from "lucide-react";
+import { Eye } from "lucide-react";
 import { formatDate, formatCurrency, formatInvoiceType } from "@/lib/formatters";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { usePagination } from "@/hooks/usePagination";
@@ -26,20 +26,6 @@ export function InvoicesTab({ kidId }: KidInvoicesTabProps) {
     ["kid-invoices", kidId, page.toString(), pageSize.toString()],
     () => invoicesService.getInvoices(page, pageSize, { parentId: kidId })
   );
-
-  const handleDownload = async (invoice: Invoice) => {
-    try {
-      const blob = await invoicesService.exportCSV({ parentId: invoice.id });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice-${invoice.id}.csv`;  // Note the .csv extension
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      // Error handled silently
-    }
-  };
 
   const columns = [
     {
@@ -83,13 +69,6 @@ export function InvoicesTab({ kidId }: KidInvoicesTabProps) {
               }}
             >
               <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDownload(invoice)}
-            >
-              <Download className="h-4 w-4" />
             </Button>
           </div>
         );

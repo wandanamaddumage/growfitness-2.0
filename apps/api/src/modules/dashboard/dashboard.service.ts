@@ -7,7 +7,7 @@ import { InvoicesService } from '../invoices/invoices.service';
 import { AuditService } from '../audit/audit.service';
 import { User, UserDocument } from '../../infra/database/schemas/user.schema';
 import { Kid, KidDocument } from '../../infra/database/schemas/kid.schema';
-import { UserRole } from '@grow-fitness/shared-types';
+import { UserRole, UserStatus } from '@grow-fitness/shared-types';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
@@ -38,8 +38,15 @@ export class DashboardService {
       this.sessionsService.findByDateRange(today, tomorrow),
       this.requestsService.countFreeSessionRequests(),
       this.requestsService.countRescheduleRequests(),
-      this.userModel.countDocuments({ role: UserRole.PARENT }).exec(),
-      this.userModel.countDocuments({ role: UserRole.COACH }).exec(),
+      this.userModel
+        .countDocuments({ role: UserRole.PARENT, status: { $ne: UserStatus.DELETED } })
+        .exec(),
+      this.userModel
+        .countDocuments({
+          role: UserRole.COACH,
+          status: { $ne: UserStatus.DELETED },
+        })
+        .exec(),
       this.kidModel.countDocuments().exec(),
     ]);
 

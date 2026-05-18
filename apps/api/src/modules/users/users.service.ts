@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -24,6 +25,7 @@ import {
 import { AuthService } from '../auth/auth.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
+import { UserCascadeService } from './user-cascade.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 
@@ -73,6 +75,8 @@ function normalizeCoachAvailableTimes(value: unknown): CoachAvailableTime[] {
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Kid.name) private kidModel: Model<KidDocument>,
@@ -80,7 +84,8 @@ export class UsersService {
     private userRegistrationRequestModel: Model<UserRegistrationRequestDocument>,
     private authService: AuthService,
     private auditService: AuditService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private userCascadeService: UserCascadeService
   ) {}
 
   // Parents
@@ -90,26 +95,28 @@ export class UsersService {
     location?: string,
     status?: UserStatus
   ) {
-    const query: Record<string, unknown> = { role: UserRole.PARENT };
-
+    const andMatch: Record<string, unknown>[] = [
+      { role: UserRole.PARENT },
+      { status: { $ne: UserStatus.DELETED } },
+    ];
     if (status) {
-      query.status = status;
+      andMatch.push({ status });
     } else {
-      // Default behavior: only show approved parents
-      query.isApproved = true;
+      andMatch.push({ isApproved: true });
     }
-
     if (search) {
-      query.$or = [
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } },
-        { 'parentProfile.name': { $regex: search, $options: 'i' } },
-      ];
+      andMatch.push({
+        $or: [
+          { email: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+          { 'parentProfile.name': { $regex: search, $options: 'i' } },
+        ],
+      });
     }
-
     if (location) {
-      query['parentProfile.location'] = { $regex: location, $options: 'i' };
+      andMatch.push({ 'parentProfile.location': { $regex: location, $options: 'i' } });
     }
+    const query: Record<string, unknown> = { $and: andMatch };
 
     const skip = (pagination.page - 1) * pagination.limit;
 
@@ -178,7 +185,9 @@ export class UsersService {
   }
 
   async findParentSelf(userId: string) {
-    const parent = await this.userModel.findOne({ _id: userId, role: UserRole.PARENT }).exec();
+    const parent = await this.userModel
+      .findOne({ _id: userId, role: UserRole.PARENT, status: { $ne: UserStatus.DELETED } })
+      .exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -191,7 +200,9 @@ export class UsersService {
   }
 
   async updateParentSelf(userId: string, dto: UpdateParentSelfDto) {
-    const parent = await this.userModel.findOne({ _id: userId, role: UserRole.PARENT }).exec();
+    const parent = await this.userModel
+      .findOne({ _id: userId, role: UserRole.PARENT, status: { $ne: UserStatus.DELETED } })
+      .exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -241,7 +252,11 @@ export class UsersService {
   }
 
   async findParentById(id: string, includeUnapproved: boolean = false) {
-    const query: Record<string, unknown> = { _id: id, role: UserRole.PARENT };
+    const query: Record<string, unknown> = {
+      _id: id,
+      role: UserRole.PARENT,
+      status: { $ne: UserStatus.DELETED },
+    };
     if (!includeUnapproved) {
       query.isApproved = true;
     }
@@ -362,7 +377,13 @@ export class UsersService {
   }
 
   async updateParent(id: string, updateParentDto: UpdateParentDto, actorId: string) {
-    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
+    const parent = await this.userModel
+      .findOne({
+        _id: id,
+        role: UserRole.PARENT,
+        status: { $ne: UserStatus.DELETED },
+      })
+      .exec();
 
     if (!parent) {
       throw new NotFoundException({
@@ -423,39 +444,25 @@ export class UsersService {
   }
 
   async deleteParent(id: string, actorId: string) {
-    const parent = await this.userModel.findOne({ _id: id, role: UserRole.PARENT }).exec();
-
-    if (!parent) {
-      throw new NotFoundException({
-        errorCode: ErrorCode.USER_NOT_FOUND,
-        message: 'Parent not found',
-      });
-    }
-
-    parent.status = UserStatus.DELETED;
-    await parent.save();
-
-    await this.auditService.log({
-      actorId,
-      action: 'DELETE_PARENT',
-      entityType: 'User',
-      entityId: id,
-    });
-
-    return { message: 'Parent deleted successfully' };
+    return this.userCascadeService.deleteParentHard(id, actorId);
   }
 
   // Coaches
   async findCoaches(pagination: PaginationDto, search?: string) {
-    const query: Record<string, unknown> = { role: UserRole.COACH };
-
+    const andMatch: Record<string, unknown>[] = [
+      { role: UserRole.COACH },
+      { status: { $ne: UserStatus.DELETED } },
+    ];
     if (search) {
-      query.$or = [
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } },
-        { 'coachProfile.name': { $regex: search, $options: 'i' } },
-      ];
+      andMatch.push({
+        $or: [
+          { email: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+          { 'coachProfile.name': { $regex: search, $options: 'i' } },
+        ],
+      });
     }
+    const query: Record<string, unknown> = { $and: andMatch };
 
     const skip = (pagination.page - 1) * pagination.limit;
     const [data, total] = await Promise.all([
@@ -541,6 +548,14 @@ export class UsersService {
       metadata: { email: coach.email },
     });
 
+    await this.notificationService
+      .sendCoachAccountCreated({
+        email: coach.email,
+        phone: coach.phone,
+        coachName: createCoachDto.name,
+      })
+      .catch(err => this.logger.error('Failed to send coach welcome email/SMS', err));
+
     return coach;
   }
 
@@ -609,25 +624,6 @@ export class UsersService {
   }
 
   async deactivateCoach(id: string, actorId: string) {
-    const coach = await this.userModel.findOne({ _id: id, role: UserRole.COACH }).exec();
-
-    if (!coach) {
-      throw new NotFoundException({
-        errorCode: ErrorCode.USER_NOT_FOUND,
-        message: 'Coach not found',
-      });
-    }
-
-    coach.status = UserStatus.INACTIVE;
-    await coach.save();
-
-    await this.auditService.log({
-      actorId,
-      action: 'DEACTIVATE_COACH',
-      entityType: 'User',
-      entityId: id,
-    });
-
-    return { message: 'Coach deactivated successfully' };
+    return this.userCascadeService.deleteCoachHard(id, actorId);
   }
 }

@@ -182,6 +182,23 @@ export interface Kid {
   updatedAt: Date;
 }
 
+/** Kid summary when session.kids is populated */
+export type SessionKidRef = Pick<
+  Kid,
+  | 'id'
+  | 'parentId'
+  | 'name'
+  | 'gender'
+  | 'birthDate'
+  | 'goal'
+  | 'profilePhotoUrl'
+  | 'currentlyInSports'
+  | 'medicalConditions'
+  | 'sessionType'
+  | 'createdAt'
+  | 'updatedAt'
+>;
+
 /** Populated coach reference (when coachId is expanded) */
 export interface SessionCoachRef {
   id: string;
@@ -212,14 +229,27 @@ export interface Session {
   dateTime: Date;
   duration: number; // minutes
   capacity: number;
-  kids?: string[]; // for group sessions
+  kids?: (string | SessionKidRef)[]; // kid IDs or populated summaries
   kidId?: string; // for individual sessions
   status: SessionStatus;
   isFreeSession: boolean;
+  /** True when the session was created from an approved extra-session request. */
+  isExtraSession?: boolean;
   recurringGroupId?: string;
   recurringIndex?: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+const EXTRA_SESSION_TITLE_PATTERN = /^Extra (Group|Private) Session$/;
+
+/** Detects extra sessions from the persisted flag or legacy title pattern. */
+export function sessionIsExtraSession(
+  session: Pick<Session, 'title' | 'isExtraSession'>
+): boolean {
+  if (session.isExtraSession === true) return true;
+  const t = (session.title ?? '').trim();
+  return EXTRA_SESSION_TITLE_PATTERN.test(t);
 }
 
 export interface FreeSessionRequest {

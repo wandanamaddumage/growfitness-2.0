@@ -1,10 +1,11 @@
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { type Kid, type Session, SessionType } from '@grow-fitness/shared-types';
+import { type Kid, type Session, type SessionKidRef, SessionType, sessionIsExtraSession } from '@grow-fitness/shared-types';
+import { SessionKidCard } from '@/components/common/SessionKidCard';
+import { SessionSpecialBadges } from '@/components/common/SessionSpecialBadges';
 import { formatDateTime, formatSessionType } from '@/lib/formatters';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { sessionsService } from '@/services/sessions.service';
@@ -19,9 +20,6 @@ import {
   MapPin,
   Users,
   User,
-  Activity,
-  Award,
-  AlertCircle,
   Baby,
   CalendarClock,
   ExternalLink,
@@ -76,8 +74,6 @@ export default function SessionDetailsDialog({
 }: SessionDetailsDialogProps) {
   const { entityId } = useModalParams('sessionId');
   const { role } = useAuth();
-  console.log('User role:', role);
-
   // Fetch session from URL if prop not provided
   const { data: sessionFromUrl } = useApiQuery<Session>(
     ['sessions', entityId || 'no-id'],
@@ -162,12 +158,15 @@ export default function SessionDetailsDialog({
   // Both session types can have kids in the kids array
   // Check if kids are already populated objects or just IDs
   const kidsFromSession = Array.isArray(displaySession?.kids) ? displaySession.kids : [];
-  const areKidsPopulated =
-    kidsFromSession.length > 0 &&
-    typeof kidsFromSession[0] === 'object' &&
-    kidsFromSession[0] !== null &&
-    'name' in kidsFromSession[0] &&
-    typeof (kidsFromSession[0] as { name: unknown }).name === 'string';
+  const isKidSummary = (kid: unknown): kid is SessionKidRef =>
+    typeof kid === 'object' &&
+    kid !== null &&
+    'id' in kid &&
+    'name' in kid &&
+    'birthDate' in kid &&
+    (kid as SessionKidRef).birthDate != null;
+
+  const areKidsPopulated = kidsFromSession.length > 0 && isKidSummary(kidsFromSession[0]);
 
   type KidReference = string | { id: string; [key: string]: unknown };
 
@@ -246,10 +245,13 @@ export default function SessionDetailsDialog({
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg sm:text-2xl font-semibold truncate">
-                {displaySession.title?.trim() ||
-                  `${formatSessionType(displaySession.type)} Session`}
-              </h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg sm:text-2xl font-semibold truncate">
+                  {displaySession.title?.trim() ||
+                    `${formatSessionType(displaySession.type)} Session`}
+                </h2>
+                <SessionSpecialBadges session={displaySession} className="shrink-0" />
+              </div>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   {formatDateTime(displaySession.dateTime)}
@@ -349,6 +351,12 @@ export default function SessionDetailsDialog({
                     <span className="text-muted-foreground">Free Session</span>
                     <span className="text-muted-foreground text-xs sm:text-sm">
                       {displaySession.isFreeSession ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm gap-2">
+                    <span className="text-muted-foreground">Extra session</span>
+                    <span className="text-muted-foreground text-xs sm:text-sm">
+                      {sessionIsExtraSession(displaySession) ? 'Yes' : 'No'}
                     </span>
                   </div>
                   {isGroupSession && (
@@ -509,119 +517,32 @@ export default function SessionDetailsDialog({
                     ) : (
                       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         {kids.map(kidOrId => {
-                          // Handle case where kid is either a string ID or a Kid object
-                          const kid: Kid =
+                          const kidId =
                             typeof kidOrId === 'string'
-                              ? {
+                              ? kidOrId
+                              : (kidOrId as Kid | SessionKidRef).id;
+                          const kid =
+                            typeof kidOrId === 'string'
+                              ? ({
                                   id: kidOrId,
                                   parentId: '',
                                   name: 'Loading...',
-                                  gender: 'other',
-                                  birthDate: new Date(),
+                                  gender: '',
+                                  birthDate: new Date(0),
                                   currentlyInSports: false,
                                   medicalConditions: [],
-                                  sessionType: 'GROUP' as SessionType,
-                                  achievements: [],
+                                  sessionType: SessionType.GROUP,
                                   createdAt: new Date(),
                                   updatedAt: new Date(),
-                                }
-                              : kidOrId;
+                                } satisfies Kid)
+                              : (kidOrId as Kid | SessionKidRef);
 
                           return (
-                            <Card key={kid.id} className="overflow-hidden">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between gap-2">
-                                  <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
-                                    <Baby className="h-4 w-4 flex-shrink-0" />
-                                    <span className="truncate">{kid.name}</span>
-                                  </CardTitle>
-                                  {kid.gender && (
-                                    <Badge variant="outline" className="text-xs flex-shrink-0">
-                                      {kid.gender}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </CardHeader>
-                              <CardContent className="space-y-3">
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                  <div className="min-w-0">
-                                    <p className="text-muted-foreground text-xs">Birth Date</p>
-                                    <p className="font-medium text-xs sm:text-sm truncate">
-                                      {kid.birthDate
-                                        ? new Date(kid.birthDate).toLocaleDateString()
-                                        : 'N/A'}
-                                    </p>
-                                  </div>
-                                  {kid.goal && (
-                                    <div className="col-span-2 min-w-0">
-                                      <p className="text-muted-foreground text-xs">Goal</p>
-                                      <p className="font-medium text-xs sm:text-sm break-words">
-                                        {kid.goal}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="flex items-center gap-4 pt-2 border-t">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <Activity
-                                      className={`h-4 w-4 flex-shrink-0 ${
-                                        kid.currentlyInSports
-                                          ? 'text-green-600'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    />
-                                    <span className="text-xs text-muted-foreground truncate">
-                                      {kid.currentlyInSports ? 'In Sports' : 'Not in Sports'}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {kid.medicalConditions && kid.medicalConditions.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
-                                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-xs text-muted-foreground mb-1">
-                                        Medical Conditions
-                                      </p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {kid.medicalConditions.map(
-                                          (condition: string, idx: number) => (
-                                            <Badge
-                                              key={idx}
-                                              variant="secondary"
-                                              className="text-xs"
-                                            >
-                                              {condition}
-                                            </Badge>
-                                          )
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {kid.achievements && kid.achievements.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
-                                    <Award className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-xs text-muted-foreground mb-1">
-                                        Achievements
-                                      </p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {kid.achievements.map(
-                                          (achievement: string, idx: number) => (
-                                            <Badge key={idx} variant="outline" className="text-xs">
-                                              {achievement}
-                                            </Badge>
-                                          )
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
+                            <SessionKidCard
+                              key={kidId}
+                              kid={kid}
+                              isLoading={typeof kidOrId === 'string'}
+                            />
                           );
                         })}
                       </div>

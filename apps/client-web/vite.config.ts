@@ -8,6 +8,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@grow-fitness/invoice-print': path.resolve(
+        __dirname,
+        '../../packages/invoice-print/src/index.ts'
+      ),
     },
+  },
+  optimizeDeps: {
+    exclude: ['@grow-fitness/invoice-print'],
   },
 })

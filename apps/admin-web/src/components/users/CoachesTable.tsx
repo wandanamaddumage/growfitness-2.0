@@ -66,7 +66,7 @@ export function CoachesTable() {
   );
 
   const deleteMutation = useApiMutation((id: string) => usersService.deleteCoach(id), {
-    invalidateQueries: [['users', 'coaches']],
+    invalidateQueries: [['users', 'coaches'], ['sessions']],
     onSuccess: () => {
       toast.success('Coach deleted successfully');
     },
@@ -78,7 +78,7 @@ export function CoachesTable() {
   const handleDelete = async (user: User) => {
     const confirmed = await confirm({
       title: 'Delete Coach',
-      description: `Are you sure you want to delete ${user.coachProfile?.name || user.email}? This action cannot be undone.`,
+      description: `Permanently delete ${user.coachProfile?.name || user.email} and remove all coaching sessions they own from the system? This cannot be undone.`,
       variant: 'destructive',
       confirmText: 'Delete',
     });

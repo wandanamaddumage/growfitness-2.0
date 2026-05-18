@@ -82,7 +82,7 @@ export const UpdateParentSchema = z.object({
   phone: z.string().min(1).optional(),
   location: z.string().optional(),
   photoUrl: z.string().url().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'DELETED']).optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
 
 export type UpdateParentDto = z.infer<typeof UpdateParentSchema>;
@@ -273,6 +273,7 @@ export const CreateSessionSchema = z
     kids: z.array(z.string()).optional(),
     kidId: z.string().optional(),
     isFreeSession: z.boolean().default(false),
+    isExtraSession: z.boolean().default(false),
   })
   .refine(
     data => {
@@ -329,6 +330,7 @@ export const CreateRecurringSessionSchema = z
     kids: z.array(z.string()).optional(),
     kidId: z.string().optional(),
     isFreeSession: z.boolean().default(false),
+    isExtraSession: z.boolean().default(false),
     recurrence: RecurrenceConfigSchema,
   })
   .refine(
@@ -355,6 +357,7 @@ export const UpdateSessionSchema = z.object({
   kidId: z.string().optional(),
   status: z.nativeEnum(SessionStatus).optional(),
   isFreeSession: z.boolean().optional(),
+  isExtraSession: z.boolean().optional(),
 });
 
 export type UpdateSessionDto = z.infer<typeof UpdateSessionSchema>;

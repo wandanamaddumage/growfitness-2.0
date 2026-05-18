@@ -352,6 +352,9 @@ importers:
 
   apps/client-web:
     dependencies:
+      '@grow-fitness/invoice-print':
+        specifier: workspace:*
+        version: link:../../packages/invoice-print
       '@grow-fitness/schedule-calendar':
         specifier: workspace:*
         version: link:../../packages/schedule-calendar

@@ -90,7 +90,7 @@ export function ParentsTable() {
   );
 
   const deleteMutation = useApiMutation((id: string) => usersService.deleteParent(id), {
-    invalidateQueries: [['users', 'parents']],
+    invalidateQueries: [['users', 'parents'], ['sessions']],
     onSuccess: () => {
       toast.success('Parent deleted successfully');
     },
@@ -102,7 +102,7 @@ export function ParentsTable() {
   const handleDelete = async (user: User) => {
     const confirmed = await confirm({
       title: 'Delete Parent',
-      description: `Are you sure you want to delete ${user.parentProfile?.name || user.email}? This action cannot be undone.`,
+      description: `Permanently remove ${user.parentProfile?.name || user.email} and their kids from the database? Related invoices will be deleted and kids will be removed from session rosters. This cannot be undone.`,
       variant: 'destructive',
       confirmText: 'Delete',
     });
