@@ -5,7 +5,7 @@ import type { Session } from '@grow-fitness/shared-types';
 export function getStatusColor(status: SessionStatus): string {
   switch (status) {
     case SessionStatus.SCHEDULED:
-      return '#1a73e8';
+      return '#23B685';
     case SessionStatus.CONFIRMED:
       return '#10b981';
     case SessionStatus.CANCELLED:
@@ -13,7 +13,7 @@ export function getStatusColor(status: SessionStatus): string {
     case SessionStatus.COMPLETED:
       return '#70757a';
     default:
-      return '#1a73e8';
+      return '#23B685';
   }
 }
 
@@ -38,6 +38,7 @@ export function sessionToCalendarEvent(
   const classNames = [
     'gf-session-event',
     'gf-cal-event-interactive',
+    `gf-status-${session.status.toLowerCase()}`,
     ...(session.isFreeSession ? ['gf-session-free'] : []),
     ...(sessionIsExtraSession(session) ? ['gf-session-extra'] : []),
   ];
