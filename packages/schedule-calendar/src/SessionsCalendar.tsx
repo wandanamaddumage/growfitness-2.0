@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import type { EventInput, EventContentArg } from '@fullcalendar/core';
-import { Session, SessionStatus, sessionIsExtraSession } from '@grow-fitness/shared-types';
+import { SessionStatus, sessionIsExtraSession, type Session } from '@grow-fitness/shared-types';
 import { CALENDAR_STYLES } from './calendarStyles';
 import { getStatusColor } from './sessionEventUtils';
 
