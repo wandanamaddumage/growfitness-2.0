@@ -24,7 +24,7 @@ import {
   CreateSessionDto,
   CreateRecurringSessionDto,
 } from '@grow-fitness/shared-schemas';
-import { SessionType, RecurrenceFrequency } from '@grow-fitness/shared-types';
+import { SessionType, RecurrenceFrequency, UserStatus } from '@grow-fitness/shared-types';
 import { useApiMutation, useApiQuery } from '@/hooks';
 import { sessionsService } from '@/services/sessions.service';
 import { usersService } from '@/services/users.service';
@@ -275,11 +275,13 @@ export function CreateSessionDialog({ open, onOpenChange }: CreateSessionDialogP
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(coachesData?.data || []).map(coach => (
-                        <SelectItem key={coach.id} value={coach.id}>
-                          {coach.coachProfile?.name || coach.email}
-                        </SelectItem>
-                      ))}
+                      {(coachesData?.data ?? []).filter(c => c.status === UserStatus.ACTIVE).map(
+                        coach => (
+                          <SelectItem key={coach.id} value={coach.id}>
+                            {coach.coachProfile?.name || coach.email}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                 </CustomFormField>

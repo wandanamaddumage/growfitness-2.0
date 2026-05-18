@@ -32,6 +32,6 @@ import { GoogleCalendarStatusController } from './google-calendar-status.control
     GoogleCalendarApiService,
     GoogleCalendarSyncService,
   ],
-  exports: [GoogleCalendarSyncService],
+  exports: [GoogleCalendarSyncService, GoogleCalendarApiService],
 })
 export class GoogleCalendarModule {}

@@ -66,6 +66,18 @@ function formatDateForInput(date: Date | string | undefined): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Parent PATCH no longer allows DELETED; map legacy tombstones to Inactive for display. */
+function parentStatusForEdit(status: UserStatus | undefined): UpdateParentDto['status'] | undefined {
+  if (status === UserStatus.DELETED) return UserStatus.INACTIVE;
+  if (status === UserStatus.ACTIVE || status === UserStatus.INACTIVE) return status;
+  return undefined;
+}
+
+function coachStatusForEdit(status: UserStatus | undefined): UpdateCoachDto['status'] | undefined {
+  if (status === UserStatus.ACTIVE || status === UserStatus.INACTIVE) return status;
+  return undefined;
+}
+
 interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -147,7 +159,10 @@ export function EditUserDialog({
       email: user.email,
       phone: user.phone,
       location: userType === 'parent' ? user.parentProfile?.location : undefined,
-      status: user.status,
+      status:
+        userType === 'parent'
+          ? parentStatusForEdit(user.status)
+          : coachStatusForEdit(user.status),
       ...coachDefaults,
     },
   });
@@ -191,7 +206,10 @@ export function EditUserDialog({
         email: user.email,
         phone: user.phone,
         location: userType === 'parent' ? user.parentProfile?.location : undefined,
-        status: user.status,
+        status:
+          userType === 'parent'
+            ? parentStatusForEdit(user.status)
+            : coachStatusForEdit(user.status),
         ...coachReset,
       });
       setCoachPhotoFile(null);
@@ -469,7 +487,11 @@ export function EditUserDialog({
             <CustomFormField label="Status" error={form.formState.errors.status?.message}>
               <Select
                 value={form.watch('status')}
-                onValueChange={value => form.setValue('status', value as UserStatus)}
+                onValueChange={value =>
+                  userType === 'parent'
+                    ? form.setValue('status', value as UpdateParentDto['status'])
+                    : form.setValue('status', value as UpdateCoachDto['status'])
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -479,7 +501,6 @@ export function EditUserDialog({
                     <>
                       <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
                       <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
-                      <SelectItem value={UserStatus.DELETED}>Deleted</SelectItem>
                     </>
                   ) : (
                     <>

@@ -182,7 +182,10 @@ export class GoogleCalendarApiService {
 
   async deleteSessionEvent(userId: string, sessionObjectId: Types.ObjectId) {
     const refreshToken = await this.getUserRefreshToken(userId);
-    if (!refreshToken) return;
+    if (!refreshToken) {
+      await this.removeMapping(userId, sessionObjectId);
+      return;
+    }
 
     const mapping = await this.getMapping(userId, sessionObjectId);
     if (!mapping?.googleEventId) {
@@ -209,5 +212,18 @@ export class GoogleCalendarApiService {
     } finally {
       await this.removeMapping(userId, sessionObjectId);
     }
+  }
+
+  /** Remove Google Calendar mappings (and remote events when a token exists) for every session linked to this user. Safe for account teardown. */
+  async purgeAllCalendarEventsAndMappingsForUser(userId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(userId)) return;
+    const uid = new Types.ObjectId(userId);
+    const rows = await this.mappingModel.find({ userId: uid }).select('sessionId').lean().exec();
+    for (const row of rows) {
+      if (!row.sessionId) continue;
+      const sessionObjectId = new Types.ObjectId(String(row.sessionId));
+      await this.deleteSessionEvent(userId, sessionObjectId);
+    }
+    await this.mappingModel.deleteMany({ userId: uid }).exec();
   }
 }
