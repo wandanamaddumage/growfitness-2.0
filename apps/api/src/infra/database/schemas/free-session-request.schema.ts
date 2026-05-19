@@ -39,3 +39,4 @@ export const FreeSessionRequestSchema = SchemaFactory.createForClass(FreeSession
 // Indexes
 FreeSessionRequestSchema.index({ status: 1 });
 FreeSessionRequestSchema.index({ createdAt: -1 });
+FreeSessionRequestSchema.index({ email: 1 });

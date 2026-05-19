@@ -62,6 +62,7 @@ export class RequestsController {
     },
   })
   @ApiResponse({ status: 201, description: 'Free session request created successfully' })
+  @ApiResponse({ status: 409, description: 'Email already has a free session request' })
   createFreeSessionRequest(@Body() createDto: CreateFreeSessionRequestDto) {
     return this.requestsService.createFreeSessionRequest(createDto);
   }

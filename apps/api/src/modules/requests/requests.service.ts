@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   ForbiddenException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -46,6 +47,10 @@ import { SessionsService } from '../sessions/sessions.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { Types } from 'mongoose';
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 @Injectable()
 export class RequestsService {
@@ -93,8 +98,26 @@ export class RequestsService {
 
   // Free Session Requests
   async createFreeSessionRequest(data: CreateFreeSessionRequestDto): Promise<FreeSessionRequest> {
+    const normalizedEmail = data.email.trim().toLowerCase();
+
+    const existingRequest = await this.freeSessionRequestModel
+      .findOne({
+        email: { $regex: new RegExp(`^${escapeRegex(normalizedEmail)}$`, 'i') },
+      })
+      .select('_id')
+      .lean()
+      .exec();
+
+    if (existingRequest) {
+      throw new ConflictException({
+        errorCode: ErrorCode.DUPLICATE_EMAIL,
+        message: 'A free session has already been requested with this email address.',
+      });
+    }
+
     const request = new this.freeSessionRequestModel({
       ...data,
+      email: normalizedEmail,
       selectedSessionId: data.selectedSessionId
         ? new Types.ObjectId(data.selectedSessionId)
         : undefined,
