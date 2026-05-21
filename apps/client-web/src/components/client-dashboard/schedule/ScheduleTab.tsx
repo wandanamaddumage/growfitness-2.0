@@ -8,6 +8,13 @@ import {
 import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar as CalendarIcon, Plus, List, CalendarDays } from 'lucide-react';
 import { sessionsService } from '@/services/sessions.service';
@@ -19,6 +26,40 @@ import BookSessionModal from './BookSessionModal';
 import { StatusBadge } from '@/components/common/StatusBadge';
 
 type ScheduleView = 'list' | 'calendar';
+
+type UpcomingSessionsScope = 'ninety_days' | 'all_upcoming';
+
+/** Max pages × 100 when loading “all upcoming” (avoid unbounded loops). */
+const ALL_UPCOMING_MAX_PAGES = 50;
+
+async function fetchAllPagesUpcomingForKid(kidId: string): Promise<PaginatedResponse<Session>> {
+  const limit = 100;
+  let page = 1;
+  const all: Session[] = [];
+  let total = 0;
+  const startDate = startOfDay(new Date()).toISOString();
+
+  while (page <= ALL_UPCOMING_MAX_PAGES) {
+    const res = await sessionsService.getSessions(page, limit, {
+      kidId,
+      startDate,
+      sortBy: 'dateTime',
+      sortOrder: 'asc',
+    });
+    total = res.total;
+    all.push(...res.data);
+    if (page >= res.totalPages) break;
+    page += 1;
+  }
+
+  return {
+    data: all,
+    total,
+    page: 1,
+    limit: all.length || limit,
+    totalPages: 1,
+  };
+}
 
 const getSessionLabel = (session: Session): string => {
   switch (session.type) {
@@ -38,6 +79,7 @@ export default function ScheduleTab() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [view, setView] = useState<ScheduleView>('list');
   const [openBooking, setOpenBooking] = useState(false);
+  const [upcomingScope, setUpcomingScope] = useState<UpcomingSessionsScope>('ninety_days');
 
   const listRange = useMemo(() => {
     const start = startOfDay(new Date());
@@ -56,7 +98,14 @@ export default function ScheduleTab() {
   const effectiveRange = view === 'list' ? listRange : dateRange;
 
   const { data: sessionsData, isLoading } = useApiQuery<PaginatedResponse<Session>>(
-    ['sessions', selectedKid?.id ?? '', view, effectiveRange.start, effectiveRange.end],
+    [
+      'sessions',
+      selectedKid?.id ?? '',
+      view,
+      upcomingScope,
+      effectiveRange.start,
+      effectiveRange.end,
+    ],
     () => {
       if (!selectedKid?.id) {
         return Promise.resolve({
@@ -67,10 +116,17 @@ export default function ScheduleTab() {
           totalPages: 0,
         });
       }
+
+      if (view === 'list' && upcomingScope === 'all_upcoming') {
+        return fetchAllPagesUpcomingForKid(selectedKid.id);
+      }
+
       return sessionsService.getSessions(1, 100, {
         kidId: selectedKid.id,
         startDate: effectiveRange.start,
         endDate: effectiveRange.end,
+        sortBy: 'dateTime',
+        sortOrder: 'asc',
       });
     },
     { enabled: Boolean(selectedKid?.id) }
@@ -137,6 +193,30 @@ export default function ScheduleTab() {
               </TabsTrigger>
             </TabsList>
 
+            <div
+              className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+              title={
+                view === 'calendar'
+                  ? 'List filter applies to List view only. Browse dates in Calendar to load sessions for that range.'
+                  : undefined
+              }
+            >
+              <span className="text-xs font-medium text-muted-foreground">Upcoming sessions</span>
+              <Select
+                value={upcomingScope}
+                onValueChange={v => setUpcomingScope(v as UpcomingSessionsScope)}
+                disabled={view === 'calendar'}
+              >
+                <SelectTrigger className="h-9 w-full sm:w-[min(100%,260px)]" aria-label="Filter upcoming sessions range">
+                  <SelectValue placeholder="Choose range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ninety_days">Next 90 days</SelectItem>
+                  <SelectItem value="all_upcoming">All upcoming</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <TabsContent value="list" className="mt-0">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
@@ -144,7 +224,9 @@ export default function ScheduleTab() {
                 </div>
               ) : sortedSessions.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30 py-12 text-center text-sm text-muted-foreground">
-                  No upcoming sessions in the next {LIST_VIEW_DAYS} days.
+                  {upcomingScope === 'all_upcoming'
+                    ? 'No upcoming sessions found for this child.'
+                    : `No upcoming sessions in the next ${LIST_VIEW_DAYS} days.`}
                 </div>
               ) : (
                 <div className="w-full overflow-x-auto rounded-lg border border-border">
