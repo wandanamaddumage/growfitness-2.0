@@ -62,7 +62,11 @@ export class RequestsController {
     },
   })
   @ApiResponse({ status: 201, description: 'Free session request created successfully' })
-  @ApiResponse({ status: 409, description: 'Email already has a free session request' })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Conflict: email blocked for free-session promo—for example registered & approved user, inactive account, registration pending approval, a request already awaiting review, or an upcoming free session already booked. Prior DENIED/NOT_SELECTED rows may retry.',
+  })
   createFreeSessionRequest(@Body() createDto: CreateFreeSessionRequestDto) {
     return this.requestsService.createFreeSessionRequest(createDto);
   }

@@ -40,6 +40,7 @@ import {
   UserRole,
   NotificationType,
   SessionType,
+  SessionStatus,
 } from '@grow-fitness/shared-types';
 import { AuditService } from '../audit/audit.service';
 import { NotificationService } from '../notifications/notifications.service';
@@ -99,20 +100,94 @@ export class RequestsService {
   // Free Session Requests
   async createFreeSessionRequest(data: CreateFreeSessionRequestDto): Promise<FreeSessionRequest> {
     const normalizedEmail = data.email.trim().toLowerCase();
+    const emailMatch = { email: { $regex: new RegExp(`^${escapeRegex(normalizedEmail)}$`, 'i') } };
 
-    const existingRequest = await this.freeSessionRequestModel
-      .findOne({
-        email: { $regex: new RegExp(`^${escapeRegex(normalizedEmail)}$`, 'i') },
-      })
-      .select('_id')
+    const user = await this.userModel
+      .findOne({ email: normalizedEmail })
+      .select('status role isApproved')
       .lean()
       .exec();
 
-    if (existingRequest) {
+    if (user) {
+      const u = user as { status: UserStatus; role: UserRole; isApproved: boolean };
+      if (u.status === UserStatus.INACTIVE || u.status === UserStatus.DELETED) {
+        throw new ConflictException({
+          errorCode: ErrorCode.FREE_SESSION_ACCOUNT_NOT_ACTIVE,
+          message:
+            'This email is linked to an account that is not active. Please contact support if you need help instead of using the free session form.',
+        });
+      }
+      if (u.status === UserStatus.ACTIVE && u.isApproved) {
+        throw new ConflictException({
+          errorCode: ErrorCode.FREE_SESSION_EMAIL_REGISTERED,
+          message:
+            'This email already has a Grow Fitness account. The free session offer is for new families who have not signed up yet. Please sign in to book sessions from your dashboard.',
+        });
+      }
+      if (u.status === UserStatus.ACTIVE && !u.isApproved && u.role === UserRole.PARENT) {
+        throw new ConflictException({
+          errorCode: ErrorCode.FREE_SESSION_PENDING_APPROVAL,
+          message:
+            'This email is already registered and your account is waiting for approval. You cannot submit a free session request with it. Please wait for our team to approve your registration or contact support.',
+        });
+      }
+      if (u.status === UserStatus.ACTIVE && !u.isApproved) {
+        throw new ConflictException({
+          errorCode: ErrorCode.FREE_SESSION_EMAIL_REGISTERED,
+          message:
+            'This email is already associated with a Grow Fitness account. Please sign in or contact support instead of using the free session form.',
+        });
+      }
+    }
+
+    const priorRequests = await this.freeSessionRequestModel
+      .find(emailMatch)
+      .select('status selectedSessionId')
+      .lean()
+      .exec();
+
+    const ignorableStatuses = new Set<RequestStatus>([
+      RequestStatus.DENIED,
+      RequestStatus.NOT_SELECTED,
+    ]);
+
+    const hasPending = priorRequests.some(r => r.status === RequestStatus.PENDING);
+    if (hasPending) {
       throw new ConflictException({
-        errorCode: ErrorCode.DUPLICATE_EMAIL,
-        message: 'A free session has already been requested with this email address.',
+        errorCode: ErrorCode.FREE_SESSION_PIPELINE_PENDING,
+        message:
+          'You already have a free session request waiting for review. We will contact you soon—please do not submit another request with the same email.',
       });
+    }
+
+    const sessionIds = priorRequests
+      .filter(r => !ignorableStatuses.has(r.status) && r.status !== RequestStatus.PENDING)
+      .map(r => r.selectedSessionId)
+      .filter((id): id is Types.ObjectId => Boolean(id));
+
+    if (sessionIds.length > 0) {
+      const sessions = await this.sessionModel
+        .find({ _id: { $in: sessionIds } })
+        .select('dateTime status isFreeSession')
+        .lean()
+        .exec();
+
+      const nowMs = Date.now();
+      const hasUpcomingFree = sessions.some(s => {
+        const row = s as { dateTime: Date; status: SessionStatus; isFreeSession: boolean };
+        if (!row.isFreeSession) return false;
+        if (row.status !== SessionStatus.SCHEDULED && row.status !== SessionStatus.CONFIRMED)
+          return false;
+        return new Date(row.dateTime).getTime() >= nowMs;
+      });
+
+      if (hasUpcomingFree) {
+        throw new ConflictException({
+          errorCode: ErrorCode.FREE_SESSION_UPCOMING_SCHEDULED,
+          message:
+            'You already have an upcoming free session scheduled under this email. Please check your confirmation or contact us if you need to make a change.',
+        });
+      }
     }
 
     const request = new this.freeSessionRequestModel({
