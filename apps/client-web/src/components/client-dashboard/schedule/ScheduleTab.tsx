@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react';
 import { addDays, endOfDay, startOfDay, startOfWeek, endOfWeek, format } from 'date-fns';
-import type { PaginatedResponse, Session } from '@grow-fitness/shared-types';
+import {
+  SessionType,
+  type PaginatedResponse,
+  type Session,
+} from '@grow-fitness/shared-types';
 import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,10 +38,6 @@ export default function ScheduleTab() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [view, setView] = useState<ScheduleView>('list');
   const [openBooking, setOpenBooking] = useState(false);
-  const canRequestExtraSession = Boolean(
-    selectedKid &&
-    (selectedKid.sessionType === 'INDIVIDUAL' || selectedKid.sessionType === 'BOTH')
-  );
 
   const listRange = useMemo(() => {
     const start = startOfDay(new Date());
@@ -77,6 +77,23 @@ export default function ScheduleTab() {
   );
 
   const sessions = useMemo(() => sessionsData?.data ?? [], [sessionsData?.data]);
+
+  /** Hide "Book Extra Session" only when every session in range is a group class (no private rows). */
+  const scheduleIsGroupOnly = useMemo(() => {
+    if (sessions.length === 0) return null;
+    return sessions.every(s => s.type === SessionType.GROUP);
+  }, [sessions]);
+
+  const canRequestExtraSession = useMemo(() => {
+    if (!selectedKid) return false;
+    if (scheduleIsGroupOnly === true) return false;
+    if (scheduleIsGroupOnly === false) return true;
+    // No sessions in range: fall back to enrolment profile
+    return (
+      selectedKid.sessionType === 'INDIVIDUAL' ||
+      selectedKid.sessionType === 'BOTH'
+    );
+  }, [selectedKid, scheduleIsGroupOnly]);
 
   const events = useMemo(() => {
     return sessions.map(session =>

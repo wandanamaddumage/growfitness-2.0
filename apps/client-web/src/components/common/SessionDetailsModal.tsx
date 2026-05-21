@@ -14,7 +14,7 @@ import { locationsService } from '@/services/locations.service';
 import { kidsService } from '@/services/kids.service';
 import { useModalParams } from '@/hooks/useModalParams';
 import { useAuth } from '@/contexts/useAuth';
-import { useKid } from '@/contexts/kid/useKid';
+import { useKidOptional } from '@/contexts/kid/useKid';
 import {
   Calendar,
   Clock,
@@ -73,8 +73,11 @@ function parentCanRescheduleSession(
   kidSessionType: SessionType | undefined,
   sessionType: SessionType | undefined,
 ): boolean {
+  // Group-class rows: never parent-reschedulable.
+  if (sessionType === SessionType.GROUP) return false;
+  // Private/individual session: always allow (even for group-only enrolment when a private slot exists).
+  if (sessionType === SessionType.INDIVIDUAL) return true;
   if (kidSessionType === SessionType.GROUP) return false;
-  if (kidSessionType === SessionType.BOTH && sessionType === SessionType.GROUP) return false;
   return true;
 }
 
@@ -87,9 +90,9 @@ export default function SessionDetailsDialog({
 }: SessionDetailsDialogProps) {
   const { entityId } = useModalParams('sessionId');
   const { role } = useAuth();
-  const { selectedKid } = useKid();
+  const kidContext = useKidOptional();
   const effectiveKidSessionType =
-    parentKidSessionType ?? selectedKid?.sessionType ?? undefined;
+    parentKidSessionType ?? kidContext?.selectedKid?.sessionType ?? undefined;
   // Fetch session from URL if prop not provided
   const { data: sessionFromUrl } = useApiQuery<Session>(
     ['sessions', entityId || 'no-id'],
