@@ -14,6 +14,7 @@ import { locationsService } from '@/services/locations.service';
 import { kidsService } from '@/services/kids.service';
 import { useModalParams } from '@/hooks/useModalParams';
 import { useAuth } from '@/contexts/useAuth';
+import { useKid } from '@/contexts/kid/useKid';
 import {
   Calendar,
   Clock,
@@ -34,6 +35,8 @@ interface SessionDetailsDialogProps {
   session?: Session;
   kidId?: string;
   coachId?: string;
+  /** When set (e.g. from parent dashboard), gates reschedule vs kid enrolment profile. */
+  parentKidSessionType?: SessionType;
   onReschedule?: (session: Session) => void;
 }
 
@@ -66,14 +69,27 @@ function getName(value: NameableType, fallback: string = 'N/A'): string {
   return fallback;
 }
 
+function parentCanRescheduleSession(
+  kidSessionType: SessionType | undefined,
+  sessionType: SessionType | undefined,
+): boolean {
+  if (kidSessionType === SessionType.GROUP) return false;
+  if (kidSessionType === SessionType.BOTH && sessionType === SessionType.GROUP) return false;
+  return true;
+}
+
 export default function SessionDetailsDialog({
   open,
   onClose,
   session: sessionProp,
   kidId: kidIdProp,
+  parentKidSessionType,
 }: SessionDetailsDialogProps) {
   const { entityId } = useModalParams('sessionId');
   const { role } = useAuth();
+  const { selectedKid } = useKid();
+  const effectiveKidSessionType =
+    parentKidSessionType ?? selectedKid?.sessionType ?? undefined;
   // Fetch session from URL if prop not provided
   const { data: sessionFromUrl } = useApiQuery<Session>(
     ['sessions', entityId || 'no-id'],
@@ -108,6 +124,10 @@ export default function SessionDetailsDialog({
 
   const displaySession = sessionData || session;
   const isGroupSession = displaySession?.type === SessionType.GROUP;
+
+  const showParentReschedule =
+    role === 'PARENT' &&
+    parentCanRescheduleSession(effectiveKidSessionType, displaySession?.type);
 
   // Hide Kids tab if kidId prop is provided
   const shouldShowKidsTab = !kidIdProp;
@@ -371,7 +391,7 @@ export default function SessionDetailsDialog({
               </div>
 
               {/* Reschedule Button */}
-              {role === 'PARENT' && (
+              {showParentReschedule && (
                 <>
                   <Separator />
                   <Button

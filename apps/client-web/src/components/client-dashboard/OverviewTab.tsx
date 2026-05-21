@@ -30,7 +30,7 @@ export function OverviewTab({ kid }: OverviewTabProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
-          <UpcomingSessions kidId={kid?.id} />
+          <UpcomingSessions kidId={kid?.id} parentKidSessionType={kid?.sessionType} />
         </CardContent>
       </Card>
 

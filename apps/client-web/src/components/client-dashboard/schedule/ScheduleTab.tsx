@@ -36,9 +36,7 @@ export default function ScheduleTab() {
   const [openBooking, setOpenBooking] = useState(false);
   const canRequestExtraSession = Boolean(
     selectedKid &&
-    (selectedKid.sessionType === 'INDIVIDUAL' ||
-      selectedKid.sessionType === 'GROUP' ||
-      selectedKid.sessionType === 'BOTH')
+    (selectedKid.sessionType === 'INDIVIDUAL' || selectedKid.sessionType === 'BOTH')
   );
 
   const listRange = useMemo(() => {
@@ -212,6 +210,7 @@ export default function ScheduleTab() {
         session={selectedSession ?? undefined}
         onClose={() => setSelectedSession(null)}
         kidId={selectedKid?.id}
+        parentKidSessionType={selectedKid?.sessionType}
         onReschedule={() => { }}
       />
 
