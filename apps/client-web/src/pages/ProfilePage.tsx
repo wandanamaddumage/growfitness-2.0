@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { googleCalendarService } from '@/services/google-calendar.service';
 import { profileService } from '@/services/profile.service';
 import { uploadFileViaGcs } from '@/services/uploads.service';
 
@@ -34,6 +33,8 @@ import { useParentProfile } from '@/contexts/parent-profile/ParentProfileProvide
 import { useCoachProfile } from '@/contexts/coach-profile/CoachProfileProvider';
 import { ReadOnlyProfilePhoto } from '@/components/common/ReadOnlyProfilePhoto';
 import { useToast } from '@/hooks/use-toast';
+import { useGoogleCalendarSync } from '@/hooks/useGoogleCalendarSync';
+import { isGmailAccount } from '@/lib/google-calendar';
 import type { CoachProfileAvailableTime, User } from '@grow-fitness/shared-types';
 import { UploadKind } from '@grow-fitness/shared-types';
 
@@ -57,9 +58,6 @@ export default function ProfilePage() {
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
-  const [calendarLoading, setCalendarLoading] = useState(false);
-  const [calendarBusy, setCalendarBusy] = useState(false);
-  const [calendarConnected, setCalendarConnected] = useState(false);
   const [form, setForm] = useState<FormState>({
     firstName: '',
     lastName: '',
@@ -77,7 +75,8 @@ export default function ProfilePage() {
     Partial<Record<ParentFieldKey, string>>
   >({});
 
-  const isGmail = Boolean(user?.email && /@(gmail|googlemail)\.com$/i.test(user.email));
+  const isGmail = isGmailAccount(user?.email);
+  const calendarSync = useGoogleCalendarSync({ enabled: isGmail });
 
   useEffect(() => {
     if (!user?.id || user.role !== 'PARENT') return;
@@ -137,34 +136,23 @@ export default function ProfilePage() {
   }, [user?.id, user?.role, coachCtx.isLoading, coachCtx.profile]);
 
   useEffect(() => {
-    if (!user?.id || !isGmail) return;
+    if (!calendarSync.oauthResult) return;
 
-    let active = true;
-    const load = async () => {
-      setCalendarLoading(true);
-      try {
-        const status = await googleCalendarService.getStatus();
-        if (active) setCalendarConnected(status.connected);
-      } catch {
-        if (active) setCalendarConnected(false);
-      } finally {
-        if (active) setCalendarLoading(false);
-      }
-    };
-
-    void load();
-
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('connected') || url.searchParams.has('error')) {
-      url.searchParams.delete('connected');
-      url.searchParams.delete('error');
-      window.history.replaceState({}, '', url.toString());
+    if (calendarSync.oauthResult === 'success') {
+      toast({
+        variant: 'success',
+        title: 'Google Calendar connected',
+        description: 'Your sessions will sync to Google Calendar automatically.',
+      });
+    } else {
+      toast({
+        title: 'Could not connect Google Calendar',
+        description: 'Please try again or use a Google account that granted calendar access.',
+        variant: 'destructive',
+      });
     }
-
-    return () => {
-      active = false;
-    };
-  }, [user?.id, isGmail]);
+    calendarSync.clearOAuthResult();
+  }, [calendarSync.oauthResult, calendarSync.clearOAuthResult, toast]);
 
   const DAYS_OF_WEEK = [
     'Monday',
@@ -175,30 +163,6 @@ export default function ProfilePage() {
     'Saturday',
     'Sunday',
   ];
-
-  const onConnectGoogleCalendar = async () => {
-    setCalendarBusy(true);
-    try {
-      const redirectUri = new URL(window.location.href);
-      redirectUri.searchParams.delete('connected');
-      redirectUri.searchParams.delete('error');
-      const { url } = await googleCalendarService.getAuthUrl(redirectUri.toString());
-      window.location.href = url;
-    } finally {
-      setCalendarBusy(false);
-    }
-  };
-
-  const onDisconnectGoogleCalendar = async () => {
-    setCalendarBusy(true);
-    try {
-      await googleCalendarService.disconnect();
-      const status = await googleCalendarService.getStatus();
-      setCalendarConnected(status.connected);
-    } finally {
-      setCalendarBusy(false);
-    }
-  };
 
   const handleParentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -591,9 +555,9 @@ export default function ProfilePage() {
                   <p className="text-sm">
                     Status:{' '}
                     <span className="font-medium">
-                      {calendarLoading
+                      {calendarSync.loading
                         ? 'Checking…'
-                        : calendarConnected
+                        : calendarSync.connected
                           ? 'Connected'
                           : 'Not connected'}
                     </span>
@@ -607,16 +571,16 @@ export default function ProfilePage() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
-                  onClick={onConnectGoogleCalendar}
-                  disabled={calendarLoading || calendarBusy}
+                  onClick={() => void calendarSync.connect()}
+                  disabled={calendarSync.loading || calendarSync.busy}
                   className="sm:w-auto"
                 >
-                  {calendarConnected ? 'Reconnect Google Calendar' : 'Connect Google Calendar'}
+                  {calendarSync.connected ? 'Reconnect Google Calendar' : 'Connect Google Calendar'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={onDisconnectGoogleCalendar}
-                  disabled={!calendarConnected || calendarLoading || calendarBusy}
+                  onClick={() => void calendarSync.disconnect()}
+                  disabled={!calendarSync.connected || calendarSync.loading || calendarSync.busy}
                   className="sm:w-auto"
                 >
                   Disconnect
