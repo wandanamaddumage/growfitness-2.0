@@ -8,6 +8,7 @@ import { sessionsService } from '@/services/sessions.service';
 import type { CreateFreeSessionRequestDto } from '@grow-fitness/shared-schemas';
 import { SessionType } from '@grow-fitness/shared-types';
 import type { Session } from '@grow-fitness/shared-types';
+import { filterSelectableFreeSessions } from '@/lib/free-sessions';
 
 interface SessionOption {
   value: string;
@@ -29,21 +30,9 @@ const BookAFreeSessionForm: React.FC = () => {
         const response = await sessionsService.getFreeSessions(1, 100);
         const sessions = response?.data ?? [];
 
-        const now = new Date();
-
-        const formattedSessions: SessionOption[] = sessions
-          .filter((session: Session) => {
-            return (
-              session.dateTime &&
-              new Date(session.dateTime).getTime() > now.getTime()
-            );
-          })
-          .sort(
-            (a: Session, b: Session) =>
-              new Date(a.dateTime).getTime() -
-              new Date(b.dateTime).getTime()
-          )
-          .map((session: Session) => {
+        const formattedSessions: SessionOption[] = filterSelectableFreeSessions(
+          sessions
+        ).map((session: Session) => {
             const dateObj = new Date(session.dateTime);
 
             const formattedDate = dateObj.toLocaleDateString('en-US', {
