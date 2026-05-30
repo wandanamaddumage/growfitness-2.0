@@ -120,6 +120,58 @@ const INVOICE_TAIL = `
 .inv-root--pdf .inv-sketch-oval {
   font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
 }
+/* Client html2canvas capture: preview look locked to A4 */
+.inv-root--capture {
+  width: 210mm !important;
+  height: 297mm !important;
+  min-height: 297mm !important;
+  max-height: 297mm !important;
+  overflow: hidden !important;
+}
+.inv-root--preview.inv-root--capture .inv-white-curve {
+  right: -9%;
+  bottom: -7%;
+  width: 38%;
+  height: 34%;
+}
+.inv-root--preview.inv-root--capture .inv-sketch-oval {
+  font-size: 2.8rem;
+  font-family: 'Insanibc', 'Now-Regular', system-ui, sans-serif;
+}
+.inv-root--preview.inv-root--capture .inv-mascot {
+  width: 140px;
+  max-width: 24%;
+}
+.inv-root--capture .inv-logo-img {
+  height: 156px;
+  max-width: 560px;
+}
+.inv-root--capture .inv-content {
+  min-height: calc(297mm - 26mm) !important;
+  height: auto !important;
+}
+/* Real ring nodes for html2canvas (pseudo-elements are unreliable) */
+.inv-root--capture .inv-title-wrap::before,
+.inv-root--capture .inv-title-wrap::after {
+  display: none;
+}
+.inv-root--capture .inv-title-ring {
+  position: absolute;
+  border: 4px solid #111;
+  pointer-events: none;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.inv-root--capture .inv-title-ring--outer {
+  inset: -8px -16px -6px -14px;
+  transform: rotate(-4deg);
+  z-index: 0;
+}
+.inv-root--capture .inv-title-ring--inner {
+  inset: -1px -4px -1px -4px;
+  transform: rotate(-2deg);
+  z-index: 1;
+}
 
 .inv-logo {
   flex: 0 0 auto;

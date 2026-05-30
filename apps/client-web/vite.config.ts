@@ -16,5 +16,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['@grow-fitness/invoice-print'],
+    include: ['html2canvas', 'jspdf'],
   },
 })
