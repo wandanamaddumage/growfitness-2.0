@@ -614,26 +614,12 @@ export class UsersService {
       });
     }
 
-    if (updateCoachDto.email && updateCoachDto.email !== coach.email) {
-      const existingUser = await this.userModel
-        .findOne({ email: updateCoachDto.email.toLowerCase() })
-        .exec();
-
-      if (existingUser) {
-        throw new ConflictException({
-          errorCode: ErrorCode.DUPLICATE_EMAIL,
-          message: 'Email already exists',
-        });
-      }
-    }
-
     const normalizedAvailableTimes =
       updateCoachDto.availableTimes !== undefined
         ? normalizeCoachAvailableTimes(updateCoachDto.availableTimes)
         : undefined;
 
     Object.assign(coach, {
-      ...(updateCoachDto.email && { email: updateCoachDto.email.toLowerCase() }),
       ...(updateCoachDto.phone && { phone: updateCoachDto.phone }),
       ...(updateCoachDto.status && { status: updateCoachDto.status }),
     });

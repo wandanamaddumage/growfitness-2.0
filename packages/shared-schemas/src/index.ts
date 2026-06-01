@@ -208,7 +208,6 @@ export type CreateCoachDto = z.infer<typeof CreateCoachSchema>;
 
 export const UpdateCoachSchema = z.object({
   name: z.string().min(1).optional(),
-  email: z.string().email().optional(),
   phone: z.string().min(1).optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
   dateOfBirth: z.string().optional(),

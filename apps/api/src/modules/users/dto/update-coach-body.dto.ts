@@ -10,9 +10,6 @@ export class UpdateCoachBodyDto {
   name?: string;
 
   @Allow()
-  email?: string;
-
-  @Allow()
   phone?: string;
 
   @Allow()
