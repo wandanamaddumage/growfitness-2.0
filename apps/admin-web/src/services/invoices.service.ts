@@ -2,6 +2,8 @@ import { api, fetchAuthorizedBlob } from './api';
 import { Invoice, PaginatedResponse, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { CreateInvoiceDto, UpdateInvoicePaymentStatusDto } from '@grow-fitness/shared-schemas';
 
+export type InvoicePdfSentFilter = 'sent' | 'not_sent';
+
 export const invoicesService = {
   getInvoices: (
     page: number = 1,
@@ -11,6 +13,7 @@ export const invoicesService = {
       parentId?: string;
       coachId?: string;
       status?: InvoiceStatus;
+      pdfSent?: InvoicePdfSentFilter;
     }
   ) => {
     const params = new URLSearchParams({
@@ -21,6 +24,7 @@ export const invoicesService = {
     if (filters?.parentId) params.append('parentId', filters.parentId);
     if (filters?.coachId) params.append('coachId', filters.coachId);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.pdfSent) params.append('pdfSent', filters.pdfSent);
     return api.get<PaginatedResponse<Invoice>>(`/invoices?${params.toString()}`);
   },
   getInvoiceById: (id: string) => api.get<Invoice>(`/invoices/${id}`),
@@ -32,12 +36,14 @@ export const invoicesService = {
     parentId?: string;
     coachId?: string;
     status?: InvoiceStatus;
+    pdfSent?: InvoicePdfSentFilter;
   }) => {
     const params = new URLSearchParams();
     if (filters?.type) params.append('type', filters.type);
     if (filters?.parentId) params.append('parentId', filters.parentId);
     if (filters?.coachId) params.append('coachId', filters.coachId);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.pdfSent) params.append('pdfSent', filters.pdfSent);
     return fetch(`/api/invoices/export/csv?${params.toString()}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

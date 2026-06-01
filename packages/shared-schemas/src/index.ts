@@ -483,20 +483,73 @@ export const CreateExtraSessionRequestSchema = z.object({
 export type CreateExtraSessionRequestDto = z.infer<typeof CreateExtraSessionRequestSchema>;
 
 // Invoice Schemas
-export const CreateInvoiceSchema = z.object({
-  type: z.nativeEnum(InvoiceType),
-  parentId: z.string().optional(),
-  coachId: z.string().optional(),
-  /** Stored on the invoice as `exportFields.kidName` for PDFs (parent invoices). */
-  kidName: z.string().max(200).optional(),
-  items: z.array(
-    z.object({
-      description: z.string().min(1),
-      amount: z.number().min(0),
-    })
+const CreateInvoiceItemSchema = z.object({
+  description: z.string().trim().min(1, 'Description is required'),
+  amount: z.preprocess(
+    value => {
+      if (value === '' || value === null || value === undefined) {
+        return undefined;
+      }
+      if (typeof value === 'number' && Number.isNaN(value)) {
+        return undefined;
+      }
+      return value;
+    },
+    z
+      .number({
+        required_error: 'Amount is required',
+        invalid_type_error: 'Amount is required',
+      })
+      .min(0, 'Amount cannot be negative')
   ),
-  dueDate: z.string().or(z.date()),
 });
+
+export const CreateInvoiceSchema = z
+  .object({
+    type: z.nativeEnum(InvoiceType),
+    parentId: z.string().optional(),
+    coachId: z.string().optional(),
+    /** Stored on the invoice as `exportFields.kidName` for PDFs (parent invoices). */
+    kidName: z.string().max(200, 'Kid name must be 200 characters or less').optional(),
+    items: z.array(CreateInvoiceItemSchema).min(1, 'Add at least one line item'),
+    dueDate: z
+      .string()
+      .min(1, 'Due date is required')
+      .refine(value => !Number.isNaN(new Date(value).getTime()), 'Enter a valid due date'),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === InvoiceType.PARENT_INVOICE) {
+      if (!data.parentId?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Parent is required',
+          path: ['parentId'],
+        });
+      } else if (!OBJECT_ID_REGEX.test(data.parentId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid parent',
+          path: ['parentId'],
+        });
+      }
+    }
+
+    if (data.type === InvoiceType.COACH_PAYOUT) {
+      if (!data.coachId?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Coach is required',
+          path: ['coachId'],
+        });
+      } else if (!OBJECT_ID_REGEX.test(data.coachId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid coach',
+          path: ['coachId'],
+        });
+      }
+    }
+  });
 
 export type CreateInvoiceDto = z.infer<typeof CreateInvoiceSchema>;
 

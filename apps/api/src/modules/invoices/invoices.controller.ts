@@ -29,7 +29,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../auth/auth.service';
 import { UserRole, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { CreateInvoiceDto, UpdateInvoicePaymentStatusDto } from '@grow-fitness/shared-schemas';
-import { GetInvoicesQueryDto } from './dto/get-invoices-query.dto';
+import { GetInvoicesQueryDto, InvoicePdfSentFilter } from './dto/get-invoices-query.dto';
 import {
   InvoiceResponseDto,
   PaginatedInvoiceResponseDto,
@@ -57,10 +57,10 @@ export class InvoicesController {
   })
   @ApiResponse({ status: 400, description: 'Validation error (e.g. invalid query params)' })
   findAll(@Query() query: GetInvoicesQueryDto, @CurrentUser() user: JwtPayload) {
-    const { page, limit, type, parentId, coachId, status } = query;
+    const { page, limit, type, parentId, coachId, status, pdfSent } = query;
     return this.invoicesService.findAllForActor(
       { page, limit },
-      { type, parentId, coachId, status },
+      { type, parentId, coachId, status, pdfSent },
       user
     );
   }
@@ -83,15 +83,22 @@ export class InvoicesController {
     enum: ['PENDING', 'PAID', 'OVERDUE'],
     description: 'Filter by invoice status',
   })
+  @ApiQuery({
+    name: 'pdfSent',
+    required: false,
+    enum: ['sent', 'not_sent'],
+    description: 'Filter by whether the invoice PDF was emailed',
+  })
   @ApiResponse({ status: 200, description: 'CSV file download' })
   async exportCSV(
     @Res() res: Response,
     @Query('type') type?: InvoiceType,
     @Query('parentId') parentId?: string,
     @Query('coachId') coachId?: string,
-    @Query('status') status?: InvoiceStatus
+    @Query('status') status?: InvoiceStatus,
+    @Query('pdfSent') pdfSent?: InvoicePdfSentFilter
   ) {
-    const csv = await this.invoicesService.exportCSV({ type, parentId, coachId, status });
+    const csv = await this.invoicesService.exportCSV({ type, parentId, coachId, status, pdfSent });
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=invoices.csv');
     res.send(csv);
