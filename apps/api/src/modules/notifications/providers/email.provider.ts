@@ -1,0 +1,128 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
+
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+}
+
+export interface EmailData {
+  to: string;
+  subject: string;
+  body: string;
+  attachments?: EmailAttachment[];
+}
+
+@Injectable()
+export class EmailProvider {
+  private readonly logger = new Logger(EmailProvider.name);
+  private transporter: nodemailer.Transporter | null = null;
+
+  private attachmentByteLength(content: unknown): number {
+    if (Buffer.isBuffer(content)) return content.length;
+    if (content instanceof Uint8Array) return content.length;
+    if (typeof content === 'string') return Buffer.byteLength(content);
+    return 0;
+  }
+
+  constructor(private configService: ConfigService) {
+    this.initializeTransporter();
+  }
+
+  private initializeTransporter() {
+    const emailEnabled = this.configService.get<string>('EMAIL_ENABLED', 'false') === 'true';
+    const smtpHost = this.configService.get<string>('SMTP_HOST');
+    const smtpPort = parseInt(this.configService.get<string>('SMTP_PORT', '587'), 10);
+    const smtpUser = this.configService.get<string>('SMTP_USER');
+    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
+    const smtpFrom = this.configService.get<string>(
+      'SMTP_FROM',
+      smtpUser ?? 'noreply@growfitness.com'
+    );
+
+    if (!emailEnabled) {
+      this.logger.warn('Email is disabled. Set EMAIL_ENABLED=true to enable email sending.');
+      return;
+    }
+
+    if (!smtpHost || !smtpUser || !smtpPassword) {
+      this.logger.warn(
+        'SMTP configuration incomplete. Email sending will be disabled. Please configure SMTP_HOST, SMTP_USER, and SMTP_PASSWORD.'
+      );
+      return;
+    }
+
+    try {
+      this.transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465, // true for 465, false for other ports
+        auth: {
+          user: smtpUser,
+          pass: smtpPassword,
+        },
+        // Gmail-specific settings
+        ...(smtpHost.includes('gmail.com') && {
+          service: 'gmail',
+        }),
+      });
+
+      this.logger.log('Email transporter initialized successfully');
+    } catch (error) {
+      this.logger.error('Failed to initialize email transporter:', error);
+      this.transporter = null;
+    }
+  }
+
+  async send(data: EmailData): Promise<void> {
+    // If email is not configured, fall back to console logging
+    if (!this.transporter) {
+      this.logger.log('[EMAIL PROVIDER - MOCK MODE]', {
+        to: data.to,
+        subject: data.subject,
+        body: data.body,
+        attachmentCount: data.attachments?.length ?? 0,
+        attachments:
+          data.attachments?.map(a => ({
+            filename: a.filename,
+            contentType: a.contentType,
+            byteLength: this.attachmentByteLength(a.content),
+          })) ?? [],
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
+
+    try {
+      const smtpFrom = this.configService.get<string>(
+        'SMTP_FROM',
+        this.configService.get<string>('SMTP_USER', 'noreply@growfitness.com')
+      );
+
+      const sanitizedAttachments =
+        data.attachments
+          ?.filter(a => a.content != null)
+          .map(a => ({
+            filename: a.filename,
+            content: a.content as Buffer,
+            contentType: a.contentType ?? 'application/octet-stream',
+          })) ?? [];
+
+      const mailOptions = {
+        from: smtpFrom,
+        to: data.to,
+        subject: data.subject,
+        text: data.body,
+        ...(sanitizedAttachments.length ? { attachments: sanitizedAttachments } : {}),
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent successfully to ${data.to}. Message ID: ${info.messageId}`);
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${data.to}:`, error);
+      throw error;
+    }
+  }
+}

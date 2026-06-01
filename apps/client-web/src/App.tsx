@@ -1,0 +1,71 @@
+import { Routes, Route } from "react-router-dom";
+import { HomePage } from "./pages/HomePage";
+import { DashboardLayout, Layout } from "./components/layout/Layout";
+import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import DashboardPage from "./components/dashboard/DashboardPage";
+import SignInPage from "./pages/SignInPage";
+import BookAFreeSession from "./pages/BookAFreeSession";
+import { KidProvider } from "./contexts/kid/KidProvider";
+import ProfilePage from "./pages/ProfilePage";
+import { AuthProvider } from "./contexts/AuthProvider";
+import { ParentProfileProvider } from "./contexts/parent-profile/ParentProfileProvider";
+import { CoachProfileProvider } from "./contexts/coach-profile/CoachProfileProvider";
+import { useAuth } from "./contexts/useAuth";
+import { Payments } from "./pages/Payments";
+import { SignUpPage } from "./pages/SignUpPage";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import { Toaster } from "./components/ui/toaster";
+
+// Dashboard wrapper (unchanged)
+function DashboardWrapper() {
+  const { role } = useAuth();
+
+  if (role === "PARENT") {
+    return (
+      <KidProvider>
+        <DashboardPage />
+      </KidProvider>
+    );
+  }
+
+  return <DashboardPage />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <ParentProfileProvider>
+      <CoachProfileProvider>
+      <Routes>
+        {/* ---------- PUBLIC ROUTES ---------- */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/free-session" element={<BookAFreeSession />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+           <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
+
+        {/* ---------- PROTECTED ROUTES WITH SIDENAV ---------- */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardWrapper />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/payments" element={<Payments />} />
+        </Route>
+      </Routes>
+      <Toaster />
+      </CoachProfileProvider>
+      </ParentProfileProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;

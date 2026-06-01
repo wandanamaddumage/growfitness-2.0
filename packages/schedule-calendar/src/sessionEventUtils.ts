@@ -1,0 +1,56 @@
+import type { EventInput } from '@fullcalendar/core';
+import { SessionStatus, sessionIsExtraSession } from '@grow-fitness/shared-types';
+import type { Session } from '@grow-fitness/shared-types';
+
+export function getStatusColor(status: SessionStatus): string {
+  switch (status) {
+    case SessionStatus.SCHEDULED:
+      return '#23B685';
+    case SessionStatus.CONFIRMED:
+      return '#10b981';
+    case SessionStatus.CANCELLED:
+      return '#ef4444';
+    case SessionStatus.COMPLETED:
+      return '#70757a';
+    default:
+      return '#23B685';
+  }
+}
+
+export interface SessionToEventOptions {
+  /** Custom title for the event. Defaults to session.title or "Session". */
+  formatTitle?: (session: Session) => string;
+}
+
+/**
+ * Convert a Session to a FullCalendar EventInput.
+ * Use this in both admin-web and client-web for consistent styling.
+ */
+export function sessionToCalendarEvent(
+  session: Session,
+  options?: SessionToEventOptions
+): EventInput & { extendedProps: Session } {
+  const start = new Date(session.dateTime);
+  const end = new Date(start.getTime() + session.duration * 60000);
+  const title =
+    options?.formatTitle?.(session) ?? session.title ?? 'Session';
+
+  const classNames = [
+    'gf-session-event',
+    'gf-cal-event-interactive',
+    `gf-status-${session.status.toLowerCase()}`,
+    ...(session.isFreeSession ? ['gf-session-free'] : []),
+    ...(sessionIsExtraSession(session) ? ['gf-session-extra'] : []),
+  ];
+
+  return {
+    id: session.id,
+    title,
+    start: start.toISOString(),
+    end: end.toISOString(),
+    extendedProps: session,
+    backgroundColor: getStatusColor(session.status),
+    borderColor: getStatusColor(session.status),
+    classNames,
+  };
+}

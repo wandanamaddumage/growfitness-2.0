@@ -1,0 +1,90 @@
+import { api } from './api';
+import type { PaginatedResponse } from '@grow-fitness/shared-types';
+import type {
+  Session,
+  SessionStatus,
+} from '@grow-fitness/shared-types';
+import type {
+  CreateSessionDto,
+  UpdateSessionDto,
+} from '@grow-fitness/shared-schemas';
+import type { AvailabilityData } from '@/types/session-booking';
+
+export const sessionsService = {
+  getSessions: (
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      coachId?: string;
+      kidId?: string;
+      locationId?: string;
+      status?: SessionStatus;
+      startDate?: string;
+      endDate?: string;
+      sortBy?: 'dateTime' | 'createdAt';
+      sortOrder?: 'asc' | 'desc';
+    }
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (filters?.coachId) params.append('coachId', filters.coachId);
+    if (filters?.kidId) params.append('kidId', filters.kidId);
+    if (filters?.locationId) params.append('locationId', filters.locationId);
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+    return api.get<PaginatedResponse<Session>>(
+      `/sessions?${params.toString()}`
+    );
+  },
+
+  // Public Free Sessions
+  getFreeSessions: (
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      coachId?: string;
+      kidId?: string;
+      locationId?: string;
+      status?: SessionStatus;
+      startDate?: string;
+      endDate?: string;
+    }
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (filters?.coachId) params.append('coachId', filters.coachId);
+    if (filters?.kidId) params.append('kidId', filters.kidId);
+    if (filters?.locationId) params.append('locationId', filters.locationId);
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+
+    return api.get<PaginatedResponse<Session>>(
+      `/sessions/free?${params.toString()}`
+    );
+  },
+
+  getSessionById: (id: string) => api.get<Session>(`/sessions/${id}`),
+
+  createSession: (data: CreateSessionDto) =>
+    api.post<Session>('/sessions', data),
+
+  updateSession: (id: string, data: UpdateSessionDto) =>
+    api.patch<Session>(`/sessions/${id}`, data),
+
+  deleteSession: (id: string) =>
+    api.delete<void>(`/sessions/${id}`),
+
+  checkAvailability: (params: { coachId: string; location: string }) =>
+    api.get<AvailabilityData>(`/sessions/availability?coachId=${params.coachId}&location=${params.location}`),
+};

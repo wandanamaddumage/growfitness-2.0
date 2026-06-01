@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+
+FROM node:18-bullseye-slim AS base
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base AS deps
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY packages/shared-types/package.json packages/shared-types/package.json
+COPY packages/shared-schemas/package.json packages/shared-schemas/package.json
+COPY packages/invoice-print/package.json packages/invoice-print/package.json
+RUN pnpm install --frozen-lockfile --filter @grow-fitness/api...
+
+FROM deps AS build
+ENV NODE_OPTIONS="--max_old_space_size=4096"
+COPY . .
+RUN pnpm --filter @grow-fitness/api... build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Puppeteer: slim Node images lack the shared libraries bundled Chromium needs.
+# Use Debian's Chromium so PDF generation works on Cloud Run.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    chromium \
+    fontconfig \
+    fonts-liberation \
+    fonts-noto-core \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libasound2 \
+  && rm -rf /var/lib/apt/lists/*
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Root node_modules (pnpm store) - required for apps/api symlinks to resolve
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/api/package.json ./apps/api/package.json
+COPY --from=build /app/apps/api/scripts ./apps/api/scripts
+COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build /app/packages ./packages
+# Knowledge base files required by SupportChatService at runtime
+COPY --from=build /app/apps/api/src/knowledge ./apps/api/src/knowledge
+
+WORKDIR /app/apps/api
+EXPOSE 8080
+CMD ["node", "dist/main"]

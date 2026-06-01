@@ -1,0 +1,785 @@
+import { useEffect, useState } from 'react';
+import type { Control, FieldError, FieldPath, FieldValues, Path, PathValue } from 'react-hook-form';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Controller } from 'react-hook-form';
+import { FormMessage } from '@/components/ui/form-message';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { QuestionConfig, QuestionOption } from '@/types/question-config';
+
+interface QuestionRendererProps<TFormValues extends FieldValues = FieldValues> {
+  question: QuestionConfig<FieldPath<TFormValues>>;
+  control: Control<TFormValues>;
+  error?: FieldError;
+  shouldAutoFocus?: boolean;
+  passwordValue?: string; // For confirmPassword field validation
+}
+
+const inputVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { delay: 0.1 } },
+} as const;
+
+const errorVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: { opacity: 1, height: 'auto', transition: { duration: 0.3 } },
+} as const;
+
+const QuestionRenderer = <TFormValues extends FieldValues = FieldValues>({
+  question,
+  control,
+  error,
+  shouldAutoFocus = true,
+  passwordValue,
+}: QuestionRendererProps<TFormValues>) => {
+  const [options, setOptions] = useState<QuestionOption[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [optionsError, setOptionsError] = useState<string | null>(null);
+
+  // Load options for select/multiselect types
+  useEffect(() => {
+    const loadOptions = async () => {
+      if (question.type !== 'select' && question.type !== 'multiselect') {
+        return;
+      }
+
+      const options = question.options;
+      if (!options) {
+        setOptions([]);
+        return;
+      }
+
+      if (Array.isArray(options)) {
+        setOptions(options);
+        return;
+      }
+
+      // Handle async options
+      if (typeof options === 'function') {
+        setIsLoadingOptions(true);
+        setOptionsError(null);
+        try {
+          const fetchedOptions = await options();
+          setOptions(fetchedOptions);
+        } catch (err) {
+          console.error('Error loading options:', err);
+          setOptionsError("We couldn't load the options. Please try again.");
+          setOptions([]);
+        } finally {
+          setIsLoadingOptions(false);
+        }
+      }
+    };
+
+    loadOptions();
+  }, [question.options, question.type]);
+
+  const questionPath = String(question.id);
+  const isSignupGoalSelect = question.type === 'select' && /^kids\.\d+\.goal$/.test(questionPath);
+
+  const renderInput = () => {
+    switch (question.type) {
+      case 'text': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, onBlur, ...field } }) => {
+              const val = (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="text"
+                  autoComplete="name"
+                  placeholder={question.placeholder}
+                  onChange={e => onChange(e.target.value)}
+                  onBlur={onBlur}
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? `${questionPath}-error` : undefined}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'email': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, ...field } }) => {
+              const val = (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="email"
+                  onChange={e => onChange(e.target.value)}
+                  placeholder={question.placeholder}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'password': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, ...field } }) => {
+              const val = (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="password"
+                  onChange={e => onChange(e.target.value)}
+                  placeholder={question.placeholder}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'confirmPassword': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, ...field } }) => {
+              const val = (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+
+              // Real-time password validation
+              const isPasswordMismatch = val && passwordValue && val !== passwordValue;
+
+              return (
+                <div className="space-y-2">
+                  <motion.input
+                    {...field}
+                    value={val as string}
+                    type="password"
+                    onChange={e => onChange(e.target.value)}
+                    placeholder={question.placeholder || 'Confirm password'}
+                    className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                      error || isPasswordMismatch
+                        ? 'border-red-400 focus:border-red-500'
+                        : 'border-amber-200 focus:border-emerald-400'
+                    }`}
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                    autoFocus={shouldAutoFocus}
+                  />
+                  {isPasswordMismatch && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm font-medium px-2"
+                    >
+                      Passwords do not match
+                    </motion.p>
+                  )}
+                </div>
+              );
+            }}
+          />
+        );
+      }
+
+      case 'phone': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field: { value, onChange, onBlur, ...field } }) => {
+              const val = (value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder={question.placeholder}
+                  onChange={e => onChange(e.target.value)}
+                  onBlur={onBlur}
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? `${questionPath}-error` : undefined}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'number': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const raw = field.value as PathValue<TFormValues, Path<TFormValues>>;
+              const val = raw === undefined ? '' : (raw as number);
+              const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                const v = e.target.value;
+                field.onChange(v === '' ? undefined : Number(v));
+              };
+              return (
+                <motion.input
+                  {...field}
+                  value={val as number | ''}
+                  type="number"
+                  onChange={handleChange}
+                  placeholder={question.placeholder}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'date': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const val = (field.value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.input
+                  {...field}
+                  value={val as string}
+                  type="date"
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'textarea': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const val = (field.value as PathValue<TFormValues, Path<TFormValues>>) ?? '';
+              return (
+                <motion.textarea
+                  {...field}
+                  value={val as string}
+                  placeholder={question.placeholder}
+                  rows={4}
+                  className={`w-full px-4 sm:px-6 py-4 sm:py-5 text-lg sm:text-xl bg-amber-50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all duration-200 resize-none text-gray-900 ${
+                    error
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-amber-200 focus:border-emerald-400'
+                  }`}
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                  autoFocus={shouldAutoFocus}
+                />
+              );
+            }}
+          />
+        );
+      }
+
+      case 'select': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const current = field.value as string | number | undefined;
+
+              // Show loading state
+              if (isLoadingOptions) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-amber-50 border-2 border-amber-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <motion.div
+                        className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                      <span className="text-gray-600 text-lg">Loading available options...</span>
+                    </div>
+                  </motion.div>
+                );
+              }
+
+              // Show error state
+              if (optionsError) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-red-50 border-2 border-red-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <p className="text-red-600 text-center">{optionsError}</p>
+                  </motion.div>
+                );
+              }
+
+              // Show empty state
+              if (options.length === 0) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-amber-50 border-2 border-amber-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <p className="text-amber-700 text-center text-lg">
+                      No options available at this time
+                    </p>
+                  </motion.div>
+                );
+              }
+
+              // Show options
+              if (isSignupGoalSelect) {
+                return (
+                  <motion.div variants={inputVariants} initial="hidden" animate="visible">
+                    <Select
+                      value={current ? String(current) : ''}
+                      onValueChange={value =>
+                        field.onChange(value as PathValue<TFormValues, Path<TFormValues>>)
+                      }
+                    >
+                      <SelectTrigger
+                        className={`h-auto min-h-[64px] rounded-xl border-2 px-4 sm:px-6 py-4 sm:py-5 text-left text-lg sm:text-xl shadow-none ${
+                          error
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-amber-200 bg-amber-50 focus:border-emerald-400'
+                        } focus:ring-4 focus:ring-emerald-100`}
+                      >
+                        <SelectValue placeholder={question.placeholder || 'Select a goal'} />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-2 border-amber-200 bg-amber-50">
+                        {options.map(option => (
+                          <SelectItem
+                            key={String(option.value)}
+                            value={String(option.value)}
+                            className="py-3 text-base text-gray-900 focus:bg-emerald-50"
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </motion.div>
+                );
+              }
+
+              return (
+                <motion.div
+                  className="grid gap-3 sm:gap-4 w-full"
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {options.map((option, index) => (
+                    <motion.button
+                      key={String(option.value)}
+                      type="button"
+                      onClick={() =>
+                        field.onChange(option.value as PathValue<TFormValues, Path<TFormValues>>)
+                      }
+                      style={{
+                        backgroundColor: current === option.value ? '#ecfdf5' : '#fffbeb',
+                        borderColor: current === option.value ? '#10b981' : '#f3e8d0',
+                      }}
+                      className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all duration-200 text-left group hover:shadow-md ${
+                        current === option.value
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md !bg-emerald-50 !border-emerald-500'
+                          : 'border-amber-200 bg-amber-50 hover:border-amber-300 !bg-amber-50 !border-amber-200 hover:!bg-amber-100 hover:border-amber-300'
+                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center gap-4">
+                        {option.icon && <span className="text-2xl sm:text-3xl">{option.icon}</span>}
+                        <div className="flex-1">
+                          <span className="text-lg sm:text-xl font-medium text-gray-900">
+                            {option.label}
+                          </span>
+                        </div>
+                        {current === option.value && (
+                          <motion.div
+                            className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              type: 'spring',
+                              stiffness: 500,
+                              damping: 30,
+                            }}
+                          >
+                            <div className="w-2 h-2 bg-white rounded-full" />
+                          </motion.div>
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              );
+            }}
+          />
+        );
+      }
+
+      case 'multiselect': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const selectedValues: (string | boolean)[] = Array.isArray(field.value)
+                ? (field.value as (string | boolean)[])
+                : [];
+
+              const toggleOption = (optionValue: string | boolean) => {
+                const newValues = selectedValues.includes(optionValue)
+                  ? selectedValues.filter(v => v !== optionValue)
+                  : [...selectedValues, optionValue];
+                field.onChange(newValues as PathValue<TFormValues, Path<TFormValues>>);
+              };
+
+              // Show loading state
+              if (isLoadingOptions) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-amber-50 border-2 border-amber-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <motion.div
+                        className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                      <span className="text-gray-600 text-lg">Loading available options...</span>
+                    </div>
+                  </motion.div>
+                );
+              }
+
+              // Show error state
+              if (optionsError) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-red-50 border-2 border-red-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <p className="text-red-600 text-center">{optionsError}</p>
+                  </motion.div>
+                );
+              }
+
+              // Show empty state
+              if (options.length === 0) {
+                return (
+                  <motion.div
+                    className="w-full p-6 bg-amber-50 border-2 border-amber-200 rounded-xl"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <p className="text-amber-700 text-center text-lg">
+                      No options available at this time
+                    </p>
+                  </motion.div>
+                );
+              }
+
+              return (
+                <motion.div
+                  className="grid gap-3 sm:gap-4 w-full"
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {options.map((option, index) => {
+                    const isSelected = selectedValues.includes(option.value);
+                    return (
+                      <motion.button
+                        key={String(option.value)}
+                        type="button"
+                        onClick={() => toggleOption(String(option.value))}
+                        style={{
+                          backgroundColor: isSelected ? '#ecfdf5' : '#fffbeb',
+                          borderColor: isSelected ? '#10b981' : '#f3e8d0',
+                        }}
+                        className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all duration-200 text-left group hover:shadow-md ${
+                          isSelected
+                            ? 'border-emerald-500 bg-emerald-50 shadow-md !bg-emerald-50 !border-emerald-500'
+                            : 'border-amber-200 bg-amber-50 hover:border-amber-300 !bg-amber-50 !border-amber-200 hover:!bg-amber-100 hover:border-amber-300'
+                        }`}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-center gap-4">
+                          {option.icon && (
+                            <span className="text-2xl sm:text-3xl">{option.icon}</span>
+                          )}
+                          <div className="flex-1">
+                            <span className="text-lg sm:text-xl font-medium text-gray-900">
+                              {option.label}
+                            </span>
+                          </div>
+                          <div
+                            className={`w-6 h-6 border-2 rounded flex items-center justify-center transition-all duration-200 ${
+                              isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                            }`}
+                          >
+                            {isSelected && (
+                              <motion.div
+                                className="w-2 h-2 bg-white rounded-sm"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{
+                                  type: 'spring',
+                                  stiffness: 500,
+                                  damping: 30,
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+
+                  {selectedValues.length > 0 && (
+                    <motion.div
+                      className="mt-2 p-3 bg-emerald-50 rounded-lg"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <p className="text-sm text-emerald-700">
+                        Selected: {selectedValues.length} option
+                        {selectedValues.length !== 1 ? 's' : ''}
+                      </p>
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            }}
+          />
+        );
+      }
+
+      case 'boolean': {
+        return (
+          <Controller
+            name={question.id as Path<TFormValues>}
+            control={control}
+            render={({ field }) => {
+              const currentValue = field.value as boolean | undefined;
+
+              return (
+                <motion.div
+                  className="grid gap-3 sm:gap-4 w-full"
+                  variants={inputVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <motion.button
+                    type="button"
+                    onClick={() => field.onChange(true)}
+                    style={{
+                      backgroundColor: currentValue === true ? '#ecfdf5' : '#fffbeb',
+                      borderColor: currentValue === true ? '#10b981' : '#f3e8d0',
+                    }}
+                    className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all duration-200 text-left group hover:shadow-md ${
+                      currentValue === true
+                        ? '!border-emerald-500 !bg-emerald-50 shadow-md'
+                        : '!border-amber-200 !bg-amber-50 hover:border-amber-300 hover:!bg-amber-100'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <span className="text-lg sm:text-xl font-medium text-gray-900">Yes</span>
+                      </div>
+                      {currentValue === true && (
+                        <motion.div
+                          className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{
+                            type: 'spring',
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    onClick={() => field.onChange(false)}
+                    style={{
+                      backgroundColor: currentValue === false ? '#ecfdf5' : '#fffbeb',
+                      borderColor: currentValue === false ? '#10b981' : '#f3e8d0',
+                    }}
+                    className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all duration-200 text-left group hover:shadow-md ${
+                      currentValue === false
+                        ? '!border-emerald-500 !bg-emerald-50 shadow-md'
+                        : '!border-amber-200 !bg-amber-50 hover:border-amber-300 hover:!bg-amber-100'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <span className="text-lg sm:text-xl font-medium text-gray-900">No</span>
+                      </div>
+                      {currentValue === false && (
+                        <motion.div
+                          className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{
+                            type: 'spring',
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.button>
+                </motion.div>
+              );
+            }}
+          />
+        );
+      }
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {renderInput()}
+
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            variants={errorVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="px-2"
+          >
+            <FormMessage id={`${questionPath}-error`} variant="error">
+              {error.message}
+            </FormMessage>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default QuestionRenderer;

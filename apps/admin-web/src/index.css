@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core Surfaces */
+    --background: 150 20% 98%; /* #F7FAF8 - App Background */
+    --foreground: 150 25% 19%; /* #243F36 - Primary Text */
+    --card: 0 0% 100%; /* #FFFFFF - Card/Panel */
+    --card-foreground: 150 25% 19%; /* #243F36 - Card Text */
+    --popover: 0 0% 100%; /* #FFFFFF - Popover */
+    --popover-foreground: 150 25% 19%; /* #243F36 - Popover Text */
+    
+    /* Brand Colors */
+    --primary: 150 25% 19%; /* #243F36 - Primary */
+    --primary-hover: 150 30% 15%; /* #1C332B - Primary Hover */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF - On Dark */
+    --secondary: 130 45% 63%; /* #77CB84 - Primary Soft */
+    --secondary-foreground: 150 25% 19%; /* #243F36 - Secondary Text */
+    
+    /* Muted Colors */
+    --muted: 140 30% 95%; /* #EEF6F1 - Muted Background */
+    --muted-foreground: 150 15% 43%; /* #5F7C71 - Secondary Text */
+    
+    /* Accent */
+    --accent: 60 97% 73%; /* #FCFC78 - Brand Accent */
+    --accent-foreground: 150 25% 19%; /* #243F36 - Accent Text */
+    
+    /* Status Colors */
+    --success: 130 45% 63%; /* #77CB84 - Success */
+    --success-foreground: 150 25% 19%; /* #243F36 - Success Text */
+    --warning: 45 87% 63%; /* #F2C94C - Warning */
+    --warning-foreground: 150 25% 19%; /* #243F36 - Warning Text */
+    --destructive: 0 70% 67%; /* #E86B6B - Error */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF - Error Text */
+    --info: 140 50% 62%; /* #6FCF97 - Info */
+    --info-foreground: 150 25% 19%; /* #243F36 - Info Text */
+    
+    /* Borders & Inputs */
+    --border: 140 25% 92%; /* #E3EFE8 - Border/Divider */
+    --input: 140 25% 92%; /* #E3EFE8 - Input Border */
+    --ring: 150 25% 19%; /* #243F36 - Focus Ring */
+    
+    /* Border Radius */
+    --radius: 0.5rem;
+    
+    /* Chart Colors */
+    --chart-1: 150 25% 19%; /* #243F36 - Chart Primary */
+    --chart-2: 130 45% 63%; /* #77CB84 - Chart Secondary */
+    --chart-3: 60 97% 73%; /* #FCFC78 - Chart Accent */
+    --chart-4: 140 40% 82%; /* #BFE3CC - Chart Muted */
+    --chart-5: 140 50% 62%; /* #6FCF97 - Chart Info */
+    
+    /* Sidebar Theme */
+    --sidebar-background: 150 25% 19%; /* #243F36 - Sidebar bg */
+    --sidebar-hover: 150 30% 15%; /* #1C332B - Sidebar hover */
+    --sidebar-active: 130 45% 63%; /* #77CB84 - Active item */
+    --sidebar-active-text: 150 25% 19%; /* #243F36 - Active text */
+    --sidebar-icon-inactive: 150 20% 60%; /* #8FB3A4 - Icon inactive */
+    --sidebar-icon-active: 150 25% 19%; /* #243F36 - Icon active */
+    --sidebar-text: 0 0% 100%; /* #FFFFFF - Sidebar text */
+  }
+
+  .dark {
+    /* Dark mode - using same values for now, can be adjusted later */
+    --background: 150 25% 19%; /* Dark background */
+    --foreground: 0 0% 100%; /* Light text */
+    --card: 150 30% 15%; /* Dark card */
+    --card-foreground: 0 0% 100%; /* Light card text */
+    --popover: 150 30% 15%; /* Dark popover */
+    --popover-foreground: 0 0% 100%; /* Light popover text */
+    --primary: 130 45% 63%; /* Primary Soft for dark mode */
+    --primary-hover: 130 50% 70%; /* Lighter hover */
+    --primary-foreground: 150 25% 19%; /* Dark text on primary */
+    --secondary: 140 30% 95%; /* Muted background */
+    --secondary-foreground: 150 25% 19%; /* Dark text */
+    --muted: 150 30% 15%; /* Dark muted */
+    --muted-foreground: 150 20% 60%; /* Muted text */
+    --accent: 60 97% 73%; /* Brand Accent */
+    --accent-foreground: 150 25% 19%; /* Dark text */
+    --success: 130 45% 63%; /* Success */
+    --success-foreground: 150 25% 19%; /* Success text */
+    --warning: 45 87% 63%; /* Warning */
+    --warning-foreground: 150 25% 19%; /* Warning text */
+    --destructive: 0 70% 67%; /* Error */
+    --destructive-foreground: 0 0% 100%; /* Error text */
+    --info: 140 50% 62%; /* Info */
+    --info-foreground: 150 25% 19%; /* Info text */
+    --border: 150 30% 15%; /* Dark border */
+    --input: 150 30% 15%; /* Dark input */
+    --ring: 130 45% 63%; /* Focus ring */
+    --chart-1: 130 45% 63%; /* Chart Primary */
+    --chart-2: 60 97% 73%; /* Chart Secondary */
+    --chart-3: 140 50% 62%; /* Chart Accent */
+    --chart-4: 140 40% 82%; /* Chart Muted */
+    --chart-5: 140 30% 95%; /* Chart Info */
+    --sidebar-background: 150 30% 15%; /* Dark sidebar */
+    --sidebar-hover: 150 25% 19%; /* Sidebar hover */
+    --sidebar-active: 130 45% 63%; /* Active item */
+    --sidebar-active-text: 150 25% 19%; /* Active text */
+    --sidebar-icon-inactive: 150 20% 60%; /* Icon inactive */
+    --sidebar-icon-active: 130 45% 63%; /* Icon active */
+    --sidebar-text: 0 0% 100%; /* Sidebar text */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+

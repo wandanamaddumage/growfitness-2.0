@@ -1,0 +1,51 @@
+import { api } from './api';
+import type {
+  FreeSessionRequest,
+  RescheduleRequest,
+  ExtraSessionRequest,
+  PaginatedResponse,
+} from '@grow-fitness/shared-types';
+
+export const requestsService = {
+  createFreeSessionRequest: (data: { selectedSessionId?: string }) =>
+    api.post<FreeSessionRequest>('/requests/free-sessions', data),
+  getFreeSessionRequests: (page: number = 1, limit: number = 10) =>
+    api.get<PaginatedResponse<FreeSessionRequest>>(
+      `/requests/free-sessions?page=${page}&limit=${limit}`
+    ),
+  selectFreeSessionRequest: (id: string, sessionId?: string) =>
+    api.post<FreeSessionRequest>(`/requests/free-sessions/${id}/select`, { sessionId }),
+  updateFreeSessionRequest: (id: string, data: { status: string; selectedSessionId?: string }) =>
+    api.patch<FreeSessionRequest>(`/requests/free-sessions/${id}`, data),
+
+  // Reschedule Requests
+  createRescheduleRequest: (data: { sessionId?: string }) =>
+    api.post<RescheduleRequest>('/requests/reschedules', data),
+  getRescheduleRequests: (page: number = 1, limit: number = 10) =>
+    api.get<PaginatedResponse<RescheduleRequest>>(
+      `/requests/reschedules?page=${page}&limit=${limit}`
+    ),
+  approveRescheduleRequest: (id: string) =>
+    api.post<RescheduleRequest>(`/requests/reschedules/${id}/approve`),
+  denyRescheduleRequest: (id: string) =>
+    api.post<RescheduleRequest>(`/requests/reschedules/${id}/deny`),
+
+  // Extra Session Requests
+  createExtraSessionRequest: (data: {
+    parentId: string;
+    kidId: string;
+    coachId: string;
+    sessionType: string;
+    locationId: string;
+    preferredDateTime: string;
+  }) =>
+    api.post<ExtraSessionRequest>('/requests/extra-sessions', data),
+  getExtraSessionRequests: (page: number = 1, limit: number = 10) =>
+    api.get<PaginatedResponse<ExtraSessionRequest>>(
+      `/requests/extra-sessions?page=${page}&limit=${limit}`
+    ),
+  approveExtraSessionRequest: (id: string) =>
+    api.post<ExtraSessionRequest>(`/requests/extra-sessions/${id}/approve`),
+  denyExtraSessionRequest: (id: string) =>
+    api.post<ExtraSessionRequest>(`/requests/extra-sessions/${id}/deny`),
+};
