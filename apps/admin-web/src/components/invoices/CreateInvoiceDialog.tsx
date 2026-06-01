@@ -22,6 +22,7 @@ import { CreateInvoiceSchema, CreateInvoiceDto } from '@grow-fitness/shared-sche
 import { InvoiceType } from '@grow-fitness/shared-types';
 import { useApiMutation, useApiQuery } from '@/hooks';
 import { invoicesService } from '@/services/invoices.service';
+import { kidsService } from '@/services/kids.service';
 import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
 import { Plus, Trash2 } from 'lucide-react';
@@ -64,12 +65,22 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
   const form = useForm<CreateInvoiceDto>({
     resolver: zodResolver(CreateInvoiceSchema),
     defaultValues,
+    mode: 'onChange',
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'items',
   });
+
+  const canCreateInvoice = CreateInvoiceSchema.safeParse(form.watch()).success;
+  const itemsFieldError = form.formState.errors.items;
+  const itemsRootError =
+    itemsFieldError &&
+    !Array.isArray(itemsFieldError) &&
+    typeof itemsFieldError.message === 'string'
+      ? itemsFieldError.message
+      : undefined;
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -112,6 +123,19 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
   };
 
   const invoiceType = form.watch('type');
+  const parentId = form.watch('parentId');
+
+  const { data: parentKidsData, isLoading: isLoadingParentKids } = useApiQuery(
+    ['kids', 'parent', parentId || 'none'],
+    () => kidsService.getKids(1, 100, parentId!),
+    {
+      enabled: open && invoiceType === InvoiceType.PARENT_INVOICE && !!parentId,
+    }
+  );
+
+  const parentKids = parentKidsData?.data ?? [];
+  const selectedKidName = form.watch('kidName');
+  const selectedKidId = parentKids.find(kid => kid.name === selectedKidName)?.id ?? '__none__';
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -127,122 +151,194 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4 min-h-0">
-            <form onSubmit={form.handleSubmit(onSubmit)} id="create-invoice-form" className="space-y-4">
-          <CustomFormField label="Type" required error={form.formState.errors.type?.message}>
-            <Select
-              value={form.watch('type')}
-              onValueChange={value => {
-                form.setValue('type', value as InvoiceType);
-                form.setValue('parentId', undefined);
-                form.setValue('coachId', undefined);
-                form.setValue('kidName', undefined);
-              }}
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              id="create-invoice-form"
+              className="space-y-4"
             >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={InvoiceType.PARENT_INVOICE}>Parent Invoice</SelectItem>
-                <SelectItem value={InvoiceType.COACH_PAYOUT}>Coach Payout</SelectItem>
-              </SelectContent>
-            </Select>
-          </CustomFormField>
+              <CustomFormField label="Type" required error={form.formState.errors.type?.message}>
+                <Select
+                  value={form.watch('type')}
+                  onValueChange={value => {
+                    form.setValue('type', value as InvoiceType, { shouldValidate: true });
+                    form.setValue('parentId', undefined, { shouldValidate: true });
+                    form.setValue('coachId', undefined, { shouldValidate: true });
+                    form.setValue('kidName', undefined, { shouldValidate: true });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={InvoiceType.PARENT_INVOICE}>Parent Invoice</SelectItem>
+                    <SelectItem value={InvoiceType.COACH_PAYOUT}>Coach Payout</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CustomFormField>
 
-          {invoiceType === InvoiceType.PARENT_INVOICE && (
-            <CustomFormField
-              label="Parent"
-              required
-              error={form.formState.errors.parentId?.message}
-            >
-              <Select
-                value={form.watch('parentId') || ''}
-                onValueChange={value => form.setValue('parentId', value)}
+              {invoiceType === InvoiceType.PARENT_INVOICE && (
+                <CustomFormField
+                  label="Parent"
+                  required
+                  error={form.formState.errors.parentId?.message}
+                >
+                  <Select
+                    value={form.watch('parentId') || ''}
+                    onValueChange={value => {
+                      form.setValue('parentId', value, { shouldValidate: true });
+                      form.setValue('kidName', undefined, { shouldValidate: true });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select parent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(parentsData?.data || []).map(parent => (
+                        <SelectItem key={parent.id} value={parent.id}>
+                          {parent.parentProfile?.name || parent.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CustomFormField>
+              )}
+
+              {invoiceType === InvoiceType.PARENT_INVOICE && (
+                <CustomFormField label="Kid" error={form.formState.errors.kidName?.message}>
+                  <Select
+                    value={selectedKidId}
+                    onValueChange={value => {
+                      if (value === '__none__') {
+                        form.setValue('kidName', undefined, { shouldValidate: true });
+                        return;
+                      }
+                      const kid = parentKids.find(k => k.id === value);
+                      form.setValue('kidName', kid?.name, { shouldValidate: true });
+                    }}
+                    disabled={!parentId || isLoadingParentKids}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          !parentId
+                            ? 'Select a parent first'
+                            : isLoadingParentKids
+                              ? 'Loading kids...'
+                              : parentKids.length === 0
+                                ? 'No kids for this parent'
+                                : 'Select kid (optional)'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {parentKids.map(kid => (
+                        <SelectItem key={kid.id} value={kid.id}>
+                          {kid.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {parentId && !isLoadingParentKids && parentKids.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      This parent has no kids on file. The invoice PDF will not include a kid name.
+                    </p>
+                  ) : null}
+                </CustomFormField>
+              )}
+
+              {invoiceType === InvoiceType.COACH_PAYOUT && (
+                <CustomFormField
+                  label="Coach"
+                  required
+                  error={form.formState.errors.coachId?.message}
+                >
+                  <Select
+                    value={form.watch('coachId') || ''}
+                    onValueChange={value =>
+                      form.setValue('coachId', value, { shouldValidate: true })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select coach" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(coachesData?.data || []).map(coach => (
+                        <SelectItem key={coach.id} value={coach.id}>
+                          {coach.coachProfile?.name || coach.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CustomFormField>
+              )}
+
+              <CustomFormField label="Payment Details" required error={itemsRootError}>
+                {fields.map((field, index) => (
+                  <div key={field.id} className="space-y-1">
+                    <div className="flex gap-2">
+                      <div className="flex-1 space-y-1">
+                        <Input
+                          placeholder="Description"
+                          {...form.register(`items.${index}.description`)}
+                        />
+                        {form.formState.errors.items?.[index]?.description?.message ? (
+                          <p className="text-xs text-destructive">
+                            {form.formState.errors.items[index]?.description?.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="w-32 space-y-1">
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          placeholder="Amount"
+                          {...form.register(`items.${index}.amount`, { valueAsNumber: true })}
+                        />
+                        {form.formState.errors.items?.[index]?.amount?.message ? (
+                          <p className="text-xs text-destructive">
+                            {form.formState.errors.items[index]?.amount?.message}
+                          </p>
+                        ) : null}
+                      </div>
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => append({ description: '', amount: 0 })}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+              </CustomFormField>
+
+              <CustomFormField
+                label="Due Date"
+                required
+                error={form.formState.errors.dueDate?.message}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select parent" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(parentsData?.data || []).map(parent => (
-                    <SelectItem key={parent.id} value={parent.id}>
-                      {parent.parentProfile?.name || parent.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CustomFormField>
-          )}
-
-          {invoiceType === InvoiceType.PARENT_INVOICE && (
-            <CustomFormField
-              label="Kid name"
-              error={form.formState.errors.kidName?.message}
-            >
-              <Input
-                placeholder="Optional — shown on invoice PDF"
-                {...form.register('kidName')}
-              />
-            </CustomFormField>
-          )}
-
-          {invoiceType === InvoiceType.COACH_PAYOUT && (
-            <CustomFormField label="Coach" required error={form.formState.errors.coachId?.message}>
-              <Select
-                value={form.watch('coachId') || ''}
-                onValueChange={value => form.setValue('coachId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select coach" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(coachesData?.data || []).map(coach => (
-                    <SelectItem key={coach.id} value={coach.id}>
-                      {coach.coachProfile?.name || coach.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CustomFormField>
-          )}
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Items</label>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex gap-2">
-                <Input
-                  placeholder="Description"
-                  {...form.register(`items.${index}.description`)}
-                  className="flex-1"
+                <DatePicker
+                  date={form.watch('dueDate') ? new Date(form.watch('dueDate')) : undefined}
+                  onSelect={date =>
+                    form.setValue('dueDate', date ? format(date, 'yyyy-MM-dd') : '', {
+                      shouldValidate: true,
+                    })
+                  }
                 />
-                <Input
-                  type="number"
-                  placeholder="Amount"
-                  {...form.register(`items.${index}.amount`, { valueAsNumber: true })}
-                  className="w-32"
-                />
-                {fields.length > 1 && (
-                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => append({ description: '', amount: 0 })}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
-            </Button>
-          </div>
-
-          <CustomFormField label="Due Date" required error={form.formState.errors.dueDate?.message}>
-            <DatePicker
-              date={form.watch('dueDate') ? new Date(form.watch('dueDate')) : undefined}
-              onSelect={date => form.setValue('dueDate', date ? format(date, 'yyyy-MM-dd') : '')}
-            />
-          </CustomFormField>
-
+              </CustomFormField>
             </form>
           </div>
 
@@ -252,7 +348,11 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" form="create-invoice-form" disabled={createMutation.isPending}>
+              <Button
+                type="submit"
+                form="create-invoice-form"
+                disabled={!canCreateInvoice || createMutation.isPending}
+              >
                 {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
               </Button>
             </div>

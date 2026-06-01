@@ -252,7 +252,6 @@ export class UsersController {
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Coach full name' },
-        email: { type: 'string', format: 'email', description: 'Coach email address' },
         phone: { type: 'string', description: 'Coach phone number' },
         status: { type: 'string', enum: ['ACTIVE', 'INACTIVE'], description: 'Coach status' },
         dateOfBirth: { type: 'string', format: 'date', description: 'Date of birth (ISO)' },

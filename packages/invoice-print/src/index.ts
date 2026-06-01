@@ -11,4 +11,13 @@ export {
   type InvoiceTemplatePrintProps,
   type InvoiceRenderMode,
 } from './InvoiceTemplatePrint';
-export { renderInvoicePrintToFullHtml } from './render-html';
+export {
+  renderInvoicePrintToFullHtml,
+  type InvoicePrintAssetDataUris,
+} from './render-html';
+export {
+  fetchInvoiceAssetDataUris,
+  rasterizeDataUriForCanvas,
+  INVOICE_LOGO_PUBLIC_PATH,
+  INVOICE_MASCOT_PUBLIC_PATH,
+} from './browser-assets';

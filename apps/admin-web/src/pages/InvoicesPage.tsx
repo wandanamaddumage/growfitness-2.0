@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery } from '@/hooks';
-import { invoicesService } from '@/services/invoices.service';
+import { invoicesService, type InvoicePdfSentFilter } from '@/services/invoices.service';
 import { Invoice, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { FilterBar } from '@/components/common/FilterBar';
+import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -35,6 +36,15 @@ export function InvoicesPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [typeFilter, setTypeFilter] = useState<InvoiceType | ''>('');
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | ''>('');
+  const [pdfSentFilter, setPdfSentFilter] = useState<InvoicePdfSentFilter | ''>('');
+
+  const hasActiveFilters = Boolean(typeFilter || statusFilter || pdfSentFilter);
+
+  const clearAllFilters = () => {
+    setTypeFilter('');
+    setStatusFilter('');
+    setPdfSentFilter('');
+  };
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('invoiceId');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const { toast } = useToast();
@@ -64,11 +74,12 @@ export function InvoicesPage() {
   const createDialogOpen = modal === 'create' && isOpen;
 
   const { data, isLoading, error } = useApiQuery(
-    ['invoices', page.toString(), pageSize.toString(), typeFilter, statusFilter],
+    ['invoices', page.toString(), pageSize.toString(), typeFilter, statusFilter, pdfSentFilter],
     () =>
       invoicesService.getInvoices(page, pageSize, {
         type: typeFilter || undefined,
         status: statusFilter || undefined,
+        pdfSent: pdfSentFilter || undefined,
       })
   );
 
@@ -77,6 +88,7 @@ export function InvoicesPage() {
       const blob = await invoicesService.exportCSV({
         type: typeFilter || undefined,
         status: statusFilter || undefined,
+        pdfSent: pdfSentFilter || undefined,
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -249,6 +261,29 @@ export function InvoicesPage() {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground">PDF emailed:</label>
+            <Select
+              value={pdfSentFilter || 'all'}
+              onValueChange={value =>
+                setPdfSentFilter(
+                  value === 'all' ? '' : (value as InvoicePdfSentFilter)
+                )
+              }
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="sent">Sent</SelectItem>
+                <SelectItem value="not_sent">Not sent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
         </FilterBar>
 
         {error ? (

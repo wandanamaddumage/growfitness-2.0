@@ -35,27 +35,89 @@ export const ResetPasswordSchema = z.object({
 
 export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema>;
 
+/** Sign-up / create-parent: digits only, 10–15 characters. */
+const signupPhoneSchema = z
+  .string()
+  .trim()
+  .min(1, 'Enter your phone number.')
+  .regex(/^\d+$/, 'Phone number must contain only digits.')
+  .refine(s => s.length >= 10 && s.length <= 15, {
+    message: 'Enter a phone number with 10 to 15 digits.',
+  });
+
+/** Sign-up / create-parent password policy. */
+const signupPasswordSchema = z
+  .string()
+  .min(1, 'Enter a password.')
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[A-Z]/, 'Include at least one uppercase letter.')
+  .regex(/[a-z]/, 'Include at least one lowercase letter.')
+  .regex(/[0-9]/, 'Include at least one number.')
+  .regex(/[^A-Za-z0-9]/, 'Include at least one special character.');
+
+function parseBirthDateInput(val: string | Date): Date | null {
+  if (val instanceof Date) {
+    return isNaN(val.getTime()) ? null : val;
+  }
+  const s = val.trim();
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (ymd) {
+    const y = Number(ymd[1]);
+    const m = Number(ymd[2]) - 1;
+    const d = Number(ymd[3]);
+    const local = new Date(y, m, d);
+    return isNaN(local.getTime()) ? null : local;
+  }
+  const parsed = new Date(s);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+const kidBirthDateSchema = z.union([z.string(), z.date()]).superRefine((val, ctx) => {
+  const parsed = parseBirthDateInput(val);
+  if (!parsed) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Enter a valid date.',
+    });
+    return;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const birthDay = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  if (birthDay > today) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Birthday cannot be in the future.',
+    });
+  }
+});
+
 // User Schemas
 export const CreateParentSchema = z
   .object({
-    name: z.string().min(1, 'Enter your name.'),
-    email: z.string().email('Enter a valid email address.'),
-    phone: z
+    name: z
       .string()
-      .min(1, 'Enter your phone number.')
-      .regex(
-        /^(\+?\d{1,3}[- ]?)?\d{10,12}$/,
-        'Enter a valid mobile number (e.g., +94771234567 or 0771234567).'
-      ),
-    location: z.string().optional(),
-    password: z.string().min(6, 'Use at least 6 characters for your password.'),
-    confirmPassword: z.string().min(6, 'Use at least 6 characters for your password.'),
+      .trim()
+      .min(1, 'Enter your name.')
+      .min(3, 'Full name must be at least 3 characters.'),
+    email: z
+      .string()
+      .trim()
+      .min(1, 'Enter your email address.')
+      .email('Enter a valid email address.'),
+    phone: signupPhoneSchema,
+    location: z.string().trim().min(1, 'Enter your location.'),
+    password: signupPasswordSchema,
+    confirmPassword: signupPasswordSchema,
     kids: z
       .array(
         z.object({
-          name: z.string().min(1, 'Enter the child\'s name.'),
+          name: z
+            .string()
+            .trim()
+            .min(1, 'Enter the child\'s name.'),
           gender: z.string().min(1, 'Select a gender.'),
-          birthDate: z.string().or(z.date()),
+          birthDate: kidBirthDateSchema,
           goal: z.string().optional(),
           currentlyInSports: z.boolean(),
           medicalConditions: z.array(z.string()).default([]),
@@ -81,7 +143,7 @@ export const UpdateParentSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().min(1).optional(),
   location: z.string().optional(),
-  photoUrl: z.string().url().optional(),
+  photoUrl: z.union([z.string().url(), z.literal('')]).optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
 
@@ -99,6 +161,7 @@ export const UpdateParentSelfSchema = z.object({
     )
     .optional(),
   location: z.string().optional(),
+  photoUrl: z.union([z.string().url(), z.literal('')]).optional(),
 });
 
 export type UpdateParentSelfDto = z.infer<typeof UpdateParentSelfSchema>;
@@ -145,7 +208,6 @@ export type CreateCoachDto = z.infer<typeof CreateCoachSchema>;
 
 export const UpdateCoachSchema = z.object({
   name: z.string().min(1).optional(),
-  email: z.string().email().optional(),
   phone: z.string().min(1).optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
   dateOfBirth: z.string().optional(),
@@ -259,6 +321,17 @@ export const UploadFinalizeSchema = z.object({
 });
 
 export type UploadFinalizeDto = z.infer<typeof UploadFinalizeSchema>;
+
+export const UploadDeleteSchema = z.object({
+  kind: z.nativeEnum(UploadKind),
+  entityId: z
+    .string()
+    .min(1)
+    .regex(OBJECT_ID_REGEX, 'Invalid id'),
+  publicUrl: z.string().url(),
+});
+
+export type UploadDeleteDto = z.infer<typeof UploadDeleteSchema>;
 
 // Session Schemas
 export const CreateSessionSchema = z
@@ -392,11 +465,15 @@ export const CreateRescheduleRequestSchema = z.object({
 
 export type CreateRescheduleRequestDto = z.infer<typeof CreateRescheduleRequestSchema>;
 
-// Extra Session Request Schema (parentId optional when caller is PARENT - derived from token)
+// Extra Session Request Schema (parentId optional when caller is PARENT - derived from token;
+// coachId optional for parent requests — admin assigns coach before approval)
 export const CreateExtraSessionRequestSchema = z.object({
   parentId: z.string().min(1, 'Parent ID is required').optional(),
   kidId: z.string().min(1, 'Kid ID is required'),
-  coachId: z.string().min(1, 'Coach ID is required'),
+  coachId: z
+    .string()
+    .optional()
+    .transform(val => (val && val.trim().length > 0 ? val.trim() : undefined)),
   sessionType: z.nativeEnum(SessionType),
   locationId: z.string().min(1, 'Location ID is required'),
   preferredDateTime: z.string().or(z.date()),
@@ -405,20 +482,73 @@ export const CreateExtraSessionRequestSchema = z.object({
 export type CreateExtraSessionRequestDto = z.infer<typeof CreateExtraSessionRequestSchema>;
 
 // Invoice Schemas
-export const CreateInvoiceSchema = z.object({
-  type: z.nativeEnum(InvoiceType),
-  parentId: z.string().optional(),
-  coachId: z.string().optional(),
-  /** Stored on the invoice as `exportFields.kidName` for PDFs (parent invoices). */
-  kidName: z.string().max(200).optional(),
-  items: z.array(
-    z.object({
-      description: z.string().min(1),
-      amount: z.number().min(0),
-    })
+const CreateInvoiceItemSchema = z.object({
+  description: z.string().trim().min(1, 'Description is required'),
+  amount: z.preprocess(
+    value => {
+      if (value === '' || value === null || value === undefined) {
+        return undefined;
+      }
+      if (typeof value === 'number' && Number.isNaN(value)) {
+        return undefined;
+      }
+      return value;
+    },
+    z
+      .number({
+        required_error: 'Amount is required',
+        invalid_type_error: 'Amount is required',
+      })
+      .min(0, 'Amount cannot be negative')
   ),
-  dueDate: z.string().or(z.date()),
 });
+
+export const CreateInvoiceSchema = z
+  .object({
+    type: z.nativeEnum(InvoiceType),
+    parentId: z.string().optional(),
+    coachId: z.string().optional(),
+    /** Stored on the invoice as `exportFields.kidName` for PDFs (parent invoices). */
+    kidName: z.string().max(200, 'Kid name must be 200 characters or less').optional(),
+    items: z.array(CreateInvoiceItemSchema).min(1, 'Add at least one line item'),
+    dueDate: z
+      .string()
+      .min(1, 'Due date is required')
+      .refine(value => !Number.isNaN(new Date(value).getTime()), 'Enter a valid due date'),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === InvoiceType.PARENT_INVOICE) {
+      if (!data.parentId?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Parent is required',
+          path: ['parentId'],
+        });
+      } else if (!OBJECT_ID_REGEX.test(data.parentId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid parent',
+          path: ['parentId'],
+        });
+      }
+    }
+
+    if (data.type === InvoiceType.COACH_PAYOUT) {
+      if (!data.coachId?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Coach is required',
+          path: ['coachId'],
+        });
+      } else if (!OBJECT_ID_REGEX.test(data.coachId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid coach',
+          path: ['coachId'],
+        });
+      }
+    }
+  });
 
 export type CreateInvoiceDto = z.infer<typeof CreateInvoiceSchema>;
 

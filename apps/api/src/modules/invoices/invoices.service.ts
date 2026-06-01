@@ -11,9 +11,26 @@ import { NotificationService } from '../notifications/notifications.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import type { JwtPayload } from '../auth/auth.service';
+import { InvoicePdfSentFilter } from './dto/get-invoices-query.dto';
 
 @Injectable()
 export class InvoicesService {
+  private applyPdfSentFilter(
+    query: Record<string, unknown>,
+    pdfSent?: InvoicePdfSentFilter,
+    recipientVisibleOnly?: boolean
+  ): void {
+    if (recipientVisibleOnly) {
+      query.pdfEmailedAt = { $exists: true, $ne: null };
+      return;
+    }
+
+    if (pdfSent === InvoicePdfSentFilter.SENT) {
+      query.pdfEmailedAt = { $exists: true, $ne: null };
+    } else if (pdfSent === InvoicePdfSentFilter.NOT_SENT) {
+      query.$or = [{ pdfEmailedAt: { $exists: false } }, { pdfEmailedAt: null }];
+    }
+  }
   constructor(
     @InjectModel(Invoice.name) private invoiceModel: Model<InvoiceDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
@@ -32,6 +49,7 @@ export class InvoicesService {
           parentId?: string;
           coachId?: string;
           status?: InvoiceStatus;
+          pdfSent?: InvoicePdfSentFilter;
         }
       | undefined,
     actor: JwtPayload
@@ -57,6 +75,7 @@ export class InvoicesService {
       parentId?: string;
       coachId?: string;
       status?: InvoiceStatus;
+      pdfSent?: InvoicePdfSentFilter;
       /** Only invoices whose PDF was sent at least once (admin Send). */
       recipientVisibleOnly?: boolean;
     }
@@ -79,9 +98,7 @@ export class InvoicesService {
       query.status = filters.status;
     }
 
-    if (filters?.recipientVisibleOnly) {
-      query.pdfEmailedAt = { $exists: true, $ne: null };
-    }
+    this.applyPdfSentFilter(query, filters?.pdfSent, filters?.recipientVisibleOnly);
 
     const skip = (pagination.page - 1) * pagination.limit;
     const [data, total] = await Promise.all([
@@ -315,7 +332,13 @@ export class InvoicesService {
 
     await invoice.save();
 
-    if (invoice.type === InvoiceType.PARENT_INVOICE && invoice.parentId) {
+    const invoiceWasSentToRecipient = invoice.pdfEmailedAt != null;
+
+    if (
+      invoiceWasSentToRecipient &&
+      invoice.type === InvoiceType.PARENT_INVOICE &&
+      invoice.parentId
+    ) {
       const parentIdStr = invoice.parentId.toString();
       const parent = await this.userModel.findById(parentIdStr).select('email phone').lean().exec();
       const email = parent ? (parent as any).email : undefined;
@@ -337,7 +360,11 @@ export class InvoicesService {
       });
     }
 
-    if (invoice.type === InvoiceType.COACH_PAYOUT && invoice.coachId) {
+    if (
+      invoiceWasSentToRecipient &&
+      invoice.type === InvoiceType.COACH_PAYOUT &&
+      invoice.coachId
+    ) {
       const coachIdStr = invoice.coachId.toString();
       await this.notificationService.createNotification({
         userId: coachIdStr,
@@ -418,6 +445,7 @@ export class InvoicesService {
     parentId?: string;
     coachId?: string;
     status?: InvoiceStatus;
+    pdfSent?: InvoicePdfSentFilter;
   }) {
     const query: Record<string, unknown> = {};
 
@@ -436,6 +464,8 @@ export class InvoicesService {
     if (filters?.status) {
       query.status = filters.status;
     }
+
+    this.applyPdfSentFilter(query, filters?.pdfSent);
 
     const invoices = await this.invoiceModel
       .find(query)

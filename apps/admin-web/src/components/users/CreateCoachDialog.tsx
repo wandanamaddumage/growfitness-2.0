@@ -73,6 +73,13 @@ const defaultValues: CreateCoachDto = {
   cvUrl: undefined,
 };
 
+const requiredCoachFieldsSchema = CreateCoachSchema.pick({
+  name: true,
+  email: true,
+  phone: true,
+  password: true,
+});
+
 export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps) {
   const { closeModal } = useModalParams('userId');
 
@@ -100,6 +107,14 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
     control: form.control,
     name: 'availableTimes',
   });
+
+  const [name, email, phone, password] = form.watch(['name', 'email', 'phone', 'password']);
+  const canCreateCoach = requiredCoachFieldsSchema.safeParse({
+    name,
+    email,
+    phone,
+    password,
+  }).success;
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -362,7 +377,11 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" form="create-coach-form" disabled={createMutation.isPending}>
+              <Button
+                type="submit"
+                form="create-coach-form"
+                disabled={!canCreateCoach || createMutation.isPending}
+              >
                 {createMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

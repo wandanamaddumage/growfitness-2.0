@@ -1,73 +1,52 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { InvoicePdfViewModel } from './types';
 import { InvoiceTemplatePrint } from './InvoiceTemplatePrint';
 import { INVOICE_PRINT_CSS } from './invoice-print-styles';
+import { resolveInvoicePrintPackageRoot } from './resolve-package-root';
 
-type NodeFs = {
-  existsSync: (path: string) => boolean;
-  readFileSync: (path: string) => { toString: (encoding: 'base64') => string };
+export type InvoicePrintAssetDataUris = {
+  mascotSrc?: string;
+  logoSrc?: string;
 };
 
-type NodePath = {
-  join: (...parts: string[]) => string;
-};
-
-function tryRequire<T>(id: string): T | undefined {
+function readAssetAsDataUri(filePath: string, mime: string): string | undefined {
   try {
-    // Hide require from bundlers; Node loads this file via CJS (`tsconfig.module=CommonJS`).
-    // eslint-disable-next-line no-new-func -- intentional dynamic require
-    const req = new Function('m', 'try { return require(m); } catch { return undefined; }') as (
-      m: string
-    ) => T | undefined;
-    return req(id);
+    if (!fs.existsSync(filePath)) {
+      return undefined;
+    }
+    const buf = fs.readFileSync(filePath);
+    return `data:${mime};base64,${buf.toString('base64')}`;
   } catch {
     return undefined;
   }
 }
 
-function readMascotDataUri(): string | undefined {
-  const fs = tryRequire<NodeFs>('node:fs');
-  const path = tryRequire<NodePath>('node:path');
-  if (!fs || !path || typeof __dirname !== 'string') {
-    return undefined;
-  }
-  const candidates = [
-    path.join(__dirname, '..', 'assets', 'invoice-mascot.png'),
-    path.join(__dirname, 'assets', 'invoice-mascot.png'),
+function assetPathCandidates(fileName: string): string[] {
+  const root = resolveInvoicePrintPackageRoot();
+  return [
+    path.join(root, 'assets', fileName),
+    path.join(root, 'dist', 'assets', fileName),
   ];
-  for (const filePath of candidates) {
-    try {
-      if (fs.existsSync(filePath)) {
-        const buf = fs.readFileSync(filePath);
-        return `data:image/png;base64,${buf.toString('base64')}`;
-      }
-    } catch {
-      /* optional asset */
+}
+
+function readMascotDataUri(): string | undefined {
+  for (const filePath of assetPathCandidates('invoice-mascot.png')) {
+    const uri = readAssetAsDataUri(filePath, 'image/png');
+    if (uri) {
+      return uri;
     }
   }
   return undefined;
 }
 
-/** Invoice logo for generated HTML/PDF output. */
 function readInvoiceLogoDataUri(): string | undefined {
-  const fs = tryRequire<NodeFs>('node:fs');
-  const path = tryRequire<NodePath>('node:path');
-  if (!fs || !path || typeof __dirname !== 'string') {
-    return undefined;
-  }
-  const svgCandidates = [
-    path.join(__dirname, '..', 'assets', 'grow-invoice-wordmark-white.svg'),
-    path.join(__dirname, 'assets', 'grow-invoice-wordmark-white.svg'),
-  ];
-  for (const filePath of svgCandidates) {
-    try {
-      if (fs.existsSync(filePath)) {
-        const buf = fs.readFileSync(filePath);
-        return `data:image/svg+xml;base64,${buf.toString('base64')}`;
-      }
-    } catch {
-      /* optional asset */
+  for (const filePath of assetPathCandidates('grow-invoice-wordmark-white.svg')) {
+    const uri = readAssetAsDataUri(filePath, 'image/svg+xml');
+    if (uri) {
+      return uri;
     }
   }
   return undefined;
@@ -77,14 +56,17 @@ function readInvoiceLogoDataUri(): string | undefined {
  * Full HTML document for Puppeteer `page.setContent` / print preview.
  * Styles are in &lt;head&gt;; body matches {@link InvoiceTemplatePrint} without duplicate &lt;style&gt;.
  */
-export function renderInvoicePrintToFullHtml(data: InvoicePdfViewModel): string {
+export function renderInvoicePrintToFullHtml(
+  data: InvoicePdfViewModel,
+  assetOverrides?: InvoicePrintAssetDataUris
+): string {
   const bodyInner = renderToStaticMarkup(
     createElement(InvoiceTemplatePrint, {
       data,
       renderMode: 'pdf',
       includeStyles: false,
-      mascotSrc: readMascotDataUri() ?? '',
-      logoSrc: readInvoiceLogoDataUri() ?? '',
+      mascotSrc: assetOverrides?.mascotSrc ?? readMascotDataUri() ?? '',
+      logoSrc: assetOverrides?.logoSrc ?? readInvoiceLogoDataUri() ?? '',
     })
   );
 

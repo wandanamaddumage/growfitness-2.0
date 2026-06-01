@@ -285,7 +285,7 @@ export interface ExtraSessionRequest {
   id: string;
   parentId: string;
   kidId: string;
-  coachId: string;
+  coachId?: string;
   sessionType: SessionType;
   locationId: string;
   preferredDateTime: Date;

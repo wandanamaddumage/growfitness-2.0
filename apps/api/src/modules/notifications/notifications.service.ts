@@ -12,6 +12,8 @@ import {
 import { NotificationType } from '@grow-fitness/shared-types';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { getPasswordResetTokenExpirySeconds } from '../../common/utils/password-reset-config.util';
+import { resolveClientWebUrl } from '../../common/utils/client-web-url.util';
 
 export interface CreateInAppNotificationDto {
   userId: string;
@@ -88,6 +90,14 @@ export class NotificationService {
     private textLkProvider: TextLkProvider,
     private configService: ConfigService
   ) {}
+
+  /** Parent/coach app base URL for links in emails (CLIENT_WEB_URL or FRONTEND_URL). */
+  private getClientWebUrl(): string {
+    return resolveClientWebUrl(
+      this.configService.get<string>('CLIENT_WEB_URL'),
+      this.configService.get<string>('FRONTEND_URL')
+    );
+  }
 
   async sendFreeSessionConfirmation(data: FreeSessionConfirmationData) {
     const message = `Hello ${data.parentName}, your free session request for ${data.kidName} has been confirmed!`;
@@ -188,10 +198,7 @@ export class NotificationService {
    */
   async sendCoachAccountCreated(data: CoachAccountCreatedData) {
     const name = data.coachName?.trim() || 'Coach';
-    const frontendUrl = this.configService
-      .get<string>('FRONTEND_URL', 'http://localhost:5173')
-      .replace(/\/$/, '');
-    const loginUrl = `${frontendUrl}/login`;
+    const loginUrl = `${this.getClientWebUrl()}/login`;
     const emailBody = `Hello ${name},
 
 Your Grow Fitness coach account has been created. You can sign in at:
@@ -411,12 +418,13 @@ Grow Fitness Team`;
   }
 
   async sendPasswordResetEmail(user: UserDocument, resetToken: string): Promise<void> {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
-    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+    const resetUrl = `${this.getClientWebUrl()}/reset-password?token=${resetToken}`;
 
     const userName = user.parentProfile?.name || user.coachProfile?.name || 'User';
-    const expiryHours =
-      parseInt(this.configService.get<string>('PASSWORD_RESET_TOKEN_EXPIRY', '3600'), 10) / 3600;
+    const expirySeconds = getPasswordResetTokenExpirySeconds(
+      this.configService.get<string>('PASSWORD_RESET_TOKEN_EXPIRY')
+    );
+    const expiryHours = expirySeconds / 3600;
 
     const subject = 'Reset Your Password';
     const body = `Hello ${userName},

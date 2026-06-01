@@ -129,7 +129,14 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
 
   const handleNext = async () => {
     // Validate only Step 1 fields before advancing
-    const isValid = await form.trigger(['name', 'email', 'phone', 'password', 'confirmPassword']);
+    const isValid = await form.trigger([
+      'name',
+      'email',
+      'phone',
+      'location',
+      'password',
+      'confirmPassword',
+    ]);
     if (isValid) {
       setStep(2);
     }
@@ -195,7 +202,11 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
                   <Input {...form.register('phone')} />
                 </CustomFormField>
 
-                <CustomFormField label="Location" error={form.formState.errors.location?.message}>
+                <CustomFormField
+                  label="Location"
+                  required
+                  error={form.formState.errors.location?.message}
+                >
                   <Input {...form.register('location')} />
                 </CustomFormField>
 

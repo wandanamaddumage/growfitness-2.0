@@ -7,6 +7,7 @@ import { locationsService } from '@/services/locations.service';
 import { Session, SessionStatus } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
+import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
 import { FilterBar } from '@/components/common/FilterBar';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +24,7 @@ import {
   Eye,
   LayoutList,
   Calendar as CalendarIcon,
+  CalendarClock,
   Repeat,
 } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
@@ -33,6 +35,10 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { CreateSessionDialog } from '@/components/sessions/CreateSessionDialog';
 import { EditSessionDialog } from '@/components/sessions/EditSessionDialog';
 import { SessionDetailsDialog } from '@/components/sessions/SessionDetailsDialog';
+import {
+  RescheduleSessionDialog,
+  canAdminRescheduleSession,
+} from '@/components/sessions/RescheduleSessionDialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useModalParams } from '@/hooks/useModalParams';
@@ -47,6 +53,14 @@ export function SessionsPage() {
   const [coachFilter, setCoachFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<SessionStatus | ''>('');
+
+  const hasActiveFilters = Boolean(coachFilter || locationFilter || statusFilter);
+
+  const clearAllFilters = () => {
+    setCoachFilter('');
+    setLocationFilter('');
+    setStatusFilter('');
+  };
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('sessionId');
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const { toast } = useToast();
@@ -137,6 +151,7 @@ export function SessionsPage() {
   const detailsDialogOpen = modal === 'details' && isOpen;
   const editDialogOpen = modal === 'edit' && isOpen;
   const createDialogOpen = modal === 'create' && isOpen;
+  const rescheduleDialogOpen = modal === 'reschedule' && isOpen;
 
   const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
     usersService.getCoaches(1, 100)
@@ -259,6 +274,22 @@ export function SessionsPage() {
             <Button
               variant="ghost"
               size="icon"
+              disabled={!canAdminRescheduleSession(session)}
+              title={
+                canAdminRescheduleSession(session)
+                  ? 'Reschedule session'
+                  : 'Cannot reschedule cancelled or completed sessions'
+              }
+              onClick={() => {
+                setSelectedSession(session);
+                openModal(session.id, 'reschedule');
+              }}
+            >
+              <CalendarClock className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => {
                 setSelectedSession(session);
                 openModal(session.id, 'edit');
@@ -337,6 +368,8 @@ export function SessionsPage() {
           </SelectContent>
         </Select>
       </div>
+
+      <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
     </FilterBar>
   );
 
@@ -422,6 +455,19 @@ export function SessionsPage() {
           />
           <SessionDetailsDialog
             open={detailsDialogOpen}
+            onOpenChange={closeModal}
+            session={selectedSession || undefined}
+            onReschedule={session => {
+              setSelectedSession(session);
+              openModal(session.id, 'reschedule');
+            }}
+            onEdit={session => {
+              setSelectedSession(session);
+              openModal(session.id, 'edit');
+            }}
+          />
+          <RescheduleSessionDialog
+            open={rescheduleDialogOpen}
             onOpenChange={closeModal}
             session={selectedSession || undefined}
           />

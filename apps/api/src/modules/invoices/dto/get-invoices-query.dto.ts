@@ -3,6 +3,11 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
 
+export enum InvoicePdfSentFilter {
+  SENT = 'sent',
+  NOT_SENT = 'not_sent',
+}
+
 export class GetInvoicesQueryDto extends PaginationDto {
   @ApiPropertyOptional({ enum: InvoiceType, description: 'Filter by invoice type' })
   @IsOptional()
@@ -23,4 +28,12 @@ export class GetInvoicesQueryDto extends PaginationDto {
   @IsOptional()
   @IsEnum(InvoiceStatus)
   status?: InvoiceStatus;
+
+  @ApiPropertyOptional({
+    enum: InvoicePdfSentFilter,
+    description: 'Filter by whether the invoice PDF was emailed to the recipient',
+  })
+  @IsOptional()
+  @IsEnum(InvoicePdfSentFilter)
+  pdfSent?: InvoicePdfSentFilter;
 }

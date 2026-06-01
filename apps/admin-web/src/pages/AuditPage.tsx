@@ -6,6 +6,7 @@ import { AuditLog } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { FilterBar } from '@/components/common/FilterBar';
+import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye } from 'lucide-react';
@@ -21,6 +22,18 @@ export function AuditPage() {
   const [entityTypeFilter, setEntityTypeFilter] = useState('');
   const [startDateFilter, setStartDateFilter] = useState<Date | undefined>();
   const [endDateFilter, setEndDateFilter] = useState<Date | undefined>();
+
+  const hasActiveFilters = Boolean(
+    actorIdFilter || entityTypeFilter || startDateFilter || endDateFilter
+  );
+
+  const clearAllFilters = () => {
+    setActorIdFilter('');
+    setEntityTypeFilter('');
+    setStartDateFilter(undefined);
+    setEndDateFilter(undefined);
+  };
+
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
@@ -146,6 +159,8 @@ export function AuditPage() {
               placeholder="Select end date"
             />
           </div>
+
+          <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
         </FilterBar>
 
         {error ? (

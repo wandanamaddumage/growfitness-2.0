@@ -2,6 +2,7 @@ import type { FreeSessionFormValues } from '@/lib/free-session-form-schemas';
 import type { Session } from '@grow-fitness/shared-types';
 import type { QuestionConfig, QuestionOption } from '@/types/question-config';
 import { sessionsService } from '@/services/sessions.service';
+import { filterSelectableFreeSessions } from '@/lib/free-sessions';
 
 interface SessionOption extends QuestionOption {
   value: string;
@@ -12,8 +13,6 @@ interface SessionOption extends QuestionOption {
 
 const fetchFreeSessions = async (): Promise<SessionOption[]> => {
   try {
-    const now = new Date();
-
     const response = await sessionsService.getFreeSessions(1, 100);
     const sessions = response?.data ?? [];
 
@@ -21,20 +20,7 @@ const fetchFreeSessions = async (): Promise<SessionOption[]> => {
       return [];
     }
 
-    const filteredAndSorted = sessions
-      .filter((session: Session) => {
-        return (
-          session?.dateTime &&
-          new Date(session.dateTime).getTime() > now.getTime()
-        );
-      })
-      .sort(
-        (a: Session, b: Session) =>
-          new Date(a.dateTime).getTime() -
-          new Date(b.dateTime).getTime()
-      );
-
-    const mappedOptions = filteredAndSorted.map((session: Session) => {
+    const mappedOptions = filterSelectableFreeSessions(sessions).map((session: Session) => {
         const dateObj = new Date(session.dateTime);
 
         const formattedDate = dateObj.toLocaleDateString('en-US', {

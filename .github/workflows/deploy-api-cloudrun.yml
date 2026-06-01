@@ -66,6 +66,7 @@ jobs:
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
             JWT_REFRESH_EXPIRES_IN=${{ secrets.JWT_REFRESH_EXPIRES_IN }}
             PASSWORD_RESET_TOKEN_EXPIRY=${{ secrets.PASSWORD_RESET_TOKEN_EXPIRY }}
+            CLIENT_WEB_URL=${{ secrets.CLIENT_WEB_URL }}
             CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}

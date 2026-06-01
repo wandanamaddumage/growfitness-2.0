@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { Invoice } from '@grow-fitness/shared-types';
@@ -7,7 +7,12 @@ import { invoicesService } from '@/services/invoices.service';
 import { useModalParams } from '@/hooks/useModalParams';
 import { useToast } from '@/hooks/useToast';
 import { Download } from 'lucide-react';
-import { InvoiceTemplatePrint, invoiceToPdfViewModel } from '@grow-fitness/invoice-print';
+import {
+  InvoiceTemplatePrint,
+  fetchInvoiceAssetDataUris,
+  invoiceToPdfViewModel,
+} from '@grow-fitness/invoice-print';
+import { downloadInvoicePdfFromElement } from '@/lib/download-invoice-pdf';
 
 interface InvoiceDetailsDialogProps {
   open: boolean;
@@ -23,6 +28,10 @@ export function InvoiceDetailsDialog({
   const { entityId, closeModal } = useModalParams('invoiceId');
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [assetUris, setAssetUris] = useState<{ mascotSrc: string; logoSrc: string } | null>(
+    null
+  );
 
   const { data: invoiceFromUrl, isPending } = useApiQuery<Invoice>(
     ['invoices', entityId || 'no-id'],
@@ -39,6 +48,30 @@ export function InvoiceDetailsDialog({
 
   const invoice = invoiceProp ?? invoiceFromUrl;
 
+  useEffect(() => {
+    if (!open) {
+      setAssetUris(null);
+      return;
+    }
+
+    let active = true;
+    void fetchInvoiceAssetDataUris(import.meta.env.BASE_URL)
+      .then(uris => {
+        if (active) {
+          setAssetUris(uris);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setAssetUris(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [open]);
+
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       closeModal();
@@ -48,18 +81,30 @@ export function InvoiceDetailsDialog({
 
   const handleDownload = async () => {
     if (!invoice) return;
+
+    const invoiceRoot = previewRef.current?.querySelector('.inv-root') as HTMLElement | null;
+    if (!invoiceRoot) {
+      toast.error('Invoice preview is not ready yet');
+      return;
+    }
+
     setIsDownloading(true);
     try {
-      const blob = await invoicesService.downloadInvoicePdf(invoice.id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${invoice.id}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadInvoicePdfFromElement(invoiceRoot, `invoice-${invoice.id}.pdf`);
       toast.success('Invoice downloaded');
     } catch {
-      toast.error('Download failed');
+      try {
+        const blob = await invoicesService.downloadInvoicePdf(invoice.id);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invoice-${invoice.id}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Invoice downloaded');
+      } catch {
+        toast.error('Download failed');
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -80,7 +125,7 @@ export function InvoiceDetailsDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <div className="flex flex-col gap-3 border-b pl-6 pr-14 py-4 shrink-0">
+        <div className="flex flex-col gap-3 border-b pl-6 pr-16 py-4 shrink-0">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 sm:justify-start">
             <DialogHeader className="space-y-1 text-left m-0 p-0 flex-1 min-w-0">
               <DialogTitle>Invoice</DialogTitle>
@@ -91,7 +136,7 @@ export function InvoiceDetailsDialog({
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={isDownloading}
+                  disabled={isDownloading || !pdfViewModel || !assetUris}
                   onClick={() => void handleDownload()}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -111,8 +156,15 @@ export function InvoiceDetailsDialog({
               Loading…
             </div>
           ) : (
-            <div className="mx-auto w-full max-w-[210mm] shrink-0 overflow-hidden rounded-md shadow-md ring-1 ring-black/10">
-              <InvoiceTemplatePrint data={pdfViewModel} />
+            <div
+              ref={previewRef}
+              className="mx-auto w-full max-w-[210mm] shrink-0 overflow-hidden rounded-md shadow-md ring-1 ring-black/10"
+            >
+              <InvoiceTemplatePrint
+                data={pdfViewModel}
+                mascotSrc={assetUris?.mascotSrc}
+                logoSrc={assetUris?.logoSrc}
+              />
             </div>
           )}
         </div>
