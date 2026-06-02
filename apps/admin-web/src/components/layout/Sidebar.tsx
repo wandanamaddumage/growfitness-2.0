@@ -9,10 +9,6 @@ import {
   MapPin,
   Image,
   MessageCircle,
-  Shield,
-  Code,
-  HelpCircle,
-  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

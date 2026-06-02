@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Pencil, Eye, Link2, Unlink } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
-import { formatDate } from '@/lib/formatters';
 import { formatSessionType } from '@/lib/formatters';
 import { CreateKidDialog } from '@/components/kids/CreateKidDialog';
 import { EditKidDialog } from '@/components/kids/EditKidDialog';
