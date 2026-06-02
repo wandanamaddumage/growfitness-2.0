@@ -59,10 +59,10 @@ function KidRow({
       )
     : null;
 
-  const mealPlan = fullKid.mealPlan ?? null;
+  // const mealPlan = fullKid.mealPlan ?? null;
 
-  const mealFollowing =
-    mealPlan === 'following' || mealPlan === 'Following';
+  // const mealFollowing =
+  //   mealPlan === 'following' || mealPlan === 'Following';
 
   function handleSaveNote() {
     setNoteSaved(true);
@@ -142,7 +142,7 @@ function KidRow({
    KidsTab
 ───────────────────────────────────────────── */
 
-export default function KidsTab({ kids, isGroupSession }: Props) {
+export default function KidsTab({ kids }: Props) {
   const [search, setSearch] = useState('');
   const [filterMeal, setFilterMeal] = useState('');
   const [filterGender, setFilterGender] = useState('');
