@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FormField as CustomFormField } from '@/components/common/FormField';
-import { CreateParentSchema, CreateParentBaseSchema, CreateParentDto } from '@grow-fitness/shared-schemas';
+import { CreateParentSchema, CreateParentDto } from '@grow-fitness/shared-schemas';
 import { SessionType } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { usersService } from '@/services/users.service';
@@ -33,6 +33,26 @@ interface CreateParentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const defaultValues = {
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  password: '',
+  confirmPassword: '',
+  kids: [
+    {
+      name: '',
+      gender: '',
+      birthDate: '',
+      goal: '',
+      currentlyInSports: false,
+      medicalConditions: [],
+      sessionType: SessionType.INDIVIDUAL,
+    },
+  ],
+};
 
 export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogProps) {
   const { closeModal } = useModalParams('userId');
@@ -49,98 +69,13 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
 
   const form = useForm<CreateParentDto>({
     resolver: zodResolver(CreateParentSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      location: '',
-      password: '',
-      confirmPassword: '',
-      kids: [
-        {
-          name: '',
-          gender: '',
-          birthDate: '',
-          goal: '',
-          currentlyInSports: false,
-          medicalConditions: [],
-          sessionType: SessionType.INDIVIDUAL,
-        },
-      ],
-    },
+    defaultValues,
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'kids',
   });
-
-  const [name, email, phone, location, password, confirmPassword] = form.watch([
-  'name',
-  'email',
-  'phone',
-  'location',
-  'password',
-  'confirmPassword',
-]);
-
-const kids = form.watch('kids');
-
-  const defaultValues = {
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    password: '',
-    confirmPassword: '',
-    kids: [
-      {
-        name: '',
-        gender: '',
-        birthDate: '',
-        goal: '',
-        currentlyInSports: false,
-        medicalConditions: [],
-        sessionType: SessionType.INDIVIDUAL,
-      },
-    ],
-  };
-
-  const requiredParentFieldsSchema = CreateParentBaseSchema.pick({
-  name: true,
-  email: true,
-  phone: true,
-  location: true,
-  password: true,
-  confirmPassword: true,
-});
-
-const requiredKidFieldsSchema = CreateParentBaseSchema.shape.kids.element.pick({
-  name: true,
-  gender: true,
-  birthDate: true,
-  sessionType: true,
-});
-
-const canGoNext = requiredParentFieldsSchema.safeParse({
-  name,
-  email,
-  phone,
-  location,
-  password,
-  confirmPassword,
-}).success;
-
-const canCreateParent =
-  kids.length > 0 &&
-  kids.every(kid =>
-    requiredKidFieldsSchema.safeParse({
-      name: kid.name,
-      gender: kid.gender,
-      birthDate: kid.birthDate,
-      sessionType: kid.sessionType,
-    }).success
-  );
 
   // Reset form and step when dialog opens/closes
   useEffect(() => {
@@ -418,14 +353,14 @@ const canCreateParent =
                   Cancel
                 </Button>
                 {step === 1 ? (
-                  <Button type="button" onClick={handleNext} disabled={!canGoNext}>
+                  <Button type="button" onClick={handleNext}>
                     Next
                   </Button>
                 ) : (
-                 <Button
+                  <Button
                     type="submit"
                     form="create-parent-form"
-                    disabled={!canCreateParent || createMutation.isPending}
+                    disabled={createMutation.isPending}
                   >
                     {createMutation.isPending ? 'Creating...' : 'Create Parent'}
                   </Button>

@@ -73,7 +73,6 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
     name: 'items',
   });
 
-  const canCreateInvoice = CreateInvoiceSchema.safeParse(form.watch()).success;
   const itemsFieldError = form.formState.errors.items;
   const itemsRootError =
     itemsFieldError &&
@@ -351,7 +350,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
               <Button
                 type="submit"
                 form="create-invoice-form"
-                disabled={!canCreateInvoice || createMutation.isPending}
+                disabled={createMutation.isPending}
               >
                 {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
               </Button>

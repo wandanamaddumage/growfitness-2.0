@@ -179,6 +179,10 @@ export function EditUserDialog({
     name: 'availableTimes',
   });
 
+  const hasParentChanges = form.formState.isDirty || !!parentPhotoFile;
+  const hasCoachChanges = form.formState.isDirty || !!coachPhotoFile || !!coachCvFile;
+  const hasChanges = userType === 'parent' ? hasParentChanges : hasCoachChanges;
+
   useEffect(() => {
     if (open) {
       const coachReset =
@@ -695,7 +699,10 @@ export function EditUserDialog({
                 type="submit"
                 form="edit-user-form"
                 disabled={
-                  updateMutation.isPending || uploadingCoachFiles || uploadingParentPhoto
+                  !hasChanges ||
+                  updateMutation.isPending ||
+                  uploadingCoachFiles ||
+                  uploadingParentPhoto
                 }
               >
                 {updateMutation.isPending || uploadingCoachFiles || uploadingParentPhoto
