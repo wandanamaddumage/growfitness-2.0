@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
-import { useApiQuery } from '@/hooks';
-import { invoicesService, type InvoicePdfSentFilter } from '@/services/invoices.service';
-import { Invoice, InvoiceType, InvoiceStatus } from '@grow-fitness/shared-types';
-import { DataTable } from '@/components/common/DataTable';
-import { Pagination } from '@/components/common/Pagination';
-import { FilterBar } from '@/components/common/FilterBar';
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
+import { DataTable } from '@/components/common/DataTable';
+import { ErrorState } from '@/components/common/ErrorState';
+import { FilterBar } from '@/components/common/FilterBar';
+import { Pagination } from '@/components/common/Pagination';
+import { StatusBadge } from '@/components/common/StatusBadge';
+import { CreateInvoiceDialog } from '@/components/invoices/CreateInvoiceDialog';
+import { InvoiceDetailsDialog } from '@/components/invoices/InvoiceDetailsDialog';
+import { UpdatePaymentStatusDialog } from '@/components/invoices/UpdatePaymentStatusDialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -15,22 +16,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Download, Eye, Pencil, Mail } from 'lucide-react';
+import { useApiQuery } from '@/hooks';
+import { useModalParams } from '@/hooks/useModalParams';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import {
+  formatCurrency,
   formatDate,
   formatDateTime,
-  formatCurrency,
   formatInvoiceType,
 } from '@/lib/formatters';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { Badge } from '@/components/ui/badge';
-import { CreateInvoiceDialog } from '@/components/invoices/CreateInvoiceDialog';
-import { UpdatePaymentStatusDialog } from '@/components/invoices/UpdatePaymentStatusDialog';
-import { InvoiceDetailsDialog } from '@/components/invoices/InvoiceDetailsDialog';
-import { ErrorState } from '@/components/common/ErrorState';
-import { useModalParams } from '@/hooks/useModalParams';
+import { invoicesService, type InvoicePdfSentFilter } from '@/services/invoices.service';
+import { Invoice, InvoiceStatus, InvoiceType } from '@grow-fitness/shared-types';
+import { ColumnDef } from '@tanstack/react-table';
+import { Download, Eye, Mail, Pencil, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function InvoicesPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
@@ -93,24 +93,7 @@ export function InvoicesPage() {
       })
   );
 
-  const handleExportCSV = async () => {
-    try {
-      const blob = await invoicesService.exportCSV({
-        type: typeFilter || undefined,
-        status: statusFilter || undefined,
-        pdfSent: pdfSentFilter || undefined,
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoices.csv';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      toast.success('Invoices exported successfully');
-    } catch (error: any) {
-      toast.error('Failed to export invoices', error.message);
-    }
-  };
+
 
   const handleDownload = async (invoice: Invoice) => {
     setIsDownloading(true);
@@ -277,10 +260,7 @@ export function InvoicesPage() {
 
       <div className="space-y-4">
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" onClick={handleExportCSV}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
+       
           <Button onClick={() => openModal(null, 'create')}>
             <Plus className="h-4 w-4 mr-2" />
             Create Invoice
@@ -360,6 +340,7 @@ export function InvoicesPage() {
               data={data?.data || []}
               isLoading={isLoading}
               emptyMessage="No invoices found"
+              initialSorting={[{ id: 'dueDate', desc: false }]}
             />
             {data && (
               <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />

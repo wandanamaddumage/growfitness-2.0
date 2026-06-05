@@ -231,8 +231,8 @@ const isFormReady =
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg p-0 flex flex-col max-h-[90vh]">
         <div className="flex flex-col flex-1 min-h-0">
-          <div className="pb-3 border-b bg-muted/30 flex-shrink-0 px-6 pt-6">
-            <DialogHeader className="space-y-1">
+          <div className="pb-3 border-b bg-muted/30 flex-shrink-0">
+            <DialogHeader className="space-y-1 px-6 pt-6">
               <DialogTitle className="text-xl">Create Session</DialogTitle>
               <DialogDescription className="text-sm">
                 Add a new training session
