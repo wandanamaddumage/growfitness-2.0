@@ -13,7 +13,7 @@ import {
   UserRegistrationRequest,
   UserRegistrationRequestDocument,
 } from '../../infra/database/schemas/user-registration-request.schema';
-import { UserRole, UserStatus, RequestStatus } from '@grow-fitness/shared-types';
+import { EmploymentType, UserRole, UserStatus, RequestStatus } from '@grow-fitness/shared-types';
 import { NotificationType } from '@grow-fitness/shared-types';
 import {
   CreateParentDto,
@@ -73,6 +73,10 @@ function normalizeCoachAvailableTimes(value: unknown): CoachAvailableTime[] {
   });
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
@@ -105,11 +109,12 @@ export class UsersService {
       andMatch.push({ isApproved: true });
     }
     if (search) {
+      const escapedSearch = escapeRegExp(search);
       andMatch.push({
         $or: [
-          { email: { $regex: search, $options: 'i' } },
-          { phone: { $regex: search, $options: 'i' } },
-          { 'parentProfile.name': { $regex: search, $options: 'i' } },
+          { email: { $regex: escapedSearch, $options: 'i' } },
+          { phone: { $regex: escapedSearch, $options: 'i' } },
+          { 'parentProfile.name': { $regex: escapedSearch, $options: 'i' } },
         ],
       });
     }
@@ -171,7 +176,11 @@ export class UsersService {
       },
       {
         $facet: {
-          data: [{ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: pagination.limit }],
+          data: [
+            { $sort: { status: 1, createdAt: -1 } },
+            { $skip: skip },
+            { $limit: pagination.limit },
+          ],
           total: [{ $count: 'count' }],
         },
       },
@@ -228,8 +237,7 @@ export class UsersService {
     if (dto.name !== undefined || dto.location !== undefined || dto.photoUrl !== undefined) {
       parent.parentProfile = {
         name: dto.name !== undefined ? dto.name : (parent.parentProfile?.name ?? ''),
-        location:
-          dto.location !== undefined ? dto.location : parent.parentProfile?.location,
+        location: dto.location !== undefined ? dto.location : parent.parentProfile?.location,
         photoUrl:
           dto.photoUrl !== undefined
             ? dto.photoUrl === ''
@@ -493,17 +501,29 @@ export class UsersService {
   }
 
   // Coaches
-  async findCoaches(pagination: PaginationDto, search?: string) {
+  async findCoaches(
+    pagination: PaginationDto,
+    search?: string,
+    status?: UserStatus,
+    employmentType?: EmploymentType
+  ) {
     const andMatch: Record<string, unknown>[] = [
       { role: UserRole.COACH },
       { status: { $ne: UserStatus.DELETED } },
     ];
+    if (status) {
+      andMatch.push({ status });
+    }
+    if (employmentType) {
+      andMatch.push({ 'coachProfile.employmentType': employmentType });
+    }
     if (search) {
+      const escapedSearch = escapeRegExp(search);
       andMatch.push({
         $or: [
-          { email: { $regex: search, $options: 'i' } },
-          { phone: { $regex: search, $options: 'i' } },
-          { 'coachProfile.name': { $regex: search, $options: 'i' } },
+          { email: { $regex: escapedSearch, $options: 'i' } },
+          { phone: { $regex: escapedSearch, $options: 'i' } },
+          { 'coachProfile.name': { $regex: escapedSearch, $options: 'i' } },
         ],
       });
     }
@@ -511,7 +531,12 @@ export class UsersService {
 
     const skip = (pagination.page - 1) * pagination.limit;
     const [data, total] = await Promise.all([
-      this.userModel.find(query).skip(skip).limit(pagination.limit).exec(),
+      this.userModel
+        .find(query)
+        .sort({ status: 1, createdAt: -1 })
+        .skip(skip)
+        .limit(pagination.limit)
+        .exec(),
       this.userModel.countDocuments(query).exec(),
     ]);
 
@@ -636,7 +661,9 @@ export class UsersService {
       ...(updateCoachDto.homeAddress !== undefined && { homeAddress: updateCoachDto.homeAddress }),
       ...(updateCoachDto.school !== undefined && { school: updateCoachDto.school }),
       ...(normalizedAvailableTimes !== undefined && { availableTimes: normalizedAvailableTimes }),
-      ...(updateCoachDto.employmentType !== undefined && { employmentType: updateCoachDto.employmentType }),
+      ...(updateCoachDto.employmentType !== undefined && {
+        employmentType: updateCoachDto.employmentType,
+      }),
       ...(updateCoachDto.cvUrl !== undefined &&
         updateCoachDto.cvUrl !== '' && { cvUrl: updateCoachDto.cvUrl }),
     };

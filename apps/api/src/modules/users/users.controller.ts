@@ -24,7 +24,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { UserRole, UserStatus } from '@grow-fitness/shared-types';
+import { EmploymentType, UserRole, UserStatus } from '@grow-fitness/shared-types';
 import {
   CreateParentDto,
   UpdateParentDto,
@@ -127,7 +127,8 @@ export class UsersController {
         status: {
           type: 'string',
           enum: ['ACTIVE', 'INACTIVE'],
-          description: 'Parent status (use DELETE /users/parents/:id to remove an account permanently)',
+          description:
+            'Parent status (use DELETE /users/parents/:id to remove an account permanently)',
         },
       },
     },
@@ -179,9 +180,26 @@ export class UsersController {
     type: String,
     description: 'Search by email, phone, or name',
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: UserStatus,
+    description: 'Filter by coach status',
+  })
+  @ApiQuery({
+    name: 'employmentType',
+    required: false,
+    enum: EmploymentType,
+    description: 'Filter by coach employment type',
+  })
   @ApiResponse({ status: 200, description: 'List of coaches' })
-  findCoaches(@Query() pagination: PaginationDto, @Query('search') search?: string) {
-    return this.usersService.findCoaches(pagination, search);
+  findCoaches(
+    @Query() pagination: PaginationDto,
+    @Query('search') search?: string,
+    @Query('status') status?: UserStatus,
+    @Query('employmentType') employmentType?: EmploymentType
+  ) {
+    return this.usersService.findCoaches(pagination, search, status, employmentType);
   }
 
   @Get('coaches/:id')
@@ -229,7 +247,10 @@ export class UsersController {
           },
           description: 'Available time slots',
         },
-        employmentType: { type: 'string', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'OTHER'] },
+        employmentType: {
+          type: 'string',
+          enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'OTHER'],
+        },
         cvUrl: { type: 'string', format: 'uri', description: 'CV document URL' },
       },
       required: ['name', 'email', 'phone', 'password'],
@@ -269,7 +290,10 @@ export class UsersController {
             },
           },
         },
-        employmentType: { type: 'string', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'OTHER'] },
+        employmentType: {
+          type: 'string',
+          enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'OTHER'],
+        },
         cvUrl: { type: 'string', format: 'uri', description: 'CV document URL' },
       },
     },

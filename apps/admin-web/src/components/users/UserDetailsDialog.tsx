@@ -5,10 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { formatDate, formatSessionType } from '@/lib/formatters';
-import { User, Kid, SessionType } from '@grow-fitness/shared-types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  formatDate,
+  formatDateTime,
+  formatEmploymentType,
+  formatSessionType,
+} from '@/lib/formatters';
+import { User, Kid, Session, SessionType } from '@grow-fitness/shared-types';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { usersService } from '@/services/users.service';
+import { sessionsService } from '@/services/sessions.service';
 import { useModalParams } from '@/hooks/useModalParams';
 import {
   Mail,
@@ -87,6 +101,23 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
     }
   );
 
+  const { data: coachSessionsData, isLoading: isLoadingCoachSessions } = useApiQuery(
+    ['sessions', 'coach', userId || 'no-id'],
+    () => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      return sessionsService.getSessions(1, 100, {
+        coachId: userId,
+        sortBy: 'dateTime',
+        sortOrder: 'desc',
+      });
+    },
+    {
+      enabled: shouldFetchCoach,
+    }
+  );
+
   // Handle close with URL params
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -122,18 +153,18 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
     value != null && String(value).trim() !== '' ? String(value).trim() : emptyLabel;
   const formatCoachDate = (value: Date | string | null | undefined) =>
     value != null ? formatDate(typeof value === 'string' ? value : value) : emptyLabel;
-  const formatEmploymentType = (value: string | null | undefined) =>
-    value != null && String(value).trim() !== '' ? String(value).replace(/_/g, ' ') : emptyLabel;
 
   // Calculate highlights for parents
   const totalKids = kids.length;
   const kidsInSports = kids.filter(k => k.currentlyInSports).length;
   const individualSessions = kids.filter(k => k.sessionType === SessionType.INDIVIDUAL).length;
   const groupSessions = kids.filter(k => k.sessionType === SessionType.GROUP).length;
+  const coachSessions = (coachSessionsData?.data || []) as Session[];
+  const totalCoachSessions = coachSessionsData?.total || coachSessions.length;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="max-w-6xl h-[78vh] max-h-[90vh] p-0 flex flex-col">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Header */}
           <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
@@ -277,6 +308,11 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                     {!isCoach && (
                       <TabsTrigger value="kids">
                         Kids {totalKids > 0 && `(${totalKids})`}
+                      </TabsTrigger>
+                    )}
+                    {isCoach && (
+                      <TabsTrigger value="sessions">
+                        Sessions {totalCoachSessions > 0 && `(${totalCoachSessions})`}
                       </TabsTrigger>
                     )}
                   </TabsList>
@@ -527,6 +563,56 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                               </CardContent>
                             </Card>
                           ))}
+                        </div>
+                      )}
+                    </TabsContent>
+                  )}
+
+                  {isCoach && (
+                    <TabsContent value="sessions" className="mt-6">
+                      {isLoadingCoachSessions ? (
+                        <div className="flex items-center justify-center h-40">
+                          <p className="text-sm text-muted-foreground">Loading sessions...</p>
+                        </div>
+                      ) : coachSessions.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-sm text-muted-foreground">No sessions assigned yet</p>
+                        </div>
+                      ) : (
+                        <div className="rounded-md border overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Session</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Location</TableHead>
+                                <TableHead>Kids</TableHead>
+                                <TableHead>Duration</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {coachSessions.map(session => (
+                                <TableRow key={session.id}>
+                                  <TableCell className="font-medium">
+                                    {session.title || `${formatSessionType(session.type)} Session`}
+                                  </TableCell>
+                                  <TableCell>{formatDateTime(session.dateTime)}</TableCell>
+                                  <TableCell>{formatSessionType(session.type)}</TableCell>
+                                  <TableCell>
+                                    <StatusBadge status={session.status} />
+                                  </TableCell>
+                                  <TableCell>{session.location?.name || emptyLabel}</TableCell>
+                                  <TableCell>
+                                    {session.kids?.length ?? (session.kidId ? 1 : 0)}
+                                  </TableCell>
+                                  <TableCell>{session.duration} min</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
                         </div>
                       )}
                     </TabsContent>

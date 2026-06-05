@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
 import { usersService } from '@/services/users.service';
-import { User, UserRole } from '@grow-fitness/shared-types';
+import { EmploymentType, User, UserRole, UserStatus } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
-import { formatDate } from '@/lib/formatters';
+import { formatDate, formatEmploymentType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { CreateCoachDialog } from './CreateCoachDialog';
 import { EditUserDialog } from './EditUserDialog';
@@ -20,15 +20,29 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useModalParams } from '@/hooks/useModalParams';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function CoachesTable() {
   const { user: currentUser } = useAuth();
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>('ALL');
+  const [employmentTypeFilter, setEmploymentTypeFilter] = useState<EmploymentType | 'ALL'>('ALL');
   const [searchInputKey, setSearchInputKey] = useState(0);
+
+  const hasActiveFilters =
+    Boolean(search) || statusFilter !== 'ALL' || employmentTypeFilter !== 'ALL';
 
   const clearAllFilters = () => {
     setSearch('');
+    setStatusFilter('ALL');
+    setEmploymentTypeFilter('ALL');
     setSearchInputKey(key => key + 1);
   };
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('userId');
@@ -36,12 +50,12 @@ export function CoachesTable() {
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when filters change
   useEffect(() => {
     if (page !== 1) {
       setPage(1);
     }
-  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, statusFilter, employmentTypeFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selectedUser with URL params
   useEffect(() => {
@@ -68,8 +82,23 @@ export function CoachesTable() {
   const createDialogOpen = modal === 'create' && isOpen;
 
   const { data, isLoading, error } = useApiQuery(
-    ['users', 'coaches', page.toString(), pageSize.toString(), search],
-    () => usersService.getCoaches(page, pageSize, search || undefined)
+    [
+      'users',
+      'coaches',
+      page.toString(),
+      pageSize.toString(),
+      search,
+      statusFilter,
+      employmentTypeFilter,
+    ],
+    () =>
+      usersService.getCoaches(
+        page,
+        pageSize,
+        search || undefined,
+        statusFilter === 'ALL' ? undefined : statusFilter,
+        employmentTypeFilter === 'ALL' ? undefined : employmentTypeFilter
+      )
   );
 
   const deleteMutation = useApiMutation((id: string) => usersService.deleteCoach(id), {
@@ -108,6 +137,11 @@ export function CoachesTable() {
     {
       accessorKey: 'phone',
       header: 'Phone',
+    },
+    {
+      accessorKey: 'coachProfile.employmentType',
+      header: 'Employment Type',
+      cell: ({ row }) => formatEmploymentType(row.original.coachProfile?.employmentType),
     },
     {
       accessorKey: 'status',
@@ -169,14 +203,43 @@ export function CoachesTable() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1">
           <SearchInput
             key={`coach-search-${searchInputKey}`}
             placeholder="Search coaches..."
             onSearch={setSearch}
             className="max-w-sm"
           />
-          <ClearFiltersButton onClear={clearAllFilters} disabled={!search} />
+          <Select
+            value={statusFilter}
+            onValueChange={value => setStatusFilter(value as UserStatus | 'ALL')}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Statuses</SelectItem>
+              <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
+              <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={employmentTypeFilter}
+            onValueChange={value => setEmploymentTypeFilter(value as EmploymentType | 'ALL')}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Employment Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Employment</SelectItem>
+              <SelectItem value={EmploymentType.FULL_TIME}>Full Time</SelectItem>
+              <SelectItem value={EmploymentType.PART_TIME}>Part Time</SelectItem>
+              <SelectItem value={EmploymentType.CONTRACT}>Contract</SelectItem>
+              <SelectItem value={EmploymentType.VOLUNTEER}>Volunteer</SelectItem>
+              <SelectItem value={EmploymentType.OTHER}>Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => openModal(null, 'create')}>

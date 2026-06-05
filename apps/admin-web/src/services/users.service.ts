@@ -1,5 +1,5 @@
 import { api } from './api';
-import { User, PaginatedResponse, UserStatus } from '@grow-fitness/shared-types';
+import { EmploymentType, User, PaginatedResponse, UserStatus } from '@grow-fitness/shared-types';
 import {
   CreateParentDto,
   UpdateParentDto,
@@ -33,12 +33,20 @@ export const usersService = {
   deleteParent: (id: string) => api.delete<void>(`/users/parents/${id}`),
 
   // Coaches
-  getCoaches: (page: number = 1, limit: number = 10, search?: string) => {
+  getCoaches: (
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    status?: UserStatus,
+    employmentType?: EmploymentType
+  ) => {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
     if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (employmentType) params.append('employmentType', employmentType);
     return api.get<PaginatedResponse<User>>(`/users/coaches?${params.toString()}`);
   },
   getCoachById: (id: string) => api.get<User>(`/users/coaches/${id}`),

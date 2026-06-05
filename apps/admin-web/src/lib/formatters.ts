@@ -9,6 +9,7 @@ import {
   BannerTargetAudience,
   ReportType,
   ReportStatus,
+  EmploymentType,
 } from '@grow-fitness/shared-types';
 
 export function formatDate(date: Date | string | null | undefined): string {
@@ -96,6 +97,18 @@ export function formatSessionType(type: SessionType): string {
     INDIVIDUAL: 'Private',
     GROUP: 'Group',
     BOTH: 'Both',
+  };
+  return typeMap[type] || type;
+}
+
+export function formatEmploymentType(type: EmploymentType | null | undefined): string {
+  if (!type) return 'N/A';
+  const typeMap: Record<EmploymentType, string> = {
+    FULL_TIME: 'Full Time',
+    PART_TIME: 'Part Time',
+    CONTRACT: 'Contract',
+    VOLUNTEER: 'Volunteer',
+    OTHER: 'Other',
   };
   return typeMap[type] || type;
 }
