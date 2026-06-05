@@ -1,15 +1,12 @@
 import { StatusBadge } from '@/components/common/StatusBadge';
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { formatDate, formatSessionType } from '@/lib/formatters';
-import { User, Kid } from '@grow-fitness/shared-types';
+import { User, Kid, SessionType } from '@grow-fitness/shared-types';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { usersService } from '@/services/users.service';
 import { useModalParams } from '@/hooks/useModalParams';
@@ -38,7 +35,7 @@ interface ParentWithKids extends User {
 
 export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDetailsDialogProps) {
   const { entityId, closeModal } = useModalParams('userId');
-  
+
   // Fetch user from URL if prop not provided
   const { data: userFromUrl } = useApiQuery<User>(
     ['users', entityId || 'no-id'],
@@ -64,10 +61,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
   const shouldFetchParent = isParent && open && !!userId;
   const shouldFetchCoach = isCoach && open && !!userId;
 
-  const {
-    data: parentData,
-    isLoading: isLoadingParent,
-  } = useApiQuery<ParentWithKids>(
+  const { data: parentData, isLoading: isLoadingParent } = useApiQuery<ParentWithKids>(
     ['users', 'parents', userId || 'no-id'],
     () => {
       if (!userId) {
@@ -80,10 +74,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
     }
   );
 
-  const {
-    data: coachData,
-    isLoading: isLoadingCoach,
-  } = useApiQuery<User>(
+  const { data: coachData, isLoading: isLoadingCoach } = useApiQuery<User>(
     ['users', 'coaches', userId || 'no-id'],
     () => {
       if (!userId) {
@@ -96,15 +87,6 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
     }
   );
 
-  const displayUser = (parentData as ParentWithKids) || (coachData as User) || user;
-  const kids = (displayUser as ParentWithKids).kids || [];
-  const userName = isParent
-    ? user?.parentProfile?.name
-    : isCoach
-      ? user?.coachProfile?.name
-      : 'N/A';
-  const coachProfile = isCoach ? (displayUser as User).coachProfile : undefined;
-
   // Handle close with URL params
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -116,6 +98,16 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
   if (!user) {
     return null;
   }
+
+  const displayUser = parentData || coachData || user;
+  const kids = (displayUser as ParentWithKids).kids || [];
+  const userName = isParent
+    ? displayUser.parentProfile?.name
+    : isCoach
+      ? displayUser.coachProfile?.name
+      : 'N/A';
+  const coachProfile = isCoach ? displayUser.coachProfile : undefined;
+
   const initials = (userName || 'U')
     .split(' ')
     .map(n => n[0])
@@ -129,17 +121,15 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
   const formatCoachValue = (value: string | null | undefined) =>
     value != null && String(value).trim() !== '' ? String(value).trim() : emptyLabel;
   const formatCoachDate = (value: Date | string | null | undefined) =>
-    value != null ? formatDate(typeof value === 'string' ? value : (value as Date)) : emptyLabel;
+    value != null ? formatDate(typeof value === 'string' ? value : value) : emptyLabel;
   const formatEmploymentType = (value: string | null | undefined) =>
-    value != null && String(value).trim() !== ''
-      ? String(value).replace(/_/g, ' ')
-      : emptyLabel;
+    value != null && String(value).trim() !== '' ? String(value).replace(/_/g, ' ') : emptyLabel;
 
   // Calculate highlights for parents
   const totalKids = kids.length;
   const kidsInSports = kids.filter(k => k.currentlyInSports).length;
-  const individualSessions = kids.filter(k => k.sessionType === 'INDIVIDUAL').length;
-  const groupSessions = kids.filter(k => k.sessionType === 'GROUP').length;
+  const individualSessions = kids.filter(k => k.sessionType === SessionType.INDIVIDUAL).length;
+  const groupSessions = kids.filter(k => k.sessionType === SessionType.GROUP).length;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -151,12 +141,12 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
               <div>
                 <h2 className="text-2xl font-semibold">{userName}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <StatusBadge status={user.status} />
+                  <p className="text-sm text-muted-foreground">{displayUser.email}</p>
+                  <StatusBadge status={displayUser.status} />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Joined {formatDate(user.createdAt)}
+                  Joined {formatDate(displayUser.createdAt)}
                 </p>
               </div>
             </div>
@@ -171,10 +161,13 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                   <h3 className="font-semibold text-sm">Profile</h3>
                 </div>
                 <div className="flex items-center gap-3">
-                  {(isCoach && coachProfile?.photoUrl) || (isParent && displayUser.parentProfile?.photoUrl) ? (
+                  {(isCoach && coachProfile?.photoUrl) ||
+                  (isParent && displayUser.parentProfile?.photoUrl) ? (
                     <img
                       src={
-                        (isCoach ? coachProfile?.photoUrl : displayUser.parentProfile?.photoUrl) as string
+                        (isCoach
+                          ? coachProfile?.photoUrl
+                          : displayUser.parentProfile?.photoUrl) as string
                       }
                       alt=""
                       className="h-16 w-16 rounded-full object-cover flex-shrink-0"
@@ -201,16 +194,18 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{user.email}</span>
+                    <span className="text-muted-foreground">{displayUser.email}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{user.phone}</span>
+                    <span className="text-muted-foreground">{displayUser.phone}</span>
                   </div>
-                  {isParent && user.parentProfile?.location && (
+                  {isParent && displayUser.parentProfile?.location && (
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{user.parentProfile.location}</span>
+                      <span className="text-muted-foreground">
+                        {displayUser.parentProfile.location}
+                      </span>
                     </div>
                   )}
                   {isCoach && (
@@ -294,16 +289,22 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <h4 className="text-sm font-medium text-muted-foreground mb-1">Name</h4>
+                              <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                Name
+                              </h4>
                               <p className="text-sm">{formatCoachValue(userName)}</p>
                             </div>
                             <div>
-                              <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>
-                              <p className="text-sm">{user.email}</p>
+                              <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                Email
+                              </h4>
+                              <p className="text-sm">{displayUser.email}</p>
                             </div>
                             <div>
-                              <h4 className="text-sm font-medium text-muted-foreground mb-1">Phone</h4>
-                              <p className="text-sm">{user.phone}</p>
+                              <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                Phone
+                              </h4>
+                              <p className="text-sm">{displayUser.phone}</p>
                             </div>
                             <div>
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
@@ -323,7 +324,9 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
                                 Home address
                               </h4>
-                              <p className="text-sm">{formatCoachValue(coachProfile?.homeAddress)}</p>
+                              <p className="text-sm">
+                                {formatCoachValue(coachProfile?.homeAddress)}
+                              </p>
                             </div>
                             <div>
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
@@ -343,20 +346,21 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
                                 Status
                               </h4>
-                              <StatusBadge status={user.status} />
+                              <StatusBadge status={displayUser.status} />
                             </div>
                             <div>
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
                                 Member Since
                               </h4>
-                              <p className="text-sm">{formatDate(user.createdAt)}</p>
+                              <p className="text-sm">{formatDate(displayUser.createdAt)}</p>
                             </div>
                           </div>
                           <div>
                             <h4 className="text-sm font-medium text-muted-foreground mb-1">
                               Available times
                             </h4>
-                            {coachProfile?.availableTimes && coachProfile.availableTimes.length > 0 ? (
+                            {coachProfile?.availableTimes &&
+                            coachProfile.availableTimes.length > 0 ? (
                               <ul className="text-sm list-disc list-inside space-y-1">
                                 {coachProfile.availableTimes.map((slot, i) => (
                                   <li key={i}>
@@ -392,32 +396,36 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                             <p className="text-sm">{userName}</p>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>
-                            <p className="text-sm">{user.email}</p>
+                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                              Email
+                            </h4>
+                            <p className="text-sm">{displayUser.email}</p>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Phone</h4>
-                            <p className="text-sm">{user.phone}</p>
+                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                              Phone
+                            </h4>
+                            <p className="text-sm">{displayUser.phone}</p>
                           </div>
-                          {isParent && user.parentProfile?.location && (
+                          {isParent && displayUser.parentProfile?.location && (
                             <div>
                               <h4 className="text-sm font-medium text-muted-foreground mb-1">
                                 Address
                               </h4>
-                              <p className="text-sm">{user.parentProfile.location}</p>
+                              <p className="text-sm">{displayUser.parentProfile.location}</p>
                             </div>
                           )}
                           <div>
                             <h4 className="text-sm font-medium text-muted-foreground mb-1">
                               Status
                             </h4>
-                            <StatusBadge status={user.status} />
+                            <StatusBadge status={displayUser.status} />
                           </div>
                           <div>
                             <h4 className="text-sm font-medium text-muted-foreground mb-1">
                               Member Since
                             </h4>
-                            <p className="text-sm">{formatDate(user.createdAt)}</p>
+                            <p className="text-sm">{formatDate(displayUser.createdAt)}</p>
                           </div>
                         </div>
                       )}
@@ -425,15 +433,17 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                   </TabsContent>
 
                   {!isCoach && (
-                    <TabsContent value="children" className="mt-6">
+                    <TabsContent value="kids" className="mt-6">
                       {totalKids === 0 ? (
                         <div className="text-center py-12">
                           <Baby className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                          <p className="text-sm text-muted-foreground">No children registered yet</p>
+                          <p className="text-sm text-muted-foreground">
+                            No children registered yet
+                          </p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {kids.map((kid) => (
+                          {kids.map(kid => (
                             <Card key={kid.id} className="overflow-hidden">
                               <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">

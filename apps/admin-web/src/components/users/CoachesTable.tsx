@@ -202,20 +202,21 @@ export function CoachesTable() {
 
       <CreateCoachDialog open={createDialogOpen} onOpenChange={closeModal} />
 
-      {(selectedUser || entityId) && (
-        <>
-          <EditUserDialog
-            open={editDialogOpen}
-            onOpenChange={closeModal}
-            user={selectedUser || undefined}
-            userType="coach"
-          />
-          <UserDetailsDialog
-            open={detailsDialogOpen}
-            onOpenChange={closeModal}
-            user={selectedUser || undefined}
-          />
-        </>
+      {editDialogOpen && selectedUser && (
+        <EditUserDialog
+          open={editDialogOpen}
+          onOpenChange={closeModal}
+          user={selectedUser}
+          userType="coach"
+        />
+      )}
+
+      {detailsDialogOpen && (selectedUser || entityId) && (
+        <UserDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={closeModal}
+          user={selectedUser || undefined}
+        />
       )}
 
       <ConfirmDialog

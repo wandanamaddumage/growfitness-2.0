@@ -35,8 +35,7 @@ export function ParentsTable() {
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>('ALL');
   const [searchInputKey, setSearchInputKey] = useState(0);
 
-  const hasActiveFilters =
-    Boolean(search) || Boolean(locationFilter) || statusFilter !== 'ALL';
+  const hasActiveFilters = Boolean(search) || Boolean(locationFilter) || statusFilter !== 'ALL';
 
   const clearAllFilters = () => {
     setSearch('');
@@ -237,20 +236,21 @@ export function ParentsTable() {
 
       <CreateParentDialog open={createDialogOpen} onOpenChange={closeModal} />
 
-      {(selectedUser || entityId) && (
-        <>
-          <EditUserDialog
-            open={editDialogOpen}
-            onOpenChange={closeModal}
-            user={selectedUser || undefined}
-            userType="parent"
-          />
-          <UserDetailsDialog
-            open={detailsDialogOpen}
-            onOpenChange={closeModal}
-            user={selectedUser || undefined}
-          />
-        </>
+      {editDialogOpen && selectedUser && (
+        <EditUserDialog
+          open={editDialogOpen}
+          onOpenChange={closeModal}
+          user={selectedUser}
+          userType="parent"
+        />
+      )}
+
+      {detailsDialogOpen && (selectedUser || entityId) && (
+        <UserDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={closeModal}
+          user={selectedUser || undefined}
+        />
       )}
 
       <ConfirmDialog
