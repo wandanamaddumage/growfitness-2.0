@@ -77,6 +77,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
   const form = useForm<CreateKidDto>({
     resolver: zodResolver(CreateKidSchema),
     defaultValues,
+    mode: 'onChange',
   });
 
   // Reset form when dialog opens/closes
@@ -149,82 +150,87 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
             <form onSubmit={form.handleSubmit(onSubmit)} id="create-kid-form" className="space-y-4">
          
 
-<CustomFormField
-  label="Parent"
-  required
-  error={form.formState.errors.parentId?.message}
->
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        role="combobox"
-        className="w-full justify-between"
-      >
-        {form.watch('parentId')
-          ? (parentsData?.data || []).find(
-              parent => parent.id === form.watch('parentId')
-            )?.parentProfile?.name ||
-            (parentsData?.data || []).find(
-              parent => parent.id === form.watch('parentId')
-            )?.email
-          : 'Select parent'}
+          <CustomFormField
+            label="Parent"
+            required
+            error={form.formState.errors.parentId?.message}
+          >
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between"
+                >
+                  {form.watch('parentId')
+                    ? (parentsData?.data || []).find(
+                        parent => parent.id === form.watch('parentId')
+                      )?.parentProfile?.name ||
+                      (parentsData?.data || []).find(
+                        parent => parent.id === form.watch('parentId')
+                      )?.email
+                    : 'Select parent'}
 
-        <ChevronsUpDown className="ml-2 h-4 shrink-0 opacity-50" />
-      </Button>
-    </PopoverTrigger>
+                  <ChevronsUpDown className="ml-2 h-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
 
-    <PopoverContent>
-      <Command
-        filter={(value, search) => {
-          const parent = (parentsData?.data || []).find(p => p.id === value);
-          if (!parent) return 0;
-          const label = [parent.parentProfile?.name, parent.email]
-            .filter(Boolean)
-            .join(' ')
-            .toLowerCase();
-          return label.includes(search.toLowerCase()) ? 1 : 0;
-        }}
-      >
-        <CommandInput placeholder="Search parent..." />
-
-        <CommandEmpty>No parent found.</CommandEmpty>
-
-        <CommandGroup className="max-h-64 overflow-y-auto">
-          {(parentsData?.data || []).map(parent => {
-            const label =
-              parent.parentProfile?.name || parent.email;
-            // Combine name + email so Command's built-in fuzzy filter matches either
-            const searchValue = [parent.parentProfile?.name, parent.email]
-              .filter(Boolean)
-              .join(' ');
-
-            return (
-              <CommandItem
-                key={parent.id}
-                value={parent.id}
-                onSelect={() => {
-                  form.setValue('parentId', parent.id);
-                }}
+              <PopoverContent
+                className="w-[--radix-popover-trigger-width] p-0"
+                align="start"
               >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    form.watch('parentId') === parent.id
-                      ? 'opacity-100'
-                      : 'opacity-0'
-                  )}
-                />
+                <Command
+                  filter={(value, search) => {
+                    const parent = (parentsData?.data || []).find(
+                      p => p.id === value
+                    );
 
-                {label}
-              </CommandItem>
-            );
-          })}
-        </CommandGroup>
-      </Command>
-    </PopoverContent>
-  </Popover>
-</CustomFormField>
+                    if (!parent) return 0;
+
+                    const label = [parent.parentProfile?.name, parent.email]
+                      .filter(Boolean)
+                      .join(' ')
+                      .toLowerCase();
+
+                    return label.includes(search.toLowerCase()) ? 1 : 0;
+                  }}
+                  className="w-full"
+                >
+                  <CommandInput placeholder="Search parent..." />
+
+                  <CommandEmpty>No parent found.</CommandEmpty>
+
+                  <CommandGroup className="max-h-64 overflow-y-auto">
+                    {(parentsData?.data || []).map(parent => {
+                      const label =
+                        parent.parentProfile?.name || parent.email;
+
+                      return (
+                        <CommandItem
+                          key={parent.id}
+                          value={parent.id}
+                          onSelect={() => {
+                            form.setValue('parentId', parent.id);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              form.watch('parentId') === parent.id
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                            )}
+                          />
+
+                          {label}
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </CustomFormField>
 
           <CustomFormField label="Name" required error={form.formState.errors.name?.message}>
             <Input {...form.register('name')} />
@@ -305,7 +311,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
                           <SelectItem value="I don't know/ Basic fitness">I don't know/ Basic fitness</SelectItem>
                         </SelectContent>
                       </Select>
-                    </CustomFormField>
+          </CustomFormField>
 
           <CustomFormField
             label="Session Type"
@@ -338,7 +344,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
             </label>
           </div>
 
-            <CustomFormField
+          <CustomFormField
                       label="Medical Conditions (Optional)"
                       error={form.formState.errors.medicalConditions?.message}
                     >
@@ -389,7 +395,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
                           );
                         })}
                       </div>
-            </CustomFormField>
+          </CustomFormField>
 
             </form>
           </div>
@@ -400,7 +406,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" form="create-kid-form" disabled={createMutation.isPending}>
+              <Button type="submit" form="create-kid-form" disabled={createMutation.isPending || !form.formState.isValid}>
                 {createMutation.isPending ? 'Creating...' : 'Create Kid'}
               </Button>
             </div>
