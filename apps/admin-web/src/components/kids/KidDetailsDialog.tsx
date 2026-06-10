@@ -27,23 +27,13 @@ interface KidDetailsDialogProps {
   kid?: Kid;
 }
 
-interface KidWithParent extends Kid {
-  parent: {
-    id: string;
-    email: string;
-    phone?: string;
-    parentProfile?: {
-      name: string;
-      location?: string;
-    };
-  } | null;
-}
+
 
 export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetailsDialogProps) {
   const { entityId, closeModal } = useModalParams('kidId');
   
   // Fetch kid from URL if prop not provided
-  const { data: kidFromUrl } = useApiQuery<KidWithParent>(
+  const { data: kidFromUrl } = useApiQuery<Kid>(
     ['kids', entityId || 'no-id'],
     () => {
       if (!entityId) {
@@ -58,7 +48,7 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
 
   // Fetch kid with parent info if available (only if we have kidProp)
   const kidId = kidProp?.id || entityId;
-  const { data: kidData, isLoading } = useApiQuery<KidWithParent>(
+  const { data: kidData, isLoading } = useApiQuery<Kid>(
     ['kids', kidId || 'no-id'],
     () => {
       if (!kidId) {
@@ -72,7 +62,7 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
   );
 
   const kid = kidProp || kidFromUrl;
-  const displayKid = (kidData as KidWithParent) || kid;
+  const displayKid = (kidData || kid) as Kid;
   const parent = displayKid?.parent;
 
   // Handle close with URL params
