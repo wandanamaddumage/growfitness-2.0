@@ -180,7 +180,7 @@ export function CreateKidDialog({ open, onOpenChange }: CreateKidDialogProps) {
                 align="start"
               >
                 <Command
-                  filter={(value, search) => {
+                  filter={(value: string, search: string) => {
                     const parent = (parentsData?.data || []).find(
                       p => p.id === value
                     );

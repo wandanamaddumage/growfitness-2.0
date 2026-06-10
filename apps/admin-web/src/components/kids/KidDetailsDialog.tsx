@@ -28,7 +28,7 @@ interface KidDetailsDialogProps {
 }
 
 interface KidWithParent extends Kid {
-  parent?: {
+  parent: {
     id: string;
     email: string;
     phone?: string;
@@ -36,7 +36,7 @@ interface KidWithParent extends Kid {
       name: string;
       location?: string;
     };
-  };
+  } | null;
 }
 
 export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetailsDialogProps) {
