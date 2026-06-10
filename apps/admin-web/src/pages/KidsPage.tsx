@@ -152,6 +152,16 @@ export function KidsPage() {
       cell: ({ row }) => formatSessionType(row.original.sessionType),
     },
     {
+      accessorKey: 'parentName',
+      header: 'Parent',
+      cell: ({ row }) => row.original.parent?.parentProfile?.name || 'N/A',
+    },
+    {
+      accessorKey: 'phoneNumber',
+      header: 'Phone Number',
+      cell: ({ row }) => row.original.parent?.parentProfile?.phone || 'N/A',
+    },
+    {
       accessorKey: 'goal',
       header: 'Goal',
       cell: ({ row }) => row.original.goal || 'N/A',
