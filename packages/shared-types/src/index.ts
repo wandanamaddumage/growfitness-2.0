@@ -145,6 +145,7 @@ export interface ParentProfile {
   name: string;
   location?: string;
   photoUrl?: string;
+  phone?: string;
 }
 
 export interface CoachProfileAvailableTime {
@@ -166,8 +167,10 @@ export interface CoachProfile {
 }
 
 export interface Kid {
+  parent: any;
   id: string;
   parentId: string;
+  parentProfile?: ParentProfile;
   name: string;
   gender: string;
   birthDate: Date;
