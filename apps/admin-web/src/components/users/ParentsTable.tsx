@@ -86,7 +86,7 @@ export function ParentsTable() {
       page.toString(),
       pageSize.toString(),
       search,
-      // locationFilter,
+      locationFilter,
       statusFilter,
     ],
     () =>
@@ -94,7 +94,7 @@ export function ParentsTable() {
         page,
         pageSize,
         search || undefined,
-        // locationFilter || undefined,
+        locationFilter || undefined,
         statusFilter === 'ALL' ? undefined : statusFilter
       )
   );
@@ -136,11 +136,11 @@ export function ParentsTable() {
       accessorKey: 'phone',
       header: 'Phone',
     },
-    // {
-    //   accessorKey: 'parentProfile.location',
-    //   header: 'Address',
-    //   cell: ({ row }) => row.original.parentProfile?.location || 'N/A',
-    // },
+    {
+      accessorKey: 'parentProfile.location',
+      header: 'Location',
+      cell: ({ row }) => row.original.parentProfile?.location || 'N/A',
+    },
     {
       accessorKey: 'status',
       header: 'Status',
@@ -189,13 +189,20 @@ export function ParentsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 flex-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
           <SearchInput
             key={`parent-search-${searchInputKey}`}
             placeholder="Search parents..."
             onSearch={setSearch}
             className="w-[250px]"
+          />
+          <input
+            type="search"
+            value={locationFilter}
+            onChange={event => setLocationFilter(event.target.value)}
+            placeholder="Filter by location"
+            className="h-9 w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <Select
             value={statusFilter}
