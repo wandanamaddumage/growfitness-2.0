@@ -1,13 +1,10 @@
+import { useState } from 'react';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SessionSpecialBadges } from '@/components/sessions/SessionSpecialBadges';
 import { Session, SessionType, sessionIsExtraSession } from '@grow-fitness/shared-types';
 import { formatDateTime, formatSessionType } from '@/lib/formatters';
@@ -27,11 +24,13 @@ import {
   Target,
   Activity,
   Award,
-  AlertCircle,
   Baby,
   ExternalLink,
   CalendarClock,
   Pencil,
+  Dumbbell,
+  Info,
+  AlertCircle,
 } from 'lucide-react';
 
 interface SessionDetailsDialogProps {
@@ -42,397 +41,58 @@ interface SessionDetailsDialogProps {
   onEdit?: (session: Session) => void;
 }
 
-// Helper to get name from populated object or return ID
-function getName(value: any, fallback: string = 'N/A'): string {
+function getName(value: any, fallback = 'N/A'): string {
   if (!value) return fallback;
   if (typeof value === 'string') return value;
   if (typeof value === 'object') {
-    // Coach object
     if (value.coachProfile?.name) return value.coachProfile.name;
     if (value.email) return value.email;
-    // Location object
-    if (value.name) return value.name;
-    // Kid object
     if (value.name) return value.name;
   }
   return fallback;
 }
 
-export function SessionDetailsDialog({
-  open,
-  onOpenChange,
-  session: sessionProp,
-  onReschedule,
-  onEdit,
-}: SessionDetailsDialogProps) {
-  const { entityId, closeModal } = useModalParams('sessionId');
-  
-  // Fetch session from URL if prop not provided
-  const { data: sessionFromUrl } = useApiQuery<Session>(
-    ['sessions', entityId || 'no-id'],
-    () => {
-      if (!entityId) {
-        throw new Error('Session ID is required');
-      }
-      return sessionsService.getSessionById(entityId);
-    },
-    {
-      enabled: open && !sessionProp && !!entityId,
-    }
-  );
-
-  const session = sessionProp || sessionFromUrl;
-  const sessionId = session?.id || entityId;
-  const shouldFetch = open && !!sessionId && !!sessionProp;
-
-  // Fetch session with populated data (only if we have sessionProp and need fresh data)
-  const { data: sessionData, isLoading } = useApiQuery<Session>(
-    ['sessions', sessionId || 'no-id'],
-    () => {
-      if (!sessionId) {
-        throw new Error('Session ID is required');
-      }
-      return sessionsService.getSessionById(sessionId);
-    },
-    {
-      enabled: shouldFetch,
-    }
-  );
-
-  const displaySession = sessionData || session;
-  const isGroupSession = displaySession?.type === SessionType.GROUP;
-
-  // Fetch coach details if coachId is available
-  const coachId = typeof displaySession?.coachId === 'string' ? displaySession.coachId : (displaySession?.coachId as any)?.id;
-  const { data: coachData } = useApiQuery(
-    ['users', 'coaches', coachId || 'no-id'],
-    () => {
-      if (!coachId) {
-        throw new Error('Coach ID is required');
-      }
-      return usersService.getCoachById(coachId);
-    },
-    {
-      enabled: shouldFetch && !!coachId,
-    }
-  );
-
-  // Fetch location details if locationId is available
-  const locationId = typeof displaySession?.locationId === 'string' ? displaySession.locationId : (displaySession?.locationId as any)?.id;
-  const { data: locationData } = useApiQuery(
-    ['locations', locationId || 'no-id'],
-    () => {
-      if (!locationId) {
-        throw new Error('Location ID is required');
-      }
-      return locationsService.getLocationById(locationId);
-    },
-    {
-      enabled: shouldFetch && !!locationId,
-    }
-  );
-
-  // Fetch kids data for both group and individual sessions
-  // Both session types can have kids in the kids array
-  // Check if kids are already populated objects or just IDs
-  const kidsFromSession = Array.isArray(displaySession?.kids) ? displaySession.kids : [];
-  const areKidsPopulated = kidsFromSession.length > 0 && typeof kidsFromSession[0] === 'object' && 'name' in kidsFromSession[0] && typeof (kidsFromSession[0] as any).name === 'string';
-  
-  const kidsIds: string[] = areKidsPopulated
-    ? [] // Kids are already populated, no need to fetch
-    : kidsFromSession.map((kid: any) => (typeof kid === 'string' ? kid : kid.id)).filter((id): id is string => Boolean(id));
-  
-  // Also check for kidId for individual sessions (fallback)
-  const individualKidId = !isGroupSession && displaySession?.kidId && kidsIds.length === 0 && !areKidsPopulated
-    ? (typeof displaySession.kidId === 'string' ? displaySession.kidId : (displaySession.kidId as any)?.id)
-    : null;
-  
-  const shouldFetchKids = open && kidsIds.length > 0 && !areKidsPopulated;
-  const shouldFetchIndividualKid = open && !isGroupSession && !!individualKidId && kidsIds.length === 0 && !areKidsPopulated;
-
-  // Fetch kids for both group and individual sessions from kids array (only if not already populated)
-  const { data: kidsData } = useApiQuery(
-    ['kids', 'session', sessionId || 'no-id'],
-    async () => {
-      if (!sessionId) {
-        throw new Error('Session ID is required');
-      }
-      const kidsPromises = kidsIds.map(id => kidsService.getKidById(id));
-      const results = await Promise.all(kidsPromises);
-      return results;
-    },
-    {
-      enabled: shouldFetchKids && !!sessionId,
-    }
-  );
-
-  // Fetch kid for individual sessions using kidId (fallback if kids array is empty)
-  const { data: individualKidData } = useApiQuery(
-    ['kids', 'session', sessionId || 'no-id', 'individual'],
-    () => {
-      if (!individualKidId) {
-        throw new Error('Kid ID is required');
-      }
-      return kidsService.getKidById(individualKidId);
-    },
-    {
-      enabled: shouldFetchIndividualKid,
-    }
-  );
-
-  const coachName = coachData?.coachProfile?.name || coachData?.email || getName(displaySession?.coachId, 'N/A') || 'N/A';
-  const locationName = locationData?.name || getName(displaySession?.locationId, 'N/A') || 'N/A';
-  
-  // Combine kids data - use populated kids from session if available, otherwise use fetched data
-  const kids = areKidsPopulated 
-    ? kidsFromSession 
-    : (kidsData || (individualKidData ? [individualKidData] : []));
-
-  // Calculate highlights
-  const totalKids = kids.length;
-  const capacity = displaySession?.capacity || 0;
-  const enrolled = totalKids;
-
-  // Handle close with URL params
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      closeModal();
-    }
-    onOpenChange(newOpen);
-  };
-
-  if (!displaySession) {
-    return null;
-  }
-
+function InfoRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
-        <div className="flex flex-col flex-1 min-h-0">
-          {/* Header */}
-          <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-2xl font-semibold">
-                    {displaySession.title || `${formatSessionType(displaySession.type)} Session`}
-                  </h2>
-                  <SessionSpecialBadges session={displaySession} />
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-sm text-muted-foreground">{formatDateTime(displaySession.dateTime)}</p>
-                  <StatusBadge status={displaySession.status} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  Created {new Date(displaySession.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 shrink-0">
-                {canAdminRescheduleSession(displaySession) && onReschedule ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onReschedule(displaySession)}
-                  >
-                    <CalendarClock className="h-4 w-4 mr-2" />
-                    Reschedule
-                  </Button>
-                ) : null}
-                {onEdit ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(displaySession)}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-          </div>
+    <div className="flex items-start gap-3 min-w-0">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="h-3.5 w-3.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+        <div className="mt-0.5 text-sm font-medium text-foreground break-words">{children}</div>
+      </div>
+    </div>
+  );
+}
 
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            {/* Left Sidebar */}
-            <div className="w-80 border-r bg-muted/20 p-6 overflow-y-auto min-h-0">
-              {/* Session Info Section */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm">Session Info</h3>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    {displaySession.type === SessionType.GROUP ? (
-                      <Users className="h-8 w-8 text-primary" />
-                    ) : (
-                      <User className="h-8 w-8 text-primary" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{formatSessionType(displaySession.type)}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Training Session</p>
-                  </div>
-                </div>
-              </div>
+function QuickStatsCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <Card className="border-primary/10">
+      <CardContent className="p-3 sm:p-4">
+        <p className="text-[10px] sm:text-xs uppercase tracking-wide text-muted-foreground truncate">
+          {label}
+        </p>
+        <p className="mt-1 text-sm sm:text-base font-semibold text-foreground truncate">
+          {value}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
-              <Separator className="my-6" />
-
-              {/* Details Section */}
-              <div className="space-y-4 mb-6">
-                <h3 className="font-semibold text-sm">Details</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <span className="text-muted-foreground">Duration</span>
-                      <p className="font-medium">{displaySession.duration} minutes</p>
-                    </div>
-                  </div>
-                  {isGroupSession && capacity > 0 && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex-1">
-                        <span className="text-muted-foreground">Capacity</span>
-                        <p className="font-medium">{enrolled} / {capacity}</p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <span className="text-muted-foreground">Date & Time</span>
-                      <p className="font-medium">{formatDateTime(displaySession.dateTime)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              {/* Highlights Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-sm">Highlights</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Type</span>
-                    <Badge variant="outline">{formatSessionType(displaySession.type)}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Status</span>
-                    <StatusBadge status={displaySession.status} />
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Free Session</span>
-                    <span className="text-muted-foreground">{displaySession.isFreeSession ? 'Yes' : 'No'}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Extra session</span>
-                    <span className="text-muted-foreground">{sessionIsExtraSession(displaySession) ? 'Yes' : 'No'}</span>
-                  </div>
-                  {isGroupSession && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Enrolled</span>
-                      <span className="text-muted-foreground">{enrolled} kids</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Main Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p className="text-sm text-muted-foreground">Loading...</p>
-                </div>
-              ) : (
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="kids">
-                      Kids {totalKids > 0 && `(${totalKids})`}
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="overview" className="mt-6 space-y-6">
-                    {/* Session Details */}
-                    <div>
-                      <h3 className="font-semibold mb-3">Session Information</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Title</h4>
-                          <p className="text-sm">{displaySession.title || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Date & Time</h4>
-                          <p className="text-sm">{formatDateTime(displaySession.dateTime)}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Coach</h4>
-                          <p className="text-sm">{coachName}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Location</h4>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm">{locationName}</p>
-                          </div>
-                          {locationData?.placeUrl && (
-                            <a
-                              href={locationData.placeUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1.5 break-all"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
-                              Open map / place link
-                            </a>
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Type</h4>
-                          <Badge variant="outline">{formatSessionType(displaySession.type)}</Badge>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Duration</h4>
-                          <p className="text-sm">{displaySession.duration} minutes</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Status</h4>
-                          <StatusBadge status={displaySession.status} />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Free Session</h4>
-                          <p className="text-sm">{displaySession.isFreeSession ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Extra session</h4>
-                          <p className="text-sm">{sessionIsExtraSession(displaySession) ? 'Yes' : 'No'}</p>
-                        </div>
-                        {isGroupSession && capacity > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Capacity</h4>
-                            <p className="text-sm">{enrolled} / {capacity}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="kids" className="mt-6">
-                    {totalKids === 0 ? (
-                      <div className="text-center py-12">
-                        <Baby className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-sm text-muted-foreground">No kids enrolled in this session</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {kids.map((kid: any) => (
-                          <Card key={kid.id} className="overflow-hidden">
-                            <CardHeader className="pb-3">
+function KidCard({ kid }: { kid: any }) {
+  return (
+       <Card key={kid.id} className="overflow-hidden">
+        <CardHeader className="pb-3">
                               <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                   <Baby className="h-4 w-4" />
@@ -440,8 +100,8 @@ export function SessionDetailsDialog({
                                 </CardTitle>
                                 <Badge variant="outline">{kid.gender}</Badge>
                               </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
+        </CardHeader>
+        <CardContent className="space-y-3">
                               <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div>
                                   <p className="text-muted-foreground text-xs">Birth Date</p>
@@ -509,17 +169,307 @@ export function SessionDetailsDialog({
                                   </div>
                                 </div>
                               )}
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              )}
+        </CardContent>
+      </Card>
+  );
+}
+
+function EmptyKidsCard() {
+  return (
+    <Card className="border-dashed">
+      <CardContent className="flex flex-col items-center justify-center py-8 sm:py-10 text-center">
+        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-muted">
+          <Baby className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
+        </div>
+        <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-muted-foreground">
+          No kids enrolled in this session
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function SessionDetailsDialog({
+  open,
+  onOpenChange,
+  session: sessionProp,
+  onReschedule,
+  onEdit,
+}: SessionDetailsDialogProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'kids'>('overview');
+  const { entityId, closeModal } = useModalParams('sessionId');
+
+  const { data: sessionFromUrl } = useApiQuery(
+    ['sessions', entityId || 'no-id'],
+    () => {
+      if (!entityId) throw new Error('Session ID is required');
+      return sessionsService.getSessionById(entityId);
+    },
+    { enabled: open && !sessionProp && !!entityId },
+  );
+
+  const session = sessionProp || sessionFromUrl;
+  const sessionId = session?.id || entityId;
+  const shouldFetch = open && !!sessionId && !sessionProp;
+
+  const { data: sessionData, isLoading } = useApiQuery(
+    ['sessions', sessionId || 'no-id'],
+    () => {
+      if (!sessionId) throw new Error('Session ID is required');
+      return sessionsService.getSessionById(sessionId);
+    },
+    { enabled: shouldFetch },
+  );
+
+  const displaySession = sessionData || session;
+  const isGroupSession = displaySession?.type === SessionType.GROUP;
+
+  const coachId =
+    typeof displaySession?.coachId === 'string'
+      ? displaySession.coachId
+      : (displaySession?.coachId as any)?.id;
+  const { data: coachData } = useApiQuery(
+    ['users', 'coaches', coachId || 'no-id'],
+    () => {
+      if (!coachId) throw new Error('Coach ID is required');
+      return usersService.getCoachById(coachId);
+    },
+    { enabled: shouldFetch && !!coachId },
+  );
+
+  const locationId =
+    typeof displaySession?.locationId === 'string'
+      ? displaySession.locationId
+      : (displaySession?.locationId as any)?.id;
+  const { data: locationData } = useApiQuery(
+    ['locations', locationId || 'no-id'],
+    () => {
+      if (!locationId) throw new Error('Location ID is required');
+      return locationsService.getLocationById(locationId);
+    },
+    { enabled: shouldFetch && !!locationId },
+  );
+
+  const kidsFromSession = Array.isArray(displaySession?.kids) ? displaySession.kids : [];
+  const areKidsPopulated =
+    kidsFromSession.length > 0 &&
+    typeof kidsFromSession[0] === 'object' &&
+    'name' in kidsFromSession[0] &&
+    typeof (kidsFromSession[0] as any).name === 'string';
+
+  const kidsIds: string[] = areKidsPopulated
+    ? []
+    : kidsFromSession
+        .map((kid: any) => (typeof kid === 'string' ? kid : kid.id))
+        .filter((id): id is string => Boolean(id));
+
+  const individualKidId =
+    !isGroupSession && displaySession?.kidId && kidsIds.length === 0 && !areKidsPopulated
+      ? typeof displaySession.kidId === 'string'
+        ? displaySession.kidId
+        : (displaySession.kidId as any)?.id
+      : null;
+
+  const shouldFetchKids = open && kidsIds.length > 0 && !areKidsPopulated;
+  const shouldFetchIndividualKid =
+    open && !isGroupSession && !!individualKidId && kidsIds.length === 0 && !areKidsPopulated;
+
+  const { data: kidsData } = useApiQuery(
+    ['kids', 'session', sessionId || 'no-id'],
+    async () => {
+      if (!sessionId) throw new Error('Session ID is required');
+      return Promise.all(kidsIds.map((id) => kidsService.getKidById(id)));
+    },
+    { enabled: shouldFetchKids && !!sessionId },
+  );
+
+  const { data: individualKidData } = useApiQuery(
+    ['kids', 'session', sessionId || 'no-id', 'individual'],
+    () => {
+      if (!individualKidId) throw new Error('Kid ID is required');
+      return kidsService.getKidById(individualKidId);
+    },
+    { enabled: shouldFetchIndividualKid },
+  );
+
+  const coachName =
+    coachData?.coachProfile?.name ||
+    coachData?.email ||
+    getName(displaySession?.coachId, 'N/A') ||
+    'N/A';
+  const locationName = locationData?.name || getName(displaySession?.locationId, 'N/A') || 'N/A';
+
+  const kids = areKidsPopulated
+    ? kidsFromSession
+    : kidsData || (individualKidData ? [individualKidData] : []);
+
+  const totalKids = kids.length;
+  const capacity = displaySession?.capacity || 0;
+  const enrolled = totalKids;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      closeModal();
+      setActiveTab('overview');
+    }
+    onOpenChange(newOpen);
+  };
+
+  if (!displaySession) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 sm:rounded-lg">
+        {/* Hero header - responsive padding */}
+        <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/15 via-primary/5 to-background px-4 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-5 border-b">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
+              {isGroupSession ? <Users className="h-5 w-5 sm:h-7 sm:w-7" /> : <Dumbbell className="h-5 w-5 sm:h-7 sm:w-7" />}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <DialogHeader className="space-y-1 sm:space-y-1.5">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <DialogTitle className="text-lg sm:text-xl truncate">
+                    {displaySession.title || `${formatSessionType(displaySession.type)} Session`}
+                  </DialogTitle>
+                  <StatusBadge status={displaySession.status as any} />
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                    <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    {formatDateTime(displaySession.dateTime)}
+                  </span>
+                  <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                    <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    {displaySession.duration} min
+                  </span>
+                </div>
+                <SessionSpecialBadges session={displaySession} />
+              </DialogHeader>
             </div>
           </div>
+
+          {(onReschedule || onEdit) && (
+            <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
+              {canAdminRescheduleSession(displaySession) && onReschedule && (
+                <Button size="sm" variant="outline" onClick={() => onReschedule(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm">
+                  <CalendarClock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
+                  Reschedule
+                </Button>
+              )}
+              {onEdit && (
+                <Button size="sm" variant="outline" onClick={() => onEdit(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm">
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
+                  Edit
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Tabs - responsive padding */}
+        <div className="px-4 sm:px-6 pt-3 sm:pt-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'kids')}>
+            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
+              <TabsTrigger value="overview" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="kids" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Kids {totalKids > 0 && `(${totalKids})`}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8 sm:py-12 text-sm text-muted-foreground">
+                  Loading session details...
+                </div>
+              ) : (
+                <>
+                  {/* Quick stats - responsive grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+                    <QuickStatsCard
+                      label="Type"
+                      value={formatSessionType(displaySession.type)}
+                    />
+                    <QuickStatsCard
+                      label="Duration"
+                      value={`${displaySession.duration} min`}
+                    />
+                    <QuickStatsCard
+                      label={isGroupSession ? 'Enrolled' : 'Kids'}
+                      value={isGroupSession && capacity > 0 ? `${enrolled} / ${capacity}` : enrolled}
+                    />
+                    <QuickStatsCard
+                      label="Free"
+                      value={displaySession.isFreeSession ? 'Yes' : 'No'}
+                    />
+                  </div>
+
+                  {/* Session info */}
+                  <Card>
+                    <CardContent className="p-4 sm:p-5">
+                      <h3 className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-foreground">
+                        Session Information
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                        <InfoRow icon={Calendar} label="Date & Time">
+                          {formatDateTime(displaySession.dateTime)}
+                        </InfoRow>
+                        <InfoRow icon={User} label="Coach">
+                          <p className="truncate">{coachName}</p>
+                        </InfoRow>
+                        <InfoRow icon={MapPin} label="Location">
+                          <div>
+                            <div className="break-words">{locationName}</div>
+                            {locationData?.placeUrl && (
+                              <a
+                                href={locationData.placeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                                Open map
+                              </a>
+                            )}
+                          </div>
+                        </InfoRow>
+                        <InfoRow icon={Activity} label="Extra Session">
+                          {sessionIsExtraSession(displaySession) ? 'Yes' : 'No'}
+                        </InfoRow>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+
+            {/* Kids Tab */}
+            <TabsContent value="kids" className="mt-4 sm:mt-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8 sm:py-12 text-sm text-muted-foreground">
+                  Loading kids details...
+                </div>
+              ) : totalKids === 0 ? (
+                <EmptyKidsCard />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {kids.map((kid: any) => (
+                    <KidCard key={kid.id} kid={kid} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Bottom padding */}
+        <div className="h-3 sm:h-4" />
       </DialogContent>
     </Dialog>
   );

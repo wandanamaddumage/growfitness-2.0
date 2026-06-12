@@ -1,8 +1,9 @@
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -17,8 +18,12 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Award,
-  Users,
+  User,
+  Heart,
+  Target,
+  Activity,
+  Cake,
+  UserCircle2,
 } from 'lucide-react';
 
 interface KidDetailsDialogProps {
@@ -27,72 +32,52 @@ interface KidDetailsDialogProps {
   kid?: Kid;
 }
 
-
-
 export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetailsDialogProps) {
   const { entityId, closeModal } = useModalParams('kidId');
-  
-  // Fetch kid from URL if prop not provided
-  const { data: kidFromUrl } = useApiQuery<Kid>(
+
+  const { data: kidFromUrl } = useApiQuery(
     ['kids', entityId || 'no-id'],
     () => {
-      if (!entityId) {
-        throw new Error('Kid ID is required');
-      }
+      if (!entityId) throw new Error('Kid ID is required');
       return kidsService.getKidById(entityId);
     },
-    {
-      enabled: open && !kidProp && !!entityId,
-    }
+    { enabled: open && !kidProp && !!entityId }
   );
 
-  // Fetch kid with parent info if available (only if we have kidProp)
   const kidId = kidProp?.id || entityId;
-  const { data: kidData, isLoading } = useApiQuery<Kid>(
+  const { data: kidData, isLoading } = useApiQuery(
     ['kids', kidId || 'no-id'],
     () => {
-      if (!kidId) {
-        throw new Error('Kid ID is required');
-      }
+      if (!kidId) throw new Error('Kid ID is required');
       return kidsService.getKidById(kidId);
     },
-    {
-      enabled: open && !!kidId && !!kidProp,
-    }
+    { enabled: open && !!kidId && !!kidProp }
   );
 
   const kid = kidProp || kidFromUrl;
   const displayKid = (kidData || kid) as Kid;
   const parent = displayKid?.parent;
 
-  // Handle close with URL params
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      closeModal();
-    }
+    if (!newOpen) closeModal();
     onOpenChange(newOpen);
   };
 
-  if (!kid) {
-    return null;
-  }
+  if (!kid) return null;
 
   const initials = kid.name
     .split(' ')
-    .map(n => n[0])
+    .map((n) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
 
-  // Calculate age from birth date
   const calculateAge = (birthDate: Date | string): number => {
     const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--;
     return age;
   };
 
@@ -100,239 +85,182 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
-        <div className="flex flex-col flex-1 min-h-0">
-          {/* Header */}
-          <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-            <div className="flex items-center gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">{displayKid.name}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline">{displayKid.gender}</Badge>
-                  {age !== null && (
-                    <span className="text-sm text-muted-foreground">{age} years old</span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
+      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-5 border-b">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 ring-2 ring-primary/20">
+              {displayKid.profilePhotoUrl ? (
+                <AvatarImage src={displayKid.profilePhotoUrl} alt={displayKid.name} />
+              ) : null}
+              <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-2xl font-semibold tracking-tight">
+                {displayKid.name}
+              </DialogTitle>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="secondary" className="capitalize">{displayKid.gender}</Badge>
+                {age !== null && <Badge variant="outline">{age} years old</Badge>}
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Cake className="h-3.5 w-3.5" />
                   Born {formatDate(displayKid.birthDate)}
-                </p>
+                </span>
               </div>
             </div>
           </div>
+        </DialogHeader>
 
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            {/* Left Sidebar */}
-            <div className="w-80 border-r bg-muted/20 p-6 overflow-y-auto min-h-0">
-              {/* Profile Section */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm">Profile</h3>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-16 w-16 flex-shrink-0">
-                    {displayKid.profilePhotoUrl ? (
-                      <AvatarImage
-                        src={displayKid.profilePhotoUrl}
-                        alt=""
-                        className="object-cover"
-                      />
-                    ) : null}
-                    <AvatarFallback className="text-base">{initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{displayKid.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Kid Account</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 max-h-[70vh] overflow-y-auto">
+          {/* Sidebar */}
+          <aside className="md:col-span-1 bg-muted/30 p-6 space-y-6 border-r">
+            {parent && (
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  Parent
+                </h3>
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="font-medium">{parent.parentProfile?.name || 'N/A'}</span>
                   </div>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              {/* Parent Contact Section */}
-              {parent && (
-                <>
-                  <div className="space-y-4 mb-6">
-                    <h3 className="font-semibold text-sm">Parent</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {parent.parentProfile?.name || 'N/A'}
-                        </span>
-                      </div>
-                      {parent.email && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">{parent.email}</span>
-                        </div>
-                      )}
-                      {parent.phone && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">{parent.phone}</span>
-                        </div>
-                      )}
-                      {parent.parentProfile?.location && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            {parent.parentProfile.location}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <Separator className="my-6" />
-                </>
-              )}
-
-              {/* Highlights Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-sm">Highlights</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Session Type</span>
-                    <span className="text-muted-foreground">
-                      {formatSessionType(displayKid.sessionType)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">In Sports</span>
-                    <span className="text-muted-foreground">
-                      {displayKid.currentlyInSports ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                  {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Medical Conditions</span>
-                      <span className="text-muted-foreground">{displayKid.medicalConditions.length}</span>
+                  {parent.email && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Mail className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{parent.email}</span>
                     </div>
                   )}
-                  {displayKid.achievements && displayKid.achievements.length > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Achievements</span>
-                      <span className="text-muted-foreground">{displayKid.achievements.length}</span>
+                  {parent.phone && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-4 w-4 shrink-0" />
+                      <span>{parent.phone}</span>
+                    </div>
+                  )}
+                  {parent.parentProfile?.location && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4 shrink-0" />
+                      <span>{parent.parentProfile.location}</span>
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </section>
+            )}
 
-            {/* Right Main Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p className="text-sm text-muted-foreground">Loading...</p>
+            {parent && <Separator />}
+
+            <section>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Highlights
+              </h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Session</span>
+                  <Badge variant="secondary">{formatSessionType(displayKid.sessionType)}</Badge>
                 </div>
-              ) : (
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="sessions">Sessions</TabsTrigger>
-                    <TabsTrigger value="achievements">
-                      Achievements {displayKid.achievements && displayKid.achievements.length > 0 && `(${displayKid.achievements.length})`}
-                    </TabsTrigger>
-                  </TabsList>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">In Sports</span>
+                  <Badge variant={displayKid.currentlyInSports ? 'default' : 'outline'}>
+                    {displayKid.currentlyInSports ? 'Yes' : 'No'}
+                  </Badge>
+                </div>
+                {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Medical</span>
+                    <Badge variant="outline">{displayKid.medicalConditions.length}</Badge>
+                  </div>
+                )}
+              </div>
+            </section>
+          </aside>
 
-                  <TabsContent value="overview" className="mt-6 space-y-6">
-                    {/* About Section */}
-                    <div>
-                      <h3 className="font-semibold mb-3">About</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Name</h4>
-                          <p className="text-sm">{displayKid.name}</p>
+          {/* Main */}
+          <main className="md:col-span-2 p-6 space-y-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                Loading...
+              </div>
+            ) : (
+              <>
+                <section>
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                    Overview
+                  </h2>
+                  <Card>
+                    <CardContent className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                      <InfoItem icon={<UserCircle2 className="h-4 w-4" />} label="Name" value={displayKid.name} />
+                      <InfoItem icon={<User className="h-4 w-4" />} label="Gender" value={displayKid.gender} className="capitalize" />
+                      <InfoItem icon={<Calendar className="h-4 w-4" />} label="Birth Date" value={formatDate(displayKid.birthDate)} />
+                      {age !== null && (
+                        <InfoItem icon={<Cake className="h-4 w-4" />} label="Age" value={`${age} years old`} />
+                      )}
+                      <InfoItem icon={<Activity className="h-4 w-4" />} label="Session Type" value={formatSessionType(displayKid.sessionType)} />
+                      <InfoItem icon={<Activity className="h-4 w-4" />} label="Currently in Sports" value={displayKid.currentlyInSports ? 'Yes' : 'No'} />
+                      {displayKid.goal && (
+                        <div className="sm:col-span-2">
+                          <InfoItem icon={<Target className="h-4 w-4" />} label="Goal" value={displayKid.goal} />
                         </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Gender</h4>
-                          <p className="text-sm">{displayKid.gender}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                            Birth Date
-                          </h4>
-                          <p className="text-sm">{formatDate(displayKid.birthDate)}</p>
-                        </div>
-                        {age !== null && (
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Age</h4>
-                            <p className="text-sm">{age} years old</p>
-                          </div>
-                        )}
-                        {displayKid.goal && (
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Goal</h4>
-                            <p className="text-sm">{displayKid.goal}</p>
-                          </div>
-                        )}
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                            Session Type
-                          </h4>
-                          <p className="text-sm">{formatSessionType(displayKid.sessionType)}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                            Currently in Sports
-                          </h4>
-                          <p className="text-sm">{displayKid.currentlyInSports ? 'Yes' : 'No'}</p>
-                        </div>
-                      </div>
-                    </div>
+                      )}
+                      {parent && (
+                        <InfoItem
+                          icon={<User className="h-4 w-4" />}
+                          label="Parent Name"
+                          value={parent.parentProfile?.name || 'N/A'}
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                </section>
 
-                    {/* Medical Conditions */}
-                    {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-3">Medical Conditions</h3>
+                <section>
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Medical Conditions
+                  </h2>
+                  <Card>
+                    <CardContent className="p-5">
+                      {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {displayKid.medicalConditions.map((condition, index) => (
-                            <Badge key={index} variant="secondary">
+                            <Badge key={index} variant="secondary" className="text-sm py-1 px-3">
                               {condition}
                             </Badge>
                           ))}
                         </div>
-                      </div>
-                    )}
-                  </TabsContent>
-
-                  <TabsContent value="sessions" className="mt-6">
-                    <div className="text-center py-12">
-                      <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-sm text-muted-foreground">Sessions will be displayed here</p>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="achievements" className="mt-6">
-                    {displayKid.achievements && displayKid.achievements.length > 0 ? (
-                      <div className="space-y-4">
-                        {displayKid.achievements.map((achievement, index) => (
-                          <Card key={index}>
-                            <CardContent className="pt-6">
-                              <div className="flex items-start gap-3">
-                                <Award className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                  <p className="text-sm font-medium">{achievement}</p>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-sm text-muted-foreground">No achievements yet</p>
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              )}
-            </div>
-          </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No medical conditions reported.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </section>
+              </>
+            )}
+          </main>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InfoItem({
+  icon,
+  label,
+  value,
+  className,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  className?: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {icon}
+        {label}
+      </div>
+      <p className={`text-sm font-medium text-foreground ${className ?? ''}`}>{value}</p>
+    </div>
   );
 }

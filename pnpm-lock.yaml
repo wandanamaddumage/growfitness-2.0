@@ -132,8 +132,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.3
       react-day-picker:
-        specifier: ^9.12.0
-        version: 9.12.0(react@19.2.3)
+        specifier: ^10.0.1
+        version: 10.0.1(@types/react@18.3.27)(react@19.2.3)
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
@@ -10661,6 +10661,22 @@ packages:
       http-errors: 2.0.0
       iconv-lite: 0.4.24
       unpipe: 1.0.0
+
+  /react-day-picker@10.0.1(@types/react@18.3.27)(react@19.2.3):
+    resolution: {integrity: sha512-eNh6BlwcYInWaJtRv18mXQ06Ys/H6rdTZAnTaSdOYJuTpwP1JMCHNd1FDRadA+gbeinq+psdULN5Xnowy9mV8w==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/react': '>=16.8.0'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@date-fns/tz': 1.4.1
+      '@types/react': 18.3.27
+      date-fns: 4.1.0
+      react: 19.2.3
+    dev: false
 
   /react-day-picker@9.12.0(react@19.2.3):
     resolution: {integrity: sha512-t8OvG/Zrciso5CQJu5b1A7yzEmebvST+S3pOVQJWxwjjVngyG/CA2htN/D15dLI4uTEuLLkbZyS4YYt480FAtA==}

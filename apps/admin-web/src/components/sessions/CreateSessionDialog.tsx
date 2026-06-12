@@ -557,6 +557,21 @@ const isFormReady =
                   Free session
                 </label>
               </div>
+
+              {/* Extra session toggle */}
+               <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isExtraSession"
+                  checked={form.watch('isExtraSession')}
+                  onCheckedChange={checked => form.setValue('isExtraSession', checked === true)}
+                />
+                <label
+                  htmlFor="isExtraSession"
+                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Extra session
+                </label>
+              </div>
             </form>
           </div>
 
