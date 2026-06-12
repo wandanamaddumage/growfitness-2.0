@@ -20,9 +20,10 @@ export class GetLocationsQueryDto extends PaginationDto {
 
   @ApiPropertyOptional({ description: 'Filter by active status' })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
+  @Transform(({ obj, key, value }) => {
+    const rawValue = obj?.[key] ?? value;
+    if (rawValue === true || rawValue === 'true') return true;
+    if (rawValue === false || rawValue === 'false') return false;
     return value;
   })
   @IsBoolean()

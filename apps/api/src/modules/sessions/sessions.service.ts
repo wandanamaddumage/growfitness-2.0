@@ -23,6 +23,10 @@ import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination
 import { GoogleCalendarSyncService } from '../google-calendar/google-calendar-sync.service';
 import type { SessionSortField } from './dto/get-sessions-query.dto';
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function buildSessionSort(
   sortBy?: SessionSortField,
   sortOrder?: 'asc' | 'desc'
@@ -192,6 +196,7 @@ export class SessionsService {
       startDate?: Date;
       endDate?: Date;
       isFreeSession?: boolean;
+      search?: string;
       sortBy?: SessionSortField;
       sortOrder?: 'asc' | 'desc';
     }
@@ -200,6 +205,11 @@ export class SessionsService {
 
     if (filters?.isFreeSession !== undefined) {
       query.isFreeSession = filters.isFreeSession;
+    }
+
+    if (filters?.search?.trim()) {
+      const escapedSearch = escapeRegExp(filters.search.trim());
+      query.title = new RegExp(escapedSearch, 'i');
     }
 
     if (filters?.coachId) {

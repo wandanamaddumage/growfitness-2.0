@@ -14,6 +14,11 @@ export const SESSION_SORT_FIELDS = [
 export type SessionSortField = (typeof SESSION_SORT_FIELDS)[number];
 
 export class GetSessionsQueryDto extends PaginationDto {
+  @ApiPropertyOptional({ description: 'Search by session title' })
+  @IsOptional()
+  @IsString()
+  override search?: string = undefined;
+
   @ApiPropertyOptional({ enum: SESSION_SORT_FIELDS, description: 'Sort field' })
   @IsOptional()
   @IsIn(SESSION_SORT_FIELDS)
