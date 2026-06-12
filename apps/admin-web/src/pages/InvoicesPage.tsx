@@ -37,7 +37,7 @@ export function InvoicesPage() {
   const [typeFilter, setTypeFilter] = useState<InvoiceType | ''>('');
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | ''>('');
   const [pdfSentFilter, setPdfSentFilter] = useState<InvoicePdfSentFilter | ''>('');
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'dueDate', desc: false }]);
   const sortBy = sorting[0]?.id as InvoiceSortField | undefined;
   const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
 
