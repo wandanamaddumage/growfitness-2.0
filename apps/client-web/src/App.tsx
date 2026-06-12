@@ -16,6 +16,7 @@ import { SignUpPage } from "./pages/SignUpPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { Toaster } from "./components/ui/toaster";
+import NotificationsPage from "./pages/NotificationsPage";
 
 // Dashboard wrapper (unchanged)
 function DashboardWrapper() {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardWrapper />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>
       <Toaster />

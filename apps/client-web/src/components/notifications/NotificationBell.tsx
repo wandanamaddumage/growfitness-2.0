@@ -313,108 +313,152 @@ export function NotificationBell() {
     }
   };
 
-  return (
-    <>
-      <NotificationBubble
-        visible={bubbleVisible}
-        message={bubbleMessage}
-        onDismiss={handleDismissBubble}
-        onOpenList={() => setOpen(true)}
-      />
+ return (
+  <>
+    <NotificationBubble
+      visible={bubbleVisible}
+      message={bubbleMessage}
+      onDismiss={handleDismissBubble}
+      onOpenList={() => setOpen(true)}
+    />
 
-      <DropdownMenu onOpenChange={handleOpenChange}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-10 w-10 rounded-full hover:bg-emerald-50 transition-colors"
+          aria-label="Notifications"
+        >
+          <Bell className="h-5 w-5 text-emerald-700" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-semibold text-white ring-2 ring-white shadow-sm">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-96 max-w-[calc(100vw-2rem)]">
-          <div className="flex flex-col gap-1 px-2 py-1.5 border-b">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Notifications</span>
-              <div className="flex items-center gap-1">
-                {unreadCount > 0 && (
-                  <button
-                    type="button"
-                    className="text-xs text-primary hover:underline"
-                    onClick={() => markAllReadMutation.mutate(undefined!)}
-                  >
-                    Mark all read
-                  </button>
-                )}
-
-                {notifications.length > 0 && (
-                  <>
-                    <span className="text-muted-foreground text-xs">|</span>
-                    <button
-                      type="button"
-                      className="text-xs text-destructive hover:underline"
-                      onClick={handleClearAll}
-                    >
-                      Clear all
-                    </button>
-                  </>
-                )}
-              </div>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-[380px] p-0 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-xl shadow-emerald-900/10"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-50 to-white border-b border-emerald-100">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white">
+              <Bell className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-emerald-900 leading-none">Notifications</h3>
+              <p className="text-[11px] text-emerald-700/70 mt-1">
+                {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+              </p>
             </div>
           </div>
 
-          <div className="max-h-[320px] overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                No notifications
-              </p>
-            ) : (
-              notifications.map(n => (
-                <div
-                  key={n.id}
-                  className={cn(
-                    'group flex items-start gap-2 border-b last:border-b-0 px-3 py-2.5 text-left transition-colors hover:bg-accent',
-                    !n.read && 'bg-muted/50'
-                  )}
-                >
-                  <button
-                    type="button"
-                    className="flex-1 min-w-0 text-left"
-                    onClick={() => handleMarkAsRead(n)}
-                  >
-                    <p className="font-medium text-sm break-words leading-snug">{n.title}</p>
-                    <p className="text-muted-foreground text-xs break-words leading-relaxed mt-0.5">
-                      {n.body}
-                    </p>
-                    <p className="text-muted-foreground text-[10px] mt-1">
-                      {formatDistanceToNow(new Date(n.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </p>
-                  </button>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 opacity-70 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
-                    onClick={e => {
-                      e.stopPropagation();
-                      deleteOneMutation.mutate(n.id);
-                    }}
-                    aria-label="Clear notification"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))
+          <div className="flex items-center gap-1 text-xs">
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllReadMutation.mutate(undefined!)}
+                className="rounded-md px-2 py-1 font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+              >
+                Mark all read
+              </button>
+            )}
+            {notifications.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="rounded-md px-2 py-1 font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Clear all
+              </button>
             )}
           </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </div>
 
-      <ConfirmDialog
+        {/* List */}
+        <div className="max-h-[60vh] overflow-y-auto divide-y divide-emerald-50">
+          {notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 mb-3">
+                <Bell className="h-6 w-6 text-emerald-400" />
+              </div>
+              <p className="text-sm font-medium text-emerald-900">You're all caught up</p>
+              <p className="text-xs text-emerald-700/60 mt-1">New notifications will appear here</p>
+            </div>
+          ) : (
+            notifications.map(n => (
+              <div
+                key={n.id}
+                className={cn(
+                  'group relative flex gap-3 px-5 py-4 transition-colors cursor-pointer hover:bg-emerald-50/60',
+                  !n.read && 'bg-emerald-50/30'
+                )}
+                onClick={() => handleMarkAsRead(n)}
+              >
+                {/* Unread dot */}
+                <div className="flex-shrink-0 pt-1.5">
+                  <span
+                    className={cn(
+                      'block h-2 w-2 rounded-full',
+                      !n.read ? 'bg-emerald-600 ring-4 ring-emerald-100' : 'bg-transparent'
+                    )}
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0 pr-6">
+                  <p
+                    className={cn(
+                      'text-sm leading-snug break-words',
+                      !n.read ? 'font-semibold text-emerald-950' : 'font-medium text-gray-800'
+                    )}
+                  >
+                    {n.title}
+                  </p>
+                  {/* Full message — no truncation */}
+                  <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap break-words leading-relaxed">
+                    {n.body}
+                  </p>
+                  <p className="text-[11px] text-emerald-700/60 mt-2">
+                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    deleteOneMutation.mutate(n.id);
+                  }}
+                  aria-label="Clear notification"
+                  className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Footer */}
+        {notifications.length > 0 && (
+          <div className="border-t border-emerald-100 bg-emerald-50/40 px-5 py-3">
+            <button
+              onClick={() => {
+                navigate('/notifications');
+                setOpen(false);
+              }}
+              className="w-full text-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              View all notifications →
+            </button>
+          </div>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+
+   <ConfirmDialog
         open={confirmState.open}
         onOpenChange={handleConfirmDialogOpenChange}
         title={confirmState.options?.title ?? ''}
@@ -424,6 +468,7 @@ export function NotificationBell() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
-    </>
-  );
+  </>
+);
+
 }
