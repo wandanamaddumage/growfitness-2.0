@@ -20,6 +20,7 @@ export const sessionsService = {
     page: number = 1,
     limit: number = 10,
     filters?: {
+      search?: string;
       coachId?: string;
       locationId?: string;
       status?: SessionStatus;
@@ -33,6 +34,7 @@ export const sessionsService = {
       page: page.toString(),
       limit: limit.toString(),
     });
+    if (filters?.search) params.append('search', filters.search);
     if (filters?.coachId) params.append('coachId', filters.coachId);
     if (filters?.locationId) params.append('locationId', filters.locationId);
     if (filters?.status) params.append('status', filters.status);

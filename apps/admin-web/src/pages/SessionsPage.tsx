@@ -9,6 +9,7 @@ import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
 import { FilterBar } from '@/components/common/FilterBar';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -50,19 +51,23 @@ import { googleCalendarService } from '@/services/google-calendar.service';
 
 export function SessionsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
+  const [search, setSearch] = useState('');
   const [coachFilter, setCoachFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<SessionStatus | ''>('');
+  const [searchInputKey, setSearchInputKey] = useState(0);
   const [sorting, setSorting] = useState<SortingState>([]);
   const sortBy = sorting[0]?.id as SessionSortField | undefined;
   const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
 
-  const hasActiveFilters = Boolean(coachFilter || locationFilter || statusFilter);
+  const hasActiveFilters = Boolean(search || coachFilter || locationFilter || statusFilter);
 
   const clearAllFilters = () => {
+    setSearch('');
     setCoachFilter('');
     setLocationFilter('');
     setStatusFilter('');
+    setSearchInputKey(key => key + 1);
   };
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('sessionId');
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
@@ -79,7 +84,7 @@ export function SessionsPage() {
     if (page !== 1) {
       setPage(1);
     }
-  }, [coachFilter, locationFilter, statusFilter, sorting]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, coachFilter, locationFilter, statusFilter, sorting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (value: string) => {
     setSearchParams({ view: value });
@@ -175,6 +180,7 @@ export function SessionsPage() {
       'sessions',
       page.toString(),
       pageSize.toString(),
+      search,
       coachFilter,
       locationFilter,
       statusFilter,
@@ -183,6 +189,7 @@ export function SessionsPage() {
     ],
     () =>
       sessionsService.getSessions(page, pageSize, {
+        search: search || undefined,
         coachId: coachFilter || undefined,
         locationId: locationFilter || undefined,
         status: statusFilter || undefined,
@@ -331,6 +338,12 @@ export function SessionsPage() {
 
   const filters = (
     <FilterBar>
+      <SearchInput
+        key={`session-search-${searchInputKey}`}
+        placeholder="Search sessions..."
+        onSearch={setSearch}
+        className="w-[280px]"
+      />
       <div className="flex items-center gap-2">
         <label className="text-sm text-muted-foreground">Coach:</label>
         <Select
