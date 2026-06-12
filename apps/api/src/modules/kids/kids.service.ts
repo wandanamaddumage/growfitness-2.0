@@ -17,6 +17,10 @@ interface KidFilters {
   maxAge?: number;
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function buildKidSort(sortBy?: KidSortField, sortOrder?: 'asc' | 'desc'): Record<string, 1 | -1> {
   if (!sortBy) {
     return { createdAt: -1, _id: 1 };
@@ -89,10 +93,24 @@ export class KidsService {
       query.birthDate = birthDateFilter;
     }
 
-    // Add search functionality - search by name or goal
+    let searchMatch: Record<string, unknown> | undefined;
+
+    // Add search functionality after parent lookup so parent profile fields are searchable too.
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      query.$or = [{ name: searchRegex }, { goal: searchRegex }];
+      const searchRegex = new RegExp(escapeRegex(search.trim()), 'i');
+      searchMatch = {
+        $or: [
+          { name: searchRegex },
+          { gender: searchRegex },
+          { goal: searchRegex },
+          { sessionType: searchRegex },
+          { medicalConditions: searchRegex },
+          { 'parent.email': searchRegex },
+          { 'parent.phone': searchRegex },
+          { 'parent.parentProfile.name': searchRegex },
+          { 'parent.parentProfile.location': searchRegex },
+        ],
+      };
     }
 
     const skip = (pagination.page - 1) * pagination.limit;
@@ -109,6 +127,7 @@ export class KidsService {
         },
       },
       { $unwind: { path: '$parent', preserveNullAndEmptyArrays: true } },
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
       {
         $project: {
           'parent.passwordHash': 0,
