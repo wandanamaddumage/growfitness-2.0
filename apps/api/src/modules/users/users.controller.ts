@@ -53,7 +53,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all parents' })
   @ApiResponse({ status: 200, description: 'List of parents' })
   findParents(@Query() query: GetParentsQueryDto) {
-    return this.usersService.findParents(query, query.search, query.location, query.status);
+    return this.usersService.findParents(
+      query,
+      query.search,
+      query.location,
+      query.status,
+      query.sortBy,
+      query.sortOrder
+    );
   }
 
   @Get('parents/:id')
@@ -193,12 +200,7 @@ export class UsersController {
   })
   @ApiResponse({ status: 200, description: 'List of coaches' })
   findCoaches(@Query() query: GetCoachesQueryDto) {
-    return this.usersService.findCoaches(
-      query,
-      query.search,
-      query.status,
-      query.employmentType
-    );
+    return this.usersService.findCoaches(query, query.search, query.status, query.employmentType);
   }
 
   @Get('coaches/:id')

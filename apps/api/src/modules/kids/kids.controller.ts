@@ -83,12 +83,30 @@ export class KidsController {
   })
   @ApiResponse({ status: 200, description: 'List of kids' })
   findAll(@Query() query: FindKidsQueryDto) {
-    const { parentId, sessionType, search, gender, minAge, maxAge, ...pagination } = query;
-    return this.kidsService.findAll(pagination, parentId, sessionType, search, {
+    const {
+      parentId,
+      sessionType,
+      search,
       gender,
       minAge,
       maxAge,
-    });
+      sortBy,
+      sortOrder,
+      ...pagination
+    } = query;
+    return this.kidsService.findAll(
+      pagination,
+      parentId,
+      sessionType,
+      search,
+      {
+        gender,
+        minAge,
+        maxAge,
+      },
+      sortBy,
+      sortOrder
+    );
   }
 
   @Post()
