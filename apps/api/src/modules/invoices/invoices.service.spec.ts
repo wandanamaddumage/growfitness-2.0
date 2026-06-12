@@ -82,4 +82,21 @@ describe('InvoicesService', () => {
     expect(dataFacet[4].$project.parentId).toBeUndefined();
     expect(dataFacet[4].$project.coachId).toBeUndefined();
   });
+
+  it('defaults to nearest due date before pagination', async () => {
+    await service.findAllForActor(
+      { page: 1, limit: 10 } as any,
+      {},
+      { sub: 'admin-id', role: UserRole.ADMIN, email: 'admin@example.com' } as any
+    );
+
+    const pipeline = invoiceModel.aggregate.mock.calls[0][0];
+    const dataFacet = pipeline.find((stage: any) => stage.$facet).$facet.data;
+
+    expect(dataFacet.slice(0, 3)).toEqual([
+      { $sort: { dueDate: 1, _id: 1 } },
+      { $skip: 0 },
+      { $limit: 10 },
+    ]);
+  });
 });
