@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IsOptional, IsString, IsEnum } from 'class-validator';
 import {
   ApiTags,
   ApiOperation,
@@ -33,11 +32,11 @@ import {
   CreateCoachSchema,
   UpdateCoachSchema,
 } from '@grow-fitness/shared-schemas';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 
 import { GetParentsQueryDto } from './dto/get-parents-query.dto';
+import { GetCoachesQueryDto } from './dto/get-coaches-query.dto';
 import { CreateCoachBodyDto } from './dto/create-coach-body.dto';
 import { UpdateCoachBodyDto } from './dto/update-coach-body.dto';
 
@@ -54,7 +53,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all parents' })
   @ApiResponse({ status: 200, description: 'List of parents' })
   findParents(@Query() query: GetParentsQueryDto) {
-    return this.usersService.findParents(query, query.search, query.location, query.status);
+    return this.usersService.findParents(
+      query,
+      query.search,
+      query.location,
+      query.status,
+      query.sortBy,
+      query.sortOrder
+    );
   }
 
   @Get('parents/:id')
@@ -193,13 +199,8 @@ export class UsersController {
     description: 'Filter by coach employment type',
   })
   @ApiResponse({ status: 200, description: 'List of coaches' })
-  findCoaches(
-    @Query() pagination: PaginationDto,
-    @Query('search') search?: string,
-    @Query('status') status?: UserStatus,
-    @Query('employmentType') employmentType?: EmploymentType
-  ) {
-    return this.usersService.findCoaches(pagination, search, status, employmentType);
+  findCoaches(@Query() query: GetCoachesQueryDto) {
+    return this.usersService.findCoaches(query, query.search, query.status, query.employmentType);
   }
 
   @Get('coaches/:id')

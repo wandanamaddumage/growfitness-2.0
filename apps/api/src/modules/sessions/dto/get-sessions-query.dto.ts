@@ -3,11 +3,26 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { SessionStatus } from '@grow-fitness/shared-types';
 
+export const SESSION_SORT_FIELDS = [
+  'title',
+  'dateTime',
+  'type',
+  'duration',
+  'status',
+  'createdAt',
+] as const;
+export type SessionSortField = (typeof SESSION_SORT_FIELDS)[number];
+
 export class GetSessionsQueryDto extends PaginationDto {
-  @ApiPropertyOptional({ enum: ['dateTime', 'createdAt'], description: 'Sort field' })
+  @ApiPropertyOptional({ description: 'Search by session title' })
   @IsOptional()
-  @IsIn(['dateTime', 'createdAt'])
-  sortBy?: 'dateTime' | 'createdAt';
+  @IsString()
+  override search?: string = undefined;
+
+  @ApiPropertyOptional({ enum: SESSION_SORT_FIELDS, description: 'Sort field' })
+  @IsOptional()
+  @IsIn(SESSION_SORT_FIELDS)
+  sortBy?: SessionSortField;
 
   @ApiPropertyOptional({ enum: ['asc', 'desc'], description: 'Sort by dateTime direction' })
   @IsOptional()

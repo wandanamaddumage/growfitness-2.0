@@ -9,11 +9,35 @@ import type { JwtPayload } from '../auth/auth.service';
 import { AuditService } from '../audit/audit.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import type { KidSortField } from './dto/find-kids-query.dto';
 
 interface KidFilters {
   gender?: string;
   minAge?: number;
   maxAge?: number;
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildKidSort(sortBy?: KidSortField, sortOrder?: 'asc' | 'desc'): Record<string, 1 | -1> {
+  if (!sortBy) {
+    return { createdAt: -1, _id: 1 };
+  }
+
+  const direction = sortOrder === 'desc' ? -1 : 1;
+  const sortFields: Record<KidSortField, string> = {
+    name: 'name',
+    gender: 'gender',
+    birthDate: 'birthDate',
+    sessionType: 'sessionType',
+    parentName: 'parent.parentProfile.name',
+    goal: 'goal',
+    createdAt: 'createdAt',
+  };
+
+  return { [sortFields[sortBy]]: direction, _id: 1 };
 }
 
 @Injectable()
@@ -29,9 +53,11 @@ export class KidsService {
     parentId?: string,
     sessionType?: SessionType,
     search?: string,
-    filters: KidFilters = {}
+    filters: KidFilters = {},
+    sortBy?: KidSortField,
+    sortOrder?: 'asc' | 'desc'
   ) {
-    const query: Record<string, unknown> = { isApproved: true };
+    const query: Record<string, unknown> = {};
 
     if (parentId) {
       query.parentId = new Types.ObjectId(parentId);
@@ -67,39 +93,72 @@ export class KidsService {
       query.birthDate = birthDateFilter;
     }
 
-    // Add search functionality - search by name or goal
+    let searchMatch: Record<string, unknown> | undefined;
+
+    // Add search functionality after parent lookup so parent profile fields are searchable too.
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      query.$or = [{ name: searchRegex }, { goal: searchRegex }];
+      const searchRegex = new RegExp(escapeRegex(search.trim()), 'i');
+      searchMatch = {
+        $or: [
+          { name: searchRegex },
+          { gender: searchRegex },
+          { goal: searchRegex },
+          { sessionType: searchRegex },
+          { medicalConditions: searchRegex },
+          { 'parent.email': searchRegex },
+          { 'parent.phone': searchRegex },
+          { 'parent.parentProfile.name': searchRegex },
+          { 'parent.parentProfile.location': searchRegex },
+        ],
+      };
     }
 
     const skip = (pagination.page - 1) * pagination.limit;
-    const [data, total] = await Promise.all([
-      this.kidModel
-        .find(query)
-        .populate('parentId', 'email parentProfile coachProfile')
-        .skip(skip)
-        .limit(pagination.limit)
-        .lean()
-        .exec(),
-      this.kidModel.countDocuments(query).exec(),
-    ]);
+    const sort = buildKidSort(sortBy, sortOrder);
 
-    // Transform parentId to parent in the response
+    const pipeline: any[] = [
+      { $match: query },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'parentId',
+          foreignField: '_id',
+          as: 'parent',
+        },
+      },
+      { $unwind: { path: '$parent', preserveNullAndEmptyArrays: true } },
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
+      {
+        $project: {
+          'parent.passwordHash': 0,
+          'parent.googleCalendarRefreshToken': 0,
+          'parent.__v': 0,
+        },
+      },
+      {
+        $facet: {
+          data: [{ $sort: sort }, { $skip: skip }, { $limit: pagination.limit }],
+          total: [{ $count: 'count' }],
+        },
+      },
+    ];
+
+    const [result] = await this.kidModel.aggregate(pipeline).exec();
+    const data = result.data;
+    const total = result.total[0]?.count || 0;
+
     const transformedData = data.map((kid: any) => {
-      const { parentId, ...rest } = kid;
-      return {
-        ...rest,
-        parent: parentId || undefined,
-      };
+      const { parentId: _parentId, ...rest } = kid;
+      return rest;
     });
 
     return new PaginatedResponseDto(transformedData, total, pagination.page, pagination.limit);
   }
 
   async findById(id: string, user?: JwtPayload) {
-    const query: Record<string, unknown> = { _id: id, isApproved: true };
+    const query: Record<string, unknown> = { _id: id };
     if (user?.role === UserRole.PARENT) {
+      query.isApproved = true;
       query.parentId = new Types.ObjectId(user.sub);
     }
 
@@ -145,8 +204,7 @@ export class KidsService {
       birthDate: new Date(createKidDto.birthDate),
       medicalConditions: createKidDto.medicalConditions || [],
       isApproved,
-      ...(createKidDto.profilePhotoUrl !== undefined &&
-      createKidDto.profilePhotoUrl !== ''
+      ...(createKidDto.profilePhotoUrl !== undefined && createKidDto.profilePhotoUrl !== ''
         ? { profilePhotoUrl: createKidDto.profilePhotoUrl }
         : {}),
     });

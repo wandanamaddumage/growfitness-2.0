@@ -28,6 +28,7 @@ import { NotificationService } from '../notifications/notifications.service';
 import { UserCascadeService } from './user-cascade.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import type { ParentSortField } from './dto/get-parents-query.dto';
 
 type CoachAvailableTime = {
   dayOfWeek: string;
@@ -77,6 +78,27 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function buildParentSort(
+  sortBy?: ParentSortField,
+  sortOrder?: 'asc' | 'desc'
+): Record<string, 1 | -1> {
+  if (!sortBy) {
+    return { status: 1, createdAt: -1, _id: 1 };
+  }
+
+  const direction = sortOrder === 'desc' ? -1 : 1;
+  const sortFields: Record<ParentSortField, string> = {
+    name: 'parentProfile.name',
+    email: 'email',
+    phone: 'phone',
+    location: 'parentProfile.location',
+    status: 'status',
+    createdAt: 'createdAt',
+  };
+
+  return { [sortFields[sortBy]]: direction, _id: 1 };
+}
+
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
@@ -97,7 +119,9 @@ export class UsersService {
     pagination: PaginationDto,
     search?: string,
     location?: string,
-    status?: UserStatus
+    status?: UserStatus,
+    sortBy?: ParentSortField,
+    sortOrder?: 'asc' | 'desc'
   ) {
     const andMatch: Record<string, unknown>[] = [
       { role: UserRole.PARENT },
@@ -105,8 +129,6 @@ export class UsersService {
     ];
     if (status) {
       andMatch.push({ status });
-    } else {
-      andMatch.push({ isApproved: true });
     }
     if (search) {
       const escapedSearch = escapeRegExp(search);
@@ -122,6 +144,7 @@ export class UsersService {
       andMatch.push({ 'parentProfile.location': { $regex: location, $options: 'i' } });
     }
     const query: Record<string, unknown> = { $and: andMatch };
+    const sort = buildParentSort(sortBy, sortOrder);
 
     const skip = (pagination.page - 1) * pagination.limit;
 
@@ -176,11 +199,7 @@ export class UsersService {
       },
       {
         $facet: {
-          data: [
-            { $sort: { status: 1, createdAt: -1 } },
-            { $skip: skip },
-            { $limit: pagination.limit },
-          ],
+          data: [{ $sort: sort }, { $skip: skip }, { $limit: pagination.limit }],
           total: [{ $count: 'count' }],
         },
       },

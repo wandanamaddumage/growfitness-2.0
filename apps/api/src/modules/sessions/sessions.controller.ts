@@ -123,6 +123,7 @@ export class SessionsController {
     return this.sessionsService.findAll(
       { page, limit, search },
       {
+        search,
         coachId,
         locationId,
         kidId,
@@ -197,6 +198,7 @@ export class SessionsController {
     return this.sessionsService.findAll(
       { page, limit, search },
       {
+        search,
         coachId,
         locationId,
         kidId,

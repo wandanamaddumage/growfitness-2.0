@@ -1,8 +1,19 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsEnum, Min, Max } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsEnum, IsIn, Min, Max } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { SessionType } from '@grow-fitness/shared-types';
+
+export const KID_SORT_FIELDS = [
+  'name',
+  'gender',
+  'birthDate',
+  'sessionType',
+  'parentName',
+  'goal',
+  'createdAt',
+] as const;
+export type KidSortField = (typeof KID_SORT_FIELDS)[number];
 
 export class FindKidsQueryDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filter by parent ID' })
@@ -37,4 +48,14 @@ export class FindKidsQueryDto extends PaginationDto {
   maxAge?: number;
 
   // search is already defined in PaginationDto, no need to redeclare
+
+  @ApiPropertyOptional({ enum: KID_SORT_FIELDS, description: 'Field to sort kids by' })
+  @IsOptional()
+  @IsIn(KID_SORT_FIELDS)
+  sortBy?: KidSortField;
+
+  @ApiPropertyOptional({ enum: ['asc', 'desc'], description: 'Kid sort direction' })
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
 }

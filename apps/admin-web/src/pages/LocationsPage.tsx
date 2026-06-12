@@ -1,11 +1,26 @@
 import { useState, useEffect } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, SortingState } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
-import { locationsService } from '@/services/locations.service';
+import {
+  LocationSortField,
+  LocationStatusFilter,
+  SortOrder,
+  locationsService,
+} from '@/services/locations.service';
 import { Location } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
+import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
+import { FilterBar } from '@/components/common/FilterBar';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, Pencil, Trash2, Eye, ExternalLink } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
@@ -21,8 +36,27 @@ export function LocationsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const { modal, entityId, isOpen, openModal, closeModal } = useModalParams('locationId');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<LocationStatusFilter | 'all'>('all');
+  const [searchInputKey, setSearchInputKey] = useState(0);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const sortBy = sorting[0]?.id as LocationSortField | undefined;
+  const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
   const { toast } = useToast();
   const { confirm, confirmState } = useConfirm();
+  const hasActiveFilters = Boolean(search || statusFilter !== 'all');
+
+  const clearAllFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setSearchInputKey(key => key + 1);
+  };
+
+  useEffect(() => {
+    if (page !== 1) {
+      setPage(1);
+    }
+  }, [search, statusFilter, sorting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (entityId && modal) {
@@ -48,8 +82,22 @@ export function LocationsPage() {
   const createDialogOpen = modal === 'create' && isOpen;
 
   const { data, isLoading, error } = useApiQuery(
-    ['locations', page.toString(), pageSize.toString()],
-    () => locationsService.getLocations(page, pageSize)
+    [
+      'locations',
+      page.toString(),
+      pageSize.toString(),
+      search,
+      statusFilter,
+      sortBy || '',
+      sortOrder || '',
+    ],
+    () =>
+      locationsService.getLocations(page, pageSize, {
+        search: search || undefined,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        sortBy,
+        sortOrder: sortOrder as SortOrder | undefined,
+      })
   );
 
   const deleteMutation = useApiMutation((id: string) => locationsService.deleteLocation(id), {
@@ -116,6 +164,7 @@ export function LocationsPage() {
     {
       id: 'actions',
       header: 'Actions',
+      enableSorting: false,
       cell: ({ row }) => {
         const location = row.original;
         return (
@@ -164,6 +213,32 @@ export function LocationsPage() {
           </Button>
         </div>
 
+        <FilterBar>
+          <SearchInput
+            key={`location-search-${searchInputKey}`}
+            placeholder="Search locations..."
+            onSearch={setSearch}
+            className="w-[280px]"
+          />
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground">Status:</label>
+            <Select
+              value={statusFilter}
+              onValueChange={value => setStatusFilter(value as LocationStatusFilter | 'all')}
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
+        </FilterBar>
+
         {error ? (
           <div>Error loading locations</div>
         ) : (
@@ -173,6 +248,9 @@ export function LocationsPage() {
               data={data?.data || []}
               isLoading={isLoading}
               emptyMessage="No locations found"
+              manualSorting
+              sorting={sorting}
+              onSortingChange={setSorting}
             />
             {data && (
               <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />

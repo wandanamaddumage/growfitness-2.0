@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, SortingState } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
-import { usersService } from '@/services/users.service';
+import { ParentSortField, SortOrder, usersService } from '@/services/users.service';
 import { User } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
@@ -34,6 +34,9 @@ export function ParentsTable() {
   const [locationFilter, setLocationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>('ALL');
   const [searchInputKey, setSearchInputKey] = useState(0);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const sortBy = sorting[0]?.id as ParentSortField | undefined;
+  const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
 
   const hasActiveFilters = Boolean(search) || Boolean(locationFilter) || statusFilter !== 'ALL';
 
@@ -53,7 +56,7 @@ export function ParentsTable() {
     if (page !== 1) {
       setPage(1);
     }
-  }, [search, locationFilter, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, locationFilter, statusFilter, sorting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selectedUser with URL params
   useEffect(() => {
@@ -61,7 +64,7 @@ export function ParentsTable() {
       // Fetch user if we have ID in URL but no selectedUser
       if (!selectedUser || selectedUser.id !== entityId) {
         usersService
-          .getParentById(entityId)
+          .getParentById(entityId, true)
           .then(response => {
             setSelectedUser(response);
           })
@@ -88,6 +91,8 @@ export function ParentsTable() {
       search,
       locationFilter,
       statusFilter,
+      sortBy || '',
+      sortOrder || '',
     ],
     () =>
       usersService.getParents(
@@ -95,7 +100,9 @@ export function ParentsTable() {
         pageSize,
         search || undefined,
         locationFilter || undefined,
-        statusFilter === 'ALL' ? undefined : statusFilter
+        statusFilter === 'ALL' ? undefined : statusFilter,
+        sortBy,
+        sortOrder as SortOrder | undefined
       )
   );
 
@@ -124,7 +131,8 @@ export function ParentsTable() {
 
   const columns: ColumnDef<User>[] = [
     {
-      accessorKey: 'parentProfile.name',
+      id: 'name',
+      accessorFn: row => row.parentProfile?.name || '',
       header: 'Name',
       cell: ({ row }) => row.original.parentProfile?.name || 'N/A',
     },
@@ -137,7 +145,8 @@ export function ParentsTable() {
       header: 'Phone',
     },
     {
-      accessorKey: 'parentProfile.location',
+      id: 'location',
+      accessorFn: row => row.parentProfile?.location || '',
       header: 'Location',
       cell: ({ row }) => row.original.parentProfile?.location || 'N/A',
     },
@@ -154,6 +163,7 @@ export function ParentsTable() {
     {
       id: 'actions',
       header: 'Actions',
+      enableSorting: false,
       cell: ({ row }) => {
         const user = row.original;
         return (
@@ -236,6 +246,9 @@ export function ParentsTable() {
             data={data?.data || []}
             isLoading={isLoading}
             emptyMessage="No parents found"
+            manualSorting
+            sorting={sorting}
+            onSortingChange={setSorting}
           />
           {data && <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />}
         </>

@@ -2,6 +2,16 @@ import { api } from './api';
 import { Kid, PaginatedResponse, SessionType } from '@grow-fitness/shared-types';
 import { CreateKidDto, UpdateKidDto } from '@grow-fitness/shared-schemas';
 
+export type KidSortField =
+  | 'name'
+  | 'gender'
+  | 'birthDate'
+  | 'sessionType'
+  | 'parentName'
+  | 'goal'
+  | 'createdAt';
+export type SortOrder = 'asc' | 'desc';
+
 export const kidsService = {
   getKids: (
     page: number = 1,
@@ -10,6 +20,8 @@ export const kidsService = {
     sessionType?: SessionType,
     search?: string,
     filters?: { gender?: string; minAge?: string; maxAge?: string },
+    sortBy?: KidSortField,
+    sortOrder?: SortOrder
   ) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -21,6 +33,8 @@ export const kidsService = {
     if (filters?.gender) params.append('gender', filters.gender);
     if (filters?.minAge) params.append('minAge', filters.minAge);
     if (filters?.maxAge) params.append('maxAge', filters.maxAge);
+    if (sortBy) params.append('sortBy', sortBy);
+    if (sortOrder) params.append('sortOrder', sortOrder);
     return api.get<PaginatedResponse<Kid>>(`/kids?${params.toString()}`);
   },
   getKidById: (id: string) => api.get<Kid>(`/kids/${id}`),

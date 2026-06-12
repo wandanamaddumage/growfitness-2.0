@@ -25,8 +25,8 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '@grow-fitness/shared-types';
 import { CreateLocationDto, UpdateLocationDto } from '@grow-fitness/shared-schemas';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ObjectIdValidationPipe } from '../../common/pipes/objectid-validation.pipe';
+import { GetLocationsQueryDto } from './dto/get-locations-query.dto';
 
 @ApiTags('locations')
 @ApiBearerAuth('JWT-auth')
@@ -52,8 +52,13 @@ export class LocationsController {
     description: 'Items per page (default: 10, max: 100)',
   })
   @ApiResponse({ status: 200, description: 'List of locations' })
-  findAll(@Query() pagination: PaginationDto) {
-    return this.locationsService.findAll(pagination);
+  findAll(@Query() query: GetLocationsQueryDto) {
+    return this.locationsService.findAll(query, {
+      search: query.search,
+      isActive: query.isActive,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+    });
   }
 
   @Get(':id')

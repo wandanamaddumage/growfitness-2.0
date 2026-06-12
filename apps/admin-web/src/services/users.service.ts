@@ -7,6 +7,9 @@ import {
   UpdateCoachDto,
 } from '@grow-fitness/shared-schemas';
 
+export type ParentSortField = 'name' | 'email' | 'phone' | 'location' | 'status' | 'createdAt';
+export type SortOrder = 'asc' | 'desc';
+
 export const usersService = {
   // Parents
   getParents: (
@@ -14,7 +17,9 @@ export const usersService = {
     limit: number = 10,
     search?: string,
     location?: string,
-    status?: UserStatus
+    status?: UserStatus,
+    sortBy?: ParentSortField,
+    sortOrder?: SortOrder
   ) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -23,6 +28,8 @@ export const usersService = {
     if (search) params.append('search', search);
     if (location) params.append('location', location);
     if (status) params.append('status', status);
+    if (sortBy) params.append('sortBy', sortBy);
+    if (sortOrder) params.append('sortOrder', sortOrder);
     return api.get<PaginatedResponse<User>>(`/users/parents?${params.toString()}`);
   },
   getParentById: (id: string, includeUnapproved?: boolean) =>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, SortingState } from '@tanstack/react-table';
 import { useApiQuery, useApiMutation } from '@/hooks';
-import { kidsService } from '@/services/kids.service';
+import { KidSortField, SortOrder, kidsService } from '@/services/kids.service';
 import { Kid, SessionType } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
@@ -32,7 +32,10 @@ export function KidsPage() {
   const [ageRange, setAgeRange] = useState<[number, number]>([AGE_MIN, AGE_MAX]);
   const [sessionTypeFilter, setSessionTypeFilter] = useState<SessionType | ''>('');
   const [searchInputKey, setSearchInputKey] = useState(0);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [minAge, maxAge] = ageRange;
+  const sortBy = sorting[0]?.id as KidSortField | undefined;
+  const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
   const hasCustomAgeRange = minAge !== AGE_MIN || maxAge !== AGE_MAX;
 
   const hasActiveFilters = !!(search || gender || hasCustomAgeRange || sessionTypeFilter);
@@ -58,7 +61,7 @@ export function KidsPage() {
     if (page !== 1) {
       setPage(1);
     }
-  }, [search, gender, minAge, maxAge, sessionTypeFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, gender, minAge, maxAge, sessionTypeFilter, sorting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selectedKid with URL params
   useEffect(() => {
@@ -112,13 +115,24 @@ export function KidsPage() {
       minAge.toString(),
       maxAge.toString(),
       sessionTypeFilter,
+      sortBy || '',
+      sortOrder || '',
     ],
     () =>
-      kidsService.getKids(page, pageSize, undefined, sessionTypeFilter || undefined, search || undefined, {
-        gender: gender || undefined,
-        minAge: hasCustomAgeRange ? minAge.toString() : undefined,
-        maxAge: hasCustomAgeRange ? maxAge.toString() : undefined,
-      })
+      kidsService.getKids(
+        page,
+        pageSize,
+        undefined,
+        sessionTypeFilter || undefined,
+        search || undefined,
+        {
+          gender: gender || undefined,
+          minAge: hasCustomAgeRange ? minAge.toString() : undefined,
+          maxAge: hasCustomAgeRange ? maxAge.toString() : undefined,
+        },
+        sortBy,
+        sortOrder as SortOrder | undefined
+      )
   );
 
   const deleteMutation = useApiMutation((id: string) => kidsService.unlinkFromParent(id), {
@@ -163,10 +177,7 @@ export function KidsPage() {
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
 
-        if (
-          monthDiff < 0 ||
-          (monthDiff === 0 && today.getDate() < birthDate.getDate())
-        ) {
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
           age--;
         }
 
@@ -179,14 +190,10 @@ export function KidsPage() {
       cell: ({ row }) => formatSessionType(row.original.sessionType),
     },
     {
-      accessorKey: 'parentName',
+      id: 'parentName',
+      accessorFn: row => row.parent?.parentProfile?.name || '',
       header: 'Parent',
       cell: ({ row }) => row.original.parent?.parentProfile?.name || 'N/A',
-    },
-    {
-      accessorKey: 'phoneNumber',
-      header: 'Phone Number',
-      cell: ({ row }) => row.original.parent?.parentProfile?.phone || 'N/A',
     },
     {
       accessorKey: 'goal',
@@ -196,6 +203,7 @@ export function KidsPage() {
     {
       id: 'actions',
       header: 'Actions',
+      enableSorting: false,
       cell: ({ row }) => {
         const kid = row.original;
         return (
@@ -220,11 +228,7 @@ export function KidsPage() {
             >
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleOpenLinkDialog(kid)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => handleOpenLinkDialog(kid)}>
               <Link2 className="h-4 w-4" />
             </Button>
             {kid.parentId && (
@@ -332,6 +336,9 @@ export function KidsPage() {
               data={data?.data || []}
               isLoading={isLoading}
               emptyMessage="No kids found"
+              manualSorting
+              sorting={sorting}
+              onSortingChange={setSorting}
             />
             {data && (
               <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />
@@ -342,15 +349,19 @@ export function KidsPage() {
 
       <CreateKidDialog open={createDialogOpen} onOpenChange={closeModal} />
 
-      {(selectedKid || entityId) && (
+      {selectedKid && (
         <>
-          <EditKidDialog open={editDialogOpen} onOpenChange={closeModal} kid={selectedKid || undefined} />
-          <KidDetailsDialog
-            open={detailsDialogOpen}
-            onOpenChange={closeModal}
-            kid={selectedKid || undefined}
-          />
-          {selectedKid && (
+          {editDialogOpen && (
+            <EditKidDialog open={editDialogOpen} onOpenChange={closeModal} kid={selectedKid} />
+          )}
+          {detailsDialogOpen && (
+            <KidDetailsDialog
+              open={detailsDialogOpen}
+              onOpenChange={closeModal}
+              kid={selectedKid}
+            />
+          )}
+          {linkDialogOpen && (
             <LinkParentDialog
               open={linkDialogOpen}
               onOpenChange={handleCloseLinkDialog}

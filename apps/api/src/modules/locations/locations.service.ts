@@ -6,6 +6,30 @@ import { CreateLocationDto, UpdateLocationDto } from '@grow-fitness/shared-schem
 import { AuditService } from '../audit/audit.service';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import type { LocationSortField } from './dto/get-locations-query.dto';
+
+interface LocationListFilters {
+  search?: string;
+  isActive?: boolean;
+  sortBy?: LocationSortField;
+  sortOrder?: 'asc' | 'desc';
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildLocationSort(
+  sortBy?: LocationSortField,
+  sortOrder?: 'asc' | 'desc'
+): Record<string, 1 | -1> {
+  if (!sortBy) {
+    return { name: 1, _id: 1 };
+  }
+
+  const direction = sortOrder === 'desc' ? -1 : 1;
+  return { [sortBy]: direction, _id: 1 };
+}
 
 @Injectable()
 export class LocationsService {
@@ -14,11 +38,27 @@ export class LocationsService {
     private auditService: AuditService
   ) {}
 
-  async findAll(pagination: PaginationDto) {
+  async findAll(pagination: PaginationDto, filters: LocationListFilters = {}) {
+    const query: Record<string, unknown> = {};
+
+    if (filters.search?.trim()) {
+      const escapedSearch = escapeRegExp(filters.search.trim());
+      query.$or = [
+        { name: { $regex: escapedSearch, $options: 'i' } },
+        { address: { $regex: escapedSearch, $options: 'i' } },
+        { placeUrl: { $regex: escapedSearch, $options: 'i' } },
+      ];
+    }
+
+    if (filters.isActive !== undefined) {
+      query.isActive = filters.isActive;
+    }
+
     const skip = (pagination.page - 1) * pagination.limit;
+    const sort = buildLocationSort(filters.sortBy, filters.sortOrder);
     const [data, total] = await Promise.all([
-      this.locationModel.find().sort({ name: 1 }).skip(skip).limit(pagination.limit).exec(),
-      this.locationModel.countDocuments().exec(),
+      this.locationModel.find(query).sort(sort).skip(skip).limit(pagination.limit).exec(),
+      this.locationModel.countDocuments(query).exec(),
     ]);
 
     return new PaginatedResponseDto(data, total, pagination.page, pagination.limit);

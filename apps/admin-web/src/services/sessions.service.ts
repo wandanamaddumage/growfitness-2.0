@@ -12,24 +12,29 @@ interface CreateRecurringSessionsResponse {
   sessions: Session[];
 }
 
+export type SessionSortField = 'title' | 'dateTime' | 'type' | 'duration' | 'status' | 'createdAt';
+export type SortOrder = 'asc' | 'desc';
+
 export const sessionsService = {
   getSessions: (
     page: number = 1,
     limit: number = 10,
     filters?: {
+      search?: string;
       coachId?: string;
       locationId?: string;
       status?: SessionStatus;
       startDate?: string;
       endDate?: string;
-      sortBy?: 'dateTime' | 'createdAt';
-      sortOrder?: 'asc' | 'desc';
+      sortBy?: SessionSortField;
+      sortOrder?: SortOrder;
     }
   ) => {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
+    if (filters?.search) params.append('search', filters.search);
     if (filters?.coachId) params.append('coachId', filters.coachId);
     if (filters?.locationId) params.append('locationId', filters.locationId);
     if (filters?.status) params.append('status', filters.status);
