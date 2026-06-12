@@ -42,6 +42,7 @@ import {
   getCoreRowModel,
   useReactTable,
   SortingState,
+  OnChangeFn,
   getSortedRowModel,
   ColumnFiltersState,
   getFilteredRowModel,
@@ -69,6 +70,9 @@ interface DataTableProps<TData, TValue> {
   enableSorting?: boolean;
   className?: string;
   initialSorting?: SortingState;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  manualSorting?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -80,16 +84,22 @@ export function DataTable<TData, TValue>({
   enableSorting = true,
   className,
   initialSorting = [],
+  sorting: controlledSorting,
+  onSortingChange,
+  manualSorting = false,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>(initialSorting);
+  const [internalSorting, setInternalSorting] = useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const sorting = controlledSorting ?? internalSorting;
+  const handleSortingChange = onSortingChange ?? setInternalSorting;
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: handleSortingChange,
+    getSortedRowModel: manualSorting ? undefined : getSortedRowModel(),
+    manualSorting,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     enableSorting,
