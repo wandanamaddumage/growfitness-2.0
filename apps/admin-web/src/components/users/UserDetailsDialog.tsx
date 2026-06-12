@@ -8,10 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import {
-  formatDate, formatDateTime, formatEmploymentType, formatSessionType,
+  formatDate, formatEmploymentType, formatSessionType,
 } from '@/lib/formatters';
 import { User, Kid, Session } from '@grow-fitness/shared-types';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -57,7 +54,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
     () => { if (!userId) throw new Error('User ID is required'); return usersService.getCoachById(userId); },
     { enabled: isCoach && open && !!userId },
   );
-  const { data: coachSessionsData, isLoading: isLoadingCoachSessions } = useApiQuery(
+  const { data: coachSessionsData } = useApiQuery(
     ['sessions', 'coach', userId || 'no-id'],
     () => {
       if (!userId) throw new Error('User ID is required');
@@ -201,7 +198,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                   <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     {!isCoach && <TabsTrigger value="kids">Kids {totalKids > 0 && `(${totalKids})`}</TabsTrigger>}
-                    {isCoach && <TabsTrigger value="sessions">Sessions {totalCoachSessions > 0 && `(${totalCoachSessions})`}</TabsTrigger>}
+                    {/* {isCoach && <TabsTrigger value="sessions">Sessions {totalCoachSessions > 0 && `(${totalCoachSessions})`}</TabsTrigger>} */}
                   </TabsList>
 
                   <TabsContent value="overview" className="mt-4 space-y-4">
@@ -323,7 +320,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                     </TabsContent>
                   )}
 
-                  {isCoach && (
+                  {/* {isCoach && (
                     <TabsContent value="sessions" className="mt-4">
                       {isLoadingCoachSessions ? (
                         <div className="flex items-center justify-center py-16 text-muted-foreground">Loading sessions…</div>
@@ -365,7 +362,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                         </Card>
                       )}
                     </TabsContent>
-                  )}
+                  )} */}
                 </Tabs>
               )}
             </main>

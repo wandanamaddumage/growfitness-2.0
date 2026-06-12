@@ -72,7 +72,6 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={onSelect}
-          initialFocus
           defaultMonth={defaultMonth}
           captionLayout={enableYearMonthDropdown ? 'dropdown' : 'label'}
           startMonth={defaultStartMonth}
