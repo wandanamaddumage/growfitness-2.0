@@ -176,6 +176,7 @@ export function EditSessionDialog({
           : undefined,
       kidId: session.kidId ? extractId(session.kidId) : undefined,
       isFreeSession: session.isFreeSession,
+      isExtraSession: session.isExtraSession,
     },
   });
 
@@ -197,6 +198,7 @@ export function EditSessionDialog({
             : undefined,
         kidId: session.kidId ? extractId(session.kidId) : undefined,
         isFreeSession: session.isFreeSession,
+        isExtraSession: session.isExtraSession,
       });
       setRepeatMode('none');
       setInterval(1);
@@ -274,6 +276,7 @@ export function EditSessionDialog({
       kids: normalizedKids,
       // Explicitly include isFreeSession from form values to ensure it's always in the payload
       isFreeSession: formValues.isFreeSession !== undefined ? formValues.isFreeSession : false,
+      isExtraSession: formValues.isExtraSession !== undefined ? formValues.isExtraSession : false,
     };
 
     if (repeatMode === 'none') {
@@ -323,7 +326,7 @@ export function EditSessionDialog({
       capacity: submitData.capacity || session.capacity,
       kids: submitData.kids,
       isFreeSession: submitData.isFreeSession ?? false,
-      isExtraSession: session.isExtraSession ?? false,
+      isExtraSession: submitData.isExtraSession ?? false,
       recurrence: {
         frequency: repeatMode as RecurrenceFrequency,
         interval,
@@ -700,6 +703,25 @@ export function EditSessionDialog({
                   className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Free session
+                </label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isExtraSession"
+                  checked={form.watch('isExtraSession') || false}
+                  onCheckedChange={checked => {
+                    form.setValue('isExtraSession', checked === true, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                />
+                <label
+                  htmlFor="isExtraSession"
+                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Extra session
                 </label>
               </div>
 

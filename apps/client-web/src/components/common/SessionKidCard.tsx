@@ -60,8 +60,8 @@ interface SessionKidCardProps {
 
 export function SessionKidCard({ kid, isLoading }: SessionKidCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-  const [note, setNote] = useState('');
-  const [noteSaved, setNoteSaved] = useState(false);
+  // const [note, setNote] = useState('');
+  // const [noteSaved, setNoteSaved] = useState(false);
 
   const age = kid.birthDate ? calculateAge(kid.birthDate) : null;
 
@@ -80,10 +80,10 @@ export function SessionKidCard({ kid, isLoading }: SessionKidCardProps) {
         .toUpperCase()
     : '--';
 
-  const handleSaveNote = () => {
-    setNoteSaved(true);
-    setTimeout(() => setNoteSaved(false), 2000);
-  };
+  // const handleSaveNote = () => {
+  //   setNoteSaved(true);
+  //   setTimeout(() => setNoteSaved(false), 2000);
+  // };
 
   return (
     <Card className="overflow-hidden border shadow-sm hover:shadow-md transition-all duration-200">
@@ -254,7 +254,7 @@ export function SessionKidCard({ kid, isLoading }: SessionKidCardProps) {
 
 
               {/* Notes */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Notes</p>
 
                 <textarea
@@ -269,7 +269,7 @@ export function SessionKidCard({ kid, isLoading }: SessionKidCardProps) {
                     {noteSaved ? 'Saved ✓' : 'Save Note'}
                   </Button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </>
         )}
