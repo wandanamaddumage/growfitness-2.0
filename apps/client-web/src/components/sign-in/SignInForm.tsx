@@ -108,9 +108,9 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none shadow-none p-0 hover:bg-transparent focus:outline-none focus:ring-0"
                   >
-                    {showPassword ? <EyeOff size={18} enableBackground='false' /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
 
