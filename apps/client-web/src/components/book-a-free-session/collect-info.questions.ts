@@ -16,21 +16,43 @@ const fetchFreeSessions = async (): Promise<SessionOption[]> => {
     const response = await sessionsService.getFreeSessions(1, 100);
     const sessions = response?.data ?? [];
 
-    if (!sessions.length) {
-      return [];
-    }
+    if (!sessions.length) return [];
 
-    const mappedOptions = filterSelectableFreeSessions(sessions).map((session: Session) => {
+    const now = new Date();
+    const weekEnd = new Date();
+    weekEnd.setDate(now.getDate() + 7);
+
+    const mappedOptions = filterSelectableFreeSessions(sessions)
+      .filter((session: Session) => {
         const dateObj = new Date(session.dateTime);
 
-        const formattedDate = dateObj.toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
+        // only upcoming 7 days
+        return dateObj >= now && dateObj <= weekEnd;
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+      )
+      .map((session: Session) => {
+        const startDate = new Date(session.dateTime);
+
+        const durationMinutes = session.duration ?? 120;
+        const endDate = new Date(
+          startDate.getTime() + durationMinutes * 60000
+        );
+
+        // 👇 ONLY weekday name (Monday, Tuesday, etc.)
+        const weekday = startDate.toLocaleDateString('en-US', {
+          weekday: 'long',
         });
 
-        const formattedTime = dateObj.toLocaleTimeString('en-US', {
+        const startTime = startDate.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+
+        const endTime = endDate.toLocaleTimeString('en-US', {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true,
@@ -38,14 +60,13 @@ const fetchFreeSessions = async (): Promise<SessionOption[]> => {
 
         return {
           value: session.id,
-          label: `${formattedDate} at ${formattedTime} - ${
+          label: `${weekday} ${startTime} – ${endTime} - ${
             session.location?.name ?? 'Location'
           }`,
-          dateTime: new Date(session.dateTime),
+          dateTime: startDate,
           locationId: session.locationId,
         };
-      }
-    );
+      });
 
     return mappedOptions;
   } catch (error) {

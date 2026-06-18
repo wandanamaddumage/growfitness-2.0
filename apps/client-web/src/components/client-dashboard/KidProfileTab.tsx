@@ -513,13 +513,14 @@ export function KidProfileTab() {
                       <SelectValue placeholder="Select session type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="INDIVIDUAL">Private (one-on-one)</SelectItem>
+                      <SelectItem value="INDIVIDUAL">Private</SelectItem>
                       <SelectItem value="GROUP">Group</SelectItem>
+                      <SelectItem value="FAMILY">Both</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
                   <div className="flex h-10 items-center text-sm font-medium text-foreground px-3 rounded-md border border-border/20 bg-muted/10 cursor-default">
-                    {formData.sessionType === "INDIVIDUAL" ? "Private (one-on-one)" : "Group"}
+                    {formData.sessionType === "INDIVIDUAL" ? "Private" : formData.sessionType === "GROUP" ? "Group" : "Both"}
                   </div>
                 )}
               </div>
