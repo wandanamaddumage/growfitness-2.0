@@ -76,6 +76,7 @@ export function getTabsForUser(role: 'COACH' | 'PARENT', kidType?: 'GROUP' | 'IN
   if (role === 'PARENT') {
     if (kidType === 'GROUP') return parentGroupTabs;
     if (kidType === 'INDIVIDUAL') return parentIndividualTabs;
+    if (kidType === 'Both') return parentIndividualTabs;
   }
 
   return EMPTY_TABS;
