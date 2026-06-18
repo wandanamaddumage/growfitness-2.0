@@ -131,7 +131,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     className="ml-3 font-semibold shadow-lg bg-brand-green hover:bg-brand-dark text-white rounded-full px-6 transition-all"
                     onClick={() => navigate('/free-session')}
                   >
-                    Book Free Session
+                    Enroll Your Child
                   </Button>
                 </>
               )}
@@ -228,7 +228,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                 <div className="pt-3 border-t mt-3 flex flex-col gap-2">
                   <Button onClick={() => navigate('/login')}>Sign In</Button>
 
-                  <Button onClick={() => navigate('/free-session')}>Book Free Session</Button>
+                  <Button onClick={() => navigate('/free-session')}>Enroll Your Child</Button>
                 </div>
               )}
             </div>
