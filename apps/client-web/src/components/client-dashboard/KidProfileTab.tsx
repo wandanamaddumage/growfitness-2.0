@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -32,11 +31,9 @@ import {
   User,
   Calendar,
   Award,
-  Heart,
   Loader2,
   Save,
   Stethoscope,
-  Activity,
   Camera,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -44,20 +41,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 type KidFieldKey = "name" | "gender" | "birthDate" | "goal";
 
 const MEDICAL_CONDITIONS = ["Asthma", "Diabetes", "Heart condition", "Allergy"];
-
-interface StatPillProps {
-  icon: React.ReactNode;
-  label: string;
-}
-
-function StatPill({ icon, label }: StatPillProps) {
-  return (
-    <div className="inline-flex items-center gap-1.5 rounded-full bg-secondary/80 px-2.5 py-1 text-xs font-medium text-secondary-foreground shadow-sm">
-      {icon}
-      <span>{label}</span>
-    </div>
-  );
-}
 
 export function KidProfileTab() {
   const { toast } = useToast();
