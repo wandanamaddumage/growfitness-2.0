@@ -1,7 +1,7 @@
 import type React from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getTabsForUser } from '@/constants/dashboard';
-import type { SessionType } from '@grow-fitness/shared-types';
+import { SessionType } from '@grow-fitness/shared-types';
 
 interface DesktopTabsProps {
   activeTab: string;
@@ -19,11 +19,12 @@ export function DesktopTabs({
   kidType,
 }: DesktopTabsProps) {
   // Convert SessionType enum to string literals
-  const kidTypeStr = kidType === 'GROUP'
-    ? 'GROUP' as const
-    : kidType === 'INDIVIDUAL'
-      ? 'INDIVIDUAL' as const
-      : undefined;
+  const kidTypeStr =
+    kidType === SessionType.GROUP
+      ? 'GROUP'
+      : kidType === SessionType.INDIVIDUAL || kidType === SessionType.BOTH
+        ? 'INDIVIDUAL'
+        : undefined;
 
   const tabs = getTabsForUser(user.role as 'COACH' | 'PARENT', kidTypeStr);
 
