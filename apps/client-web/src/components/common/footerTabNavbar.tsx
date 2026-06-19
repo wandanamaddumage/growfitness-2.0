@@ -1,7 +1,7 @@
 import { getTabsForUser } from '@/constants/dashboard';
 import type { ComponentType, SVGProps } from 'react';
 
-import type { SessionType, UserRole } from '@grow-fitness/shared-types';
+import { SessionType, type UserRole } from '@grow-fitness/shared-types';
 import { FloatingDock } from './FloatingDock';
 
 interface MobileTabNavProps {
@@ -24,11 +24,12 @@ export function MobileTabNav({
   kidType,
 }: MobileTabNavProps) {
   // Convert SessionType enum to string literals
-  const kidTypeStr = kidType === 'GROUP' 
-    ? 'GROUP' as const
-    : kidType === 'INDIVIDUAL' 
-    ? 'INDIVIDUAL' as const
-    : undefined;
+  const kidTypeStr =
+    kidType === SessionType.GROUP
+      ? 'GROUP'
+      : kidType === SessionType.INDIVIDUAL || kidType === SessionType.BOTH
+        ? 'INDIVIDUAL'
+        : undefined;  
 
   const tabs = getTabsForUser(user as 'COACH' | 'PARENT', kidTypeStr);
 
