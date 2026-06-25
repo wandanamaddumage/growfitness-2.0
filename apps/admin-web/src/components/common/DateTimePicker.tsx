@@ -22,7 +22,7 @@ export function DateTimePicker({
   disabled,
   className,
 }: DateTimePickerProps) {
-  // Convert date prop to Date object if it's a string
+
   const getDateValue = (dateProp: Date | string | undefined): Date | undefined => {
     if (!dateProp) return undefined;
     if (typeof dateProp === 'string') {
@@ -33,12 +33,12 @@ export function DateTimePicker({
   };
 
   const dateValue = getDateValue(date);
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(dateValue);
   const [timeValue, setTimeValue] = useState<string>(
     dateValue ? format(dateValue, 'HH:mm') : ''
   );
 
-  // Sync with external date prop changes
   useEffect(() => {
     const newDateValue = getDateValue(date);
     setSelectedDate(newDateValue);
@@ -47,21 +47,18 @@ export function DateTimePicker({
 
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
-      // If we have a time, combine it with the new date
+      const combinedDate = new Date(newDate);
+
       if (timeValue) {
         const [hours, minutes] = timeValue.split(':').map(Number);
-        const combinedDate = new Date(newDate);
         combinedDate.setHours(hours, minutes, 0, 0);
-        setSelectedDate(combinedDate);
-        onSelect(combinedDate);
       } else {
-        // If no time selected, use the date with current time
-        const combinedDate = new Date(newDate);
         const now = new Date();
         combinedDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
-        setSelectedDate(combinedDate);
-        onSelect(combinedDate);
       }
+
+      setSelectedDate(combinedDate);
+      onSelect(combinedDate);
     } else {
       setSelectedDate(undefined);
       onSelect(undefined);
@@ -70,10 +67,13 @@ export function DateTimePicker({
 
   const handleTimeChange = (time: string) => {
     setTimeValue(time);
+
     if (selectedDate && time) {
       const [hours, minutes] = time.split(':').map(Number);
       const combinedDate = new Date(selectedDate);
+
       combinedDate.setHours(hours, minutes, 0, 0);
+
       setSelectedDate(combinedDate);
       onSelect(combinedDate);
     }
@@ -81,6 +81,8 @@ export function DateTimePicker({
 
   return (
     <div className={cn('flex gap-2 w-full', className)}>
+      
+      {/* DATE PICKER */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -99,6 +101,7 @@ export function DateTimePicker({
             </span>
           </Button>
         </PopoverTrigger>
+
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
@@ -108,15 +111,16 @@ export function DateTimePicker({
           />
         </PopoverContent>
       </Popover>
+
+      {/* TIME INPUT */}
       <div className="relative w-full sm:w-36 shrink-0">
-        <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <Input
-          type="time"
-          value={timeValue}
-          onChange={e => handleTimeChange(e.target.value)}
-          className="pl-9 h-10"
-          disabled={disabled || !selectedDate}
-        />
+      <Input
+        type="time"
+        value={timeValue}
+        onChange={e => handleTimeChange(e.target.value)}
+        disabled={disabled || !selectedDate}
+        className="pl-9 h-10"
+      />
       </div>
     </div>
   );
