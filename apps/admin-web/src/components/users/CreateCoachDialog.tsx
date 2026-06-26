@@ -26,7 +26,7 @@ import { usersService } from '@/services/users.service';
 import { uploadFileViaGcs } from '@/services/uploads.service';
 import { useToast } from '@/hooks/useToast';
 import { useModalParams } from '@/hooks/useModalParams';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Plus, Trash2 } from 'lucide-react';
 import { FileDropzone } from '@/components/common/FileDropzone';
 
 interface CreateCoachDialogProps {
@@ -188,6 +188,8 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
     createMutation.mutate({ payload, photoFile, cvFile });
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="p-0 flex flex-col max-h-[90vh]">
@@ -216,13 +218,27 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
                   <Input {...form.register('phone')} />
                 </CustomFormField>
 
-                <CustomFormField
-                  label="Password"
-                  required
-                  error={form.formState.errors.password?.message}
-                >
-                  <Input type="password" {...form.register('password')} />
-                </CustomFormField>
+               <CustomFormField
+                label="Password"
+                required
+                error={form.formState.errors.password?.message}
+              >
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    {...form.register('password')}
+                    className="pr-10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </CustomFormField>
 
                 <CustomFormField label="Date of birth" error={form.formState.errors.dateOfBirth?.message}>
                   <Input type="date" {...form.register('dateOfBirth')} />

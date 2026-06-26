@@ -23,7 +23,7 @@ import { SessionType } from '@grow-fitness/shared-types';
 import { useApiMutation } from '@/hooks/useApiMutation';
 import { usersService } from '@/services/users.service';
 import { useToast } from '@/hooks/useToast';
-import { Plus, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
 import { DatePicker } from '@/components/common/DatePicker';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
@@ -144,6 +144,9 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh]">
@@ -198,7 +201,21 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
                   required
                   error={form.formState.errors.password?.message}
                 >
-                  <Input type="password" {...form.register('password')} />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      {...form.register('password')}
+                      className="pr-10"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </CustomFormField>
 
                 <CustomFormField
@@ -206,7 +223,21 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
                   required
                   error={form.formState.errors.confirmPassword?.message}
                 >
-                  <Input type="password" {...form.register('confirmPassword')} />
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      {...form.register('confirmPassword')}
+                      className="pr-10"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18}/>}
+                    </button>
+                  </div>
                 </CustomFormField>
               </>
             ) : (
