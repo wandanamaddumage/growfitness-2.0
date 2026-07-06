@@ -1,6 +1,11 @@
 /* src/index.css */
 
 /* ------------------- */
+/* Google Fonts Import */
+/* ------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* ------------------- */
 /* Tailwind Directives  */
 /* ------------------- */
 @tailwind base;
@@ -25,11 +30,6 @@
   font-style: normal;
   font-display: swap;
 }
-
-/* ------------------- */
-/* Google Fonts Import */
-/* ------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 /* ------------------- */
 /* CSS Variables / Theme */

@@ -10,7 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       '@grow-fitness/invoice-print': path.resolve(
         __dirname,
-        '../../packages/invoice-print/src/index.ts'
+        '../../packages/invoice-print/src/index-browser.ts'
       ),
     },
   },
