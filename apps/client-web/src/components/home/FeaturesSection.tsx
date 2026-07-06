@@ -1,64 +1,57 @@
-import { Heart, Users, Trophy } from 'lucide-react';
-import { Container } from '../layout/Container';
+import React from 'react';
 
-export function FeaturesSection() {
-  const features = [
-    {
-      icon: Heart,
-      title: 'Fun & Engaging',
-      description:
-        'Interactive workouts and games designed specifically for children to make fitness enjoyable and sustainable 🎮',
-      bgColor: 'bg-brand-light',
-      iconColor: 'text-brand-green',
-    },
-    {
-      icon: Users,
-      title: 'Parent Dashboard',
-      description:
-        "Track your child's progress, schedule sessions, and communicate with coaches all in one place 📊",
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-500',
-    },
-    {
-      icon: Trophy,
-      title: 'Expert Coaches',
-      description:
-        'Certified fitness professionals specialized in child development and age-appropriate training methods 🏆',
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-500',
-    },
-  ];
+const features = [
+  {
+    icon: "/images/Grow VI Elements/Icons/Heart.png",
+    t: "Fun & Engaging",
+    d: "Interactive workouts and games designed specifically for children so fitness feels like play, not work.",
+  },
+  {
+    icon: "/images/Grow VI Elements/Icons/T shirt.png",
+    t: "Parent Dashboard",
+    d: (
+      <>
+        Track your child's progress, schedule sessions, and connect with coaches all in one place.
+        <br />
+        <i>(For personal training sessions only)</i>
+      </>
+    ),
+  },
+  {
+    icon: "/images/Grow VI Elements/Icons/Cup.png",
+    t: "Expert Coaches",
+    d: "Certified fitness professionals who specialise in child development and age-appropriate training methods.",
+  },
+];
 
-  return (
-    <section className="pb-24 bg-white relative" id="programs">
-      <Container>
-        <div className="text-center mb-20">
-          <div className="w-12 h-1 bg-brand-green mx-auto mb-6 rounded-full"></div>
-          <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed italic text-lg">
-            "We provide a comprehensive platform for kids fitness with
-            specialized tools for parents and coaches"
-          </p>
-        </div>
+export const FeaturesSection: React.FC = () => (
+  <section className="px-6 md:px-12 py-24" style={{ background: "white" }}>
+    <div className="max-w-[1240px] mx-auto">
+      <div className="text-center mb-16">
+        <p className="font-bold text-xs uppercase tracking-widest mb-4" style={{ color: "var(--gf-green)" }}>
+          What makes us different
+        </p>
+        <h2 style={{ fontFamily: "var(--font-alt)", fontWeight: 900, fontSize: 48, color: "var(--gf-green-deep)" }}>
+          Built for kids. Trusted by parents.
+        </h2>
+        <p className="mx-auto mt-4" style={{ fontSize: 18, color: "var(--fg-2)", maxWidth: 520, lineHeight: 1.6 }}>
+          We provide a complete platform for kids' fitness with specialist tools for parents and coaches.
+        </p>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group text-center"
-            >
-              <div className={`w-16 h-16 sm:w-20 sm:h-20 ${feature.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 sm:mb-8 group-hover:rotate-6 transition-transform`}>
-                <feature.icon className={`h-8 w-8 sm:h-10 sm:w-10 ${feature.iconColor}`} />
-              </div>
-              <h3 className="text-gray-900 text-xl sm:text-2xl font-bold mb-3 sm:mb-4 font-insanibc">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                {feature.description}
-              </p>
+      <div className="grid md:grid-cols-3 gap-6">
+        {features.map((f) => (
+          <div key={f.t} className="gf-card-lift rounded-[32px] p-10" style={{ background: "var(--gf-cream)", border: "1.5px solid var(--line)" }}>
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6">
+              <img src={f.icon} alt={f.t} className="w-full h-full object-contain" />
             </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
+            <h3 style={{ fontFamily: "var(--font-alt)", fontWeight: 900, fontSize: 24, color: "var(--gf-green-deep)", marginBottom: 12 }}>
+              {f.t}
+            </h3>
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--fg-2)" }}>{f.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);

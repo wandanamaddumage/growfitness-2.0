@@ -1,24 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/useAuth';
 import { useParentProfile } from '@/contexts/parent-profile/ParentProfileProvider';
 import { useCoachProfile } from '@/contexts/coach-profile/CoachProfileProvider';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import { Dumbbell, Users, Info, Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { Container } from './Container';
 
-const logo = '/Grow Logo Versions-01.svg';
+const logo = '/images/Grow VI Elements/Logos/New logo dark green.png';
 
 const navLinks = [
-  { label: 'About Us', href: '#about', icon: Info },
-  { label: 'Our Plans', href: '#plans', icon: Dumbbell },
-  { label: 'Programs', href: '#programs', icon: Users },
-  { label: 'FAQ', href: '#faq', icon: Info },
+  { label: 'Home', href: '#home' },
+  { label: 'Programs', href: '#programs' },
+  { label: 'Preschool', href: '#preschool' },
+  { label: 'About', href: '#about' },
+  { label: 'Blog', href: '#blog' },
 ];
 
 type HeaderProps = {
@@ -114,36 +114,51 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
+      <nav 
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-2"
+        style={{
+          background: isSolid 
+            ? 'rgba(251, 248, 237, 0.95)' 
+            : 'rgba(251, 248, 237, 0.85)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: isSolid 
+            ? '1.5px solid var(--line)' 
+            : '1px solid transparent',
+          boxShadow: isSolid 
+            ? '0 4px 20px rgba(36, 62, 54, 0.08)' 
+            : 'none',
+          fontFamily: 'var(--font-sans)',
+        }}
+      >
         <Container>
-          <div className="flex items-center justify-between h-16 md:h-20">
+          <div className="flex items-center justify-between h-16 md:h-[72px]">
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <img
                 src={logo}
                 alt="Grow Fitness"
-                className="h-10 md:h-12 w-auto transition-transform group-hover:scale-110"
+                className="h-14 md:h-20 w-auto transition-transform duration-300 group-hover:scale-110"
               />
-              <span className="font-display font-bold text-xl md:text-2xl text-brand-green">
-                GrowFitness
-              </span>
             </Link>
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map(link => {
-                const Icon = link.icon;
-
                 return (
-                  <button
+                  <Button
                     key={link.label}
                     onClick={() => handleNavClick(link.href)}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:text-brand-green hover:bg-brand-light transition-all duration-200 flex items-center gap-2"
+                    variant="ghost"
+                    size="default"
+                    className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:border-none"
+                    style={{
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
                   >
-                    <Icon className="h-4 w-4" />
                     {link.label}
-                  </button>
+                  </Button>
                 );
               })}
 
@@ -151,16 +166,27 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                 <>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="ml-3 font-semibold text-brand-green border-2 border-brand-green hover:bg-brand-green hover:text-white transition-all rounded-full px-6"
+                    size="default"
+                    className="ml-3 font-semibold transition-all rounded-full px-6 py-5 bg-transparent hover:bg-transparent hover:border-none gf-btn-pop"
+                    style={{
+                      color: 'var(--gf-green-deep)',
+                      border: '3px solid var(--gf-green-deep)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
                     onClick={() => navigate('/login')}
                   >
                     Sign In
                   </Button>
 
                   <Button
-                    size="sm"
-                    className="ml-3 font-semibold shadow-lg bg-brand-green hover:bg-brand-dark text-white rounded-full px-6 transition-all"
+                    size="default"
+                    className="ml-3 font-semibold shadow-lg transition-all rounded-full px-6 py-6 gf-btn-pop"
+                    style={{
+                      color: 'white',
+                      background: 'var(--gf-green)',
+                      boxShadow: '0 5px 0 var(--gf-green-deep)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
                     onClick={() => navigate('/free-session')}
                   >
                     Enroll Your Child
@@ -174,13 +200,14 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="rounded-full p-1 hover:bg-gray-50"
+                    className="rounded-full p-1 transition-transform hover:scale-105"
+                    style={{ background: 'transparent' }}
                   >
                     <UserAvatar
                       photoUrl={headerPhotoUrl}
                       displayName={headerDisplayName}
                       email={user?.email}
-                      className="size-9 cursor-pointer"
+                      className="size-9 cursor-pointer border-2 border-solid border-[var(--gf-green)]"
                     />
                   </button>
 
@@ -188,7 +215,12 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="flex items-center gap-2 hover:bg-gray-50 border-none"
+                    className="flex items-center gap-2 transition-all rounded-full"
+                    style={{
+                      border: '1.5px solid var(--line)',
+                      color: 'var(--fg-2)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
                   >
                     <LogOut className="h-4 w-4" />
                     Logout
@@ -200,57 +232,108 @@ export default function Header({ forceSolid = false }: HeaderProps) {
             {/* Mobile Toggle */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className={cn(
-                'md:hidden p-2 rounded-lg',
-                isSolid ? 'text-foreground' : 'text-primary'
-              )}
+              className="md:hidden p-2 rounded-lg transition-colors"
+              style={{
+                color: isSolid ? 'var(--fg-1)' : 'var(--gf-green)',
+                background: 'transparent',
+              }}
             >
-              {menuOpen ? <X /> : <Menu />}
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </Container>
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden bg-background/98 backdrop-blur-lg border-b border-border">
+          <div 
+            className="md:hidden border-b"
+            style={{
+              background: 'var(--gf-cream)',
+              borderColor: 'var(--line)',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
             <div className="px-4 py-4 space-y-1">
 
               {navLinks.map(link => {
-                const Icon = link.icon;
 
                 return (
                   <button
                     key={link.label}
                     onClick={() => handleNavClick(link.href)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-accent w-full text-left"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left transition-all duration-200"
+                    style={{
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
                   >
-                    <Icon className="h-4 w-4" />
                     {link.label}
                   </button>
                 );
               })}
 
               {isAuthenticated ? (
-                <div className="pt-3 border-t mt-3 flex flex-col gap-2">
-                  <Button variant="outline" onClick={() => navigate('/dashboard')}>
+                <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/dashboard')}
+                    className="rounded-full"
+                    style={{
+                      borderColor: 'var(--line)',
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     Dashboard
                   </Button>
 
-                  <Button variant="outline" onClick={() => navigate('/profile')}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/profile')}
+                    className="rounded-full"
+                    style={{
+                      borderColor: 'var(--line)',
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     Profile
                   </Button>
 
-                  <Button variant="destructive" onClick={handleLogout}>
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleLogout}
+                    className="rounded-full"
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     Logout
                   </Button>
                 </div>
               ) : (
-                <div className="pt-3 border-t mt-3 flex flex-col gap-2">
-                  <Button onClick={() => navigate('/login')}>
+                <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
+                  <Button 
+                    onClick={() => navigate('/login')}
+                    className="rounded-full"
+                    style={{
+                      background: 'var(--gf-green)',
+                      color: 'white',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     Sign In
                   </Button>
 
-                  <Button onClick={() => navigate('/free-session')}>
+                  <Button 
+                    onClick={() => navigate('/free-session')}
+                    className="rounded-full"
+                    style={{
+                      background: 'var(--gf-green-deep)',
+                      color: 'white',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     Enroll Your Child
                   </Button>
                 </div>

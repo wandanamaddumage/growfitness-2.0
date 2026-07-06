@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, Star } from 'lucide-react';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import type { Banner } from '@grow-fitness/shared-types';
-import { Container } from '../layout/Container';
+import { Container } from '../../layout/Container';
 
 interface HeroTopProps {
   banners: Banner[];

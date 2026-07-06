@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Heart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-import { testimonialsService } from '@/services/testimonials.service';
-import type { Testimonial } from '@grow-fitness/shared-types';
-import { Container } from '../layout/Container';
+import React, { useEffect, useState } from "react";
+import { Users } from "lucide-react";
+import { StarRow } from "./common/StarRow";
+import type { Testimonial } from "@grow-fitness/shared-types";
+import { testimonialsService } from "@/services/testimonials.service";
 
-export function TestimonialsSection() {
+export const TestimonialsSection: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     fetchTestimonials();
@@ -18,139 +17,141 @@ export function TestimonialsSection() {
       const response = await testimonialsService.getTestimonials(1, 10, true);
       setTestimonials(response.data);
     } catch (error) {
-      console.error('Failed to fetch testimonials', error);
+      console.error("Failed to fetch testimonials", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const nextTestimonial = () => {
-    setActiveIndex((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const prevTestimonial = () => {
-    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
-  const mascotPlaceholders = [
-    "/images/character1.png",
-    "/images/character2.png",
-    "/images/character3.png",
-  ];
+  if (loading) {
+    return (
+      <section className="py-24 text-center">
+        Loading testimonials...
+      </section>
+    );
+  }
 
   return (
-    <section className="relative py-24 overflow-hidden bg-brand-light/20">
-      <Container className="relative">
+    <section
+      className="relative overflow-hidden px-6 md:px-12 py-24"
+      style={{ background: "var(--gf-leaf-50)" }}
+    >
+      <div className="max-w-[1240px] mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-insanibc">
-            What Parents Are <span className="text-brand-green">Saying</span>
-          </h2>
-
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto italic leading-relaxed">
-            "Real stories from families who experienced the GROW difference 💕"
+        <div className="text-center mb-14">
+          <p
+            className="font-bold text-xs uppercase tracking-widest mb-4"
+            style={{ color: "var(--gf-green)" }}
+          >
+            Real families, real results
           </p>
+
+          <h2
+            style={{
+              fontFamily: "var(--font-alt)",
+              fontWeight: 900,
+              fontSize: 48,
+              color: "var(--gf-green-deep)",
+            }}
+          >
+            What parents are saying
+          </h2>
         </div>
 
-        {/* Testimonials Grid/Carousel Container */}
-        <div className="max-w-4xl mx-auto">
-          {loading ? (
-            <div className="text-center text-gray-500 text-lg animate-pulse">
-              Loading testimonials...
-            </div>
-          ) : (
-            <div className="relative group">
-              {testimonials.length > 0 ? (
-                <div className="relative">
-                  {testimonials.map((item, index) => (
-                    <div
-                      key={item.id}
-                      className={`transition-all duration-700 ${
-                        index === activeIndex 
-                          ? 'opacity-100 translate-x-0 relative z-10' 
-                          : 'opacity-0 translate-x-8 absolute inset-0 z-0 pointer-events-none'
-                      }`}
+        {/* Testimonials */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {testimonials.slice(0, 3).map((t, index) => {
+            const isFeatured = index === 1;
+
+            return (
+              <div
+                key={t.id}
+                className="gf-card-lift rounded-[32px] p-9"
+                style={
+                  isFeatured
+                    ? {
+                        background: "white",
+                        border: "3px solid var(--gf-green-deep)",
+                        boxShadow: "var(--shadow-pop)",
+                      }
+                    : {
+                        background: "white",
+                        border: "1.5px solid var(--line)",
+                        boxShadow: "var(--shadow-2)",
+                      }
+                }
+              >
+                {/* Top Review Badge (middle card only) */}
+                {isFeatured && (
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 mb-4"
+                    style={{
+                      background: "var(--gf-sun)",
+                      border: "1.5px solid var(--gf-green-deep)",
+                    }}
+                  >
+                    <span
+                      className="font-bold text-[11px] uppercase tracking-widest"
+                      style={{ color: "var(--gf-green-deep)" }}
                     >
-                      <div className="bg-white rounded-[3rem] p-10 md:p-14 shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-10 items-center">
-                        <div className="relative">
-                          <div className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden border-4 border-brand-light rotate-3">
-                            <img 
-                              src={item.authorAvatar || mascotPlaceholders[index % mascotPlaceholders.length]} 
-                              alt={item.authorName} 
-                              className="w-full h-full object-cover" 
-                            />
-                          </div>
-                          <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-brand-green rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                            <Heart className="w-6 h-6 text-white" />
-                          </div>
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex gap-1 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`w-6 h-6 ${i < (item.rating || 5) ? 'text-brand-accent fill-brand-accent' : 'text-gray-200'}`} 
-                              />
-                            ))}
-                          </div>
-                          
-                          <p className="text-xl md:text-2xl text-gray-800 font-medium mb-8 leading-relaxed italic">
-                            "{item.content}"
-                          </p>
-                          
-                          <div>
-                            <div className="font-bold text-xl text-gray-900 font-insanibc">{item.authorName}</div>
-                            <div className="text-gray-500 font-medium">
-                              {item.childName}, age {item.childAge}
-                            </div>
-                            <div className="text-brand-green font-bold text-sm tracking-widest uppercase mt-1">
-                              Member for {item.membershipDuration}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center text-gray-500 py-12">
-                  No testimonials yet. Be the first to share your story!
-                </div>
-              )}
-              
-              {/* Carousel Controls */}
-              {testimonials.length > 1 && (
-                <div className="flex justify-center items-center gap-6 mt-12">
-                  <button 
-                    onClick={prevTestimonial}
-                    className="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-all"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <div className="flex gap-2">
-                    {testimonials.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveIndex(i)}
-                        className={`transition-all duration-300 rounded-full ${
-                          i === activeIndex ? 'w-8 h-3 bg-brand-green' : 'w-3 h-3 bg-gray-200'
-                        }`}
-                      />
-                    ))}
+                      Top Review
+                    </span>
                   </div>
-                  <button 
-                    onClick={nextTestimonial}
-                    className="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-all"
+                )}
+
+                <StarRow />
+
+                {/* Testimonial text */}
+                <p
+                  className="italic mb-7"
+                  style={{
+                    fontSize: 16,
+                    lineHeight: 1.65,
+                    color: "var(--fg-1)",
+                  }}
+                >
+                  {t.content}
+                </p>
+
+                {/* Author */}
+                <div
+                  className="flex items-center gap-3 pt-5"
+                  style={{ borderTop: "1px solid var(--line)" }}
+                >
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: "var(--gf-green-100)",
+                      border: "2px solid var(--line)",
+                    }}
                   >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
+                    <Users size={26} color="#23b685" strokeWidth={1.5} />
+                  </div>
+
+                  <div>
+                    <p
+                      className="font-bold text-[15px]"
+                      style={{ color: "var(--gf-green-deep)" }}
+                    >
+                      {t.authorName}
+                    </p>
+
+                    {t.childName && (
+                      <p
+                        className="text-[13px]"
+                        style={{ color: "var(--fg-3)" }}
+                      >
+                        {t.childName}
+                        {t.childAge && `, age ${t.childAge}`}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            );
+          })}
         </div>
-      </Container>
+      </div>
     </section>
   );
-}
+};

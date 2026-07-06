@@ -1,57 +1,45 @@
-import { ArrowRight } from 'lucide-react';
-import { AnimatedButton } from '@/components/ui/animated-button';
-import { Container } from '../layout/Container';
+import React from 'react';
+import { ArrowRight } from "lucide-react";
 
-export const CTASection = () => {
-  return (
-    <section className="py-24">
-      <Container>
-        <div className="relative bg-gradient-to-br from-brand-green to-brand-dark rounded-[4rem] p-12 md:p-20 text-center overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -ml-24 -mb-24"></div>
+export const CTASection: React.FC = () => (
+  <section
+    className="relative overflow-hidden px-6 md:px-12 py-24"
+    style={{ background: "var(--gf-sun)", borderTop: "2px solid var(--gf-green-deep)", borderBottom: "2px solid var(--gf-green-deep)" }}
+  >
+     <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[200px] opacity-30 pointer-events-none" style={{ left: -20, top: -40 }} />
 
-          <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-8 animate-bounce">
-              <span className="text-3xl">🚀</span>
-            </div>
+    <div className="max-w-[1240px] mx-auto grid md:grid-cols-[1fr_auto] gap-16 items-center relative z-10">
+      <div>
+        <p className="font-bold text-xs uppercase tracking-widest mb-5" style={{ color: "var(--gf-green-deep)", opacity: 0.6 }}>
+          Ready to start?
+        </p>
+        <h2 className="uppercase mb-6" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(40px,6vw,76px)", lineHeight: 0.92, color: "var(--gf-green-deep)" }}>
+          PHONE DOWN.
+          <br />
+          BODY UP.
+          <br />
+          LET'S GO.
+        </h2>
+        <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--gf-green-deep)", opacity: 0.75, maxWidth: 460, marginBottom: 36 }}>
+          Join the families across Sri Lanka who chose Grow for their child's health and confidence.
+        </p>
 
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 font-insanibc leading-tight">
-              Ready to Start Your Child's <br />
-              <span className="text-brand-accent">Fitness Journey?</span>
-            </h2>
+        <a
+          href="#"
+          className="gf-btn-pop text-[18px] px-10 py-[18px]"
+          style={{ color: "white", background: "var(--gf-green-deep)", boxShadow: "0 8px 0 rgba(36,62,54,0.35)" }}
+        >
+          Enroll your child
+          <ArrowRight size={18} strokeWidth={2.5} />
+        </a>
+      </div>
 
-            <p className="text-white/80 text-lg md:text-xl mb-12 max-w-2xl mx-auto">
-              Join thousands of families who trust GROW for their children's health
-              and wellness. Get started today!
-            </p>
+      <div className="flex-shrink-0 w-[280px] hidden md:block">
+        {/* <Buddy fast className="w-full" /> */}
+        <img src="images/Grow VI Elements/Icons/Grow buddy 2.png" alt='Personal' className="absolute w-[320px] pointer-events-none z-50 animate-bounce" style={{ right: -20, bottom: -20 }} />
+      </div>
+    </div>
 
-            <AnimatedButton
-              href="/free-session"
-              variant="default"
-              size="lg"
-              className="bg-white text-brand-green hover:bg-brand-light font-bold rounded-full px-10 py-8 text-xl shadow-2xl transition-all"
-              rightIcon={ArrowRight}
-            >
-              Enroll Your Child
-            </AnimatedButton>
-
-            <div className="flex flex-wrap justify-center gap-6 mt-10 text-white/70 text-sm font-medium leading-relaxed">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-brand-accent rounded-full"></div>
-                No credit card required
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-brand-accent rounded-full"></div>
-                Free consultation
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-brand-accent rounded-full"></div>
-                Cancel anytime
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-};
+    <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[200px] opacity-30 pointer-events-none" style={{ right: -10, bottom: -20 }} />
+  </section>
+);
