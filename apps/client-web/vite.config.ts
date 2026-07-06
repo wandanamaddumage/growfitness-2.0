@@ -18,4 +18,8 @@ export default defineConfig({
     exclude: ['@grow-fitness/invoice-print'],
     include: ['html2canvas', 'jspdf'],
   },
+  build: {
+    chunkSizeWarningLimit: 2000,
+    assetsInlineLimit: 0,
+  },
 })

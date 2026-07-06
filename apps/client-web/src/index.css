@@ -13,29 +13,10 @@
 @tailwind utilities;
 
 /* ------------------- */
-/* Custom Font Declarations */
-/* ------------------- */
-@font-face {
-  font-family: 'Insanibc';
-  src: url('./assets/fonts/Insanibc.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Now-Regular';
-  src: url('./assets/fonts/Now-Regular.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ------------------- */
 /* CSS Variables / Theme */
 /* ------------------- */
 :root {
-  font-family: 'Now-Regular', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Poppins', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #1f2937;
@@ -115,7 +96,7 @@ html, body, #root {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Insanibc', system-ui, Arial, sans-serif;
+  font-family: 'Lilita One', system-ui, Arial, sans-serif;
 }
 
 h1 {
