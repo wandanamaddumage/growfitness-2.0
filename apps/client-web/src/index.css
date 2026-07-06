@@ -27,6 +27,11 @@
 }
 
 /* ------------------- */
+/* Google Fonts Import */
+/* ------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* ------------------- */
 /* CSS Variables / Theme */
 /* ------------------- */
 :root {
@@ -59,6 +64,30 @@
   --brand-dark: #0b3b2c;
   --brand-light-green: #e9f9ef;
   --brand-accent: #facc15; /* Yellow/Gold for stars */
+
+  /* Grow Fitness Theme Colors */
+  --gf-green: #23b685;
+  --gf-green-deep: #243e36;
+  --gf-leaf: #afe27d;
+  --gf-sun: #fffd77;
+  --gf-ink: #191919;
+  --gf-paper: #ffffff;
+  --gf-green-50: #e8f7f0;
+  --gf-green-100: #c6ecd9;
+  --gf-leaf-50: #f1faea;
+  --gf-sun-50: #fffce0;
+  --gf-cream: #fbf8ed;
+  --fg-1: var(--gf-green-deep);
+  --fg-2: #4a6359;
+  --fg-3: #88a297;
+  --line: #d8e6dd;
+  --font-display: "Lilita One", "Poppins", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-alt: "Poppins", system-ui, sans-serif;
+  --shadow-1: 0 1px 2px rgba(36,62,54,0.06), 0 2px 6px rgba(36,62,54,0.04);
+  --shadow-2: 0 4px 12px rgba(36,62,54,0.08), 0 2px 4px rgba(36,62,54,0.05);
+  --shadow-pop: 0 8px 0 var(--gf-green-deep);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
 
   /* Sidebar colors */
   --sidebar: #f8fafc;
@@ -207,6 +236,117 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ------------------- */
+/* Grow Fitness Scope Styles */
+/* ------------------- */
+.gf-scope {
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  background: var(--gf-cream);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.gf-scope a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Keyframes for animations */
+@keyframes buddy-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes flower-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animation classes */
+.gf-buddy-float {
+  animation: buddy-float 3.5s ease-in-out infinite;
+}
+
+.gf-buddy-float-fast {
+  animation: buddy-float 2.5s ease-in-out infinite;
+}
+
+.gf-flower-spin {
+  animation: flower-spin 40s linear infinite;
+  transform-origin: center;
+}
+
+/* Navigation */
+.gf-nav-a {
+  transition: color 140ms;
+}
+
+.gf-nav-a:hover {
+  color: var(--gf-green) !important;
+}
+
+/* Button Pop */
+.gf-btn-pop {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  border: none;
+  transition: transform 120ms var(--ease-bounce), box-shadow 120ms;
+  text-decoration: none;
+}
+
+.gf-btn-pop:hover {
+  transform: translateY(-2px);
+}
+
+.gf-btn-pop:active {
+  transform: translateY(5px) !important;
+  box-shadow: none !important;
+}
+
+/* Card Lift */
+.gf-card-lift {
+  transition: transform 220ms var(--ease-bounce), box-shadow 220ms;
+}
+
+.gf-card-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Challenge Item */
+.gf-challenge-item {
+  transition: transform 180ms var(--ease-bounce), box-shadow 180ms;
+}
+
+.gf-challenge-item:hover {
+  transform: translateX(6px);
+}
+
+/* Step Card */
+.gf-step-card {
+  transition: transform 220ms var(--ease-bounce), box-shadow 220ms;
+}
+
+.gf-step-card:hover {
+  transform: translateY(-6px);
+}
+
+/* FAQ Row */
+.gf-faq-row {
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.gf-faq-row:hover {
+  background: var(--gf-green-50) !important;
 }
 
 /* ------------------- */

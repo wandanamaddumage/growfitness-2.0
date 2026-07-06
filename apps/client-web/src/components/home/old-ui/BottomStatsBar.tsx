@@ -1,5 +1,5 @@
 import { Star, Users, Heart, Award } from 'lucide-react';
-import { Container } from '../layout/Container';
+import { Container } from '../../layout/Container';
 
 export const BottomStatsBar = () => {
   const trustStats = [

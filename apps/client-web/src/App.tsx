@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
+import HomePage from "./pages/HomePage";
 import { DashboardLayout, Layout } from "./components/layout/Layout";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import DashboardPage from "./components/dashboard/DashboardPage";
@@ -46,7 +46,7 @@ function App() {
           <Route path="/free-session" element={<BookAFreeSession />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
         {/* ---------- PROTECTED ROUTES WITH SIDENAV ---------- */}

@@ -1,218 +1,118 @@
-import { useState, useRef, useEffect } from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { MessageCircle, ChevronRight, Info, Users, User, School } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Container } from "@/components/layout/Container";
-import { faqSections } from "@/data/faq-data";
+import React from 'react';
+import { ChevronDown, ArrowRight } from "lucide-react";
 
-const SECTION_ICONS = [
-  <Info className="w-5 h-5" />,
-  <Users className="w-5 h-5" />,
-  <User className="w-5 h-5" />,
-  <School className="w-5 h-5" />,
+const faqs = [
+  {
+    q: "What is Grow Fitness?",
+    a: "Fitness for kids 4+ in Colombo. We build real movement, coordination, strength, and confidence through group sessions, personal training, and preschool partnerships. Screens are replacing movement. We help kids fall back in love with it, and that shift changes everything.",
+  },
+  {
+    q: "What ages do you work with?",
+    a: "4 and above. Private training sessions are customised according to the kids objectives and challenges.",
+  },
+  {
+    q: "Is my child safe?",
+    a: "Our coaches are ex-professional or ex-schoolboy athletes, all trained through our own program before they touch a session. Many hold external qualifications too. We follow LTAD (Long Term Athlete Development), the global standard for age-appropriate development. Not just safe. World-class.",
+  },
+  {
+    q: "How do I know this actually works?",
+    a: "90%+ of kids show visible physical development within 8 weeks. Not self-reported. Visible.",
+  },
+  {
+    q: "Is there a trial session?",
+    a: "Yes. You can request a trial first before committing.",
+  },
+  {
+    q: "What if my child stops enjoying it?",
+    a: "Rare, but if it happens, tell us. We'll find what's off and fix it. Usually a small change is all it takes. If you think it doesn't fit still, it's easy to discontinue. Simply call us.",
+  },
+  {
+    q: "My child isn't sporty at all. Is this still for them?",
+    a: "Especially for them. We're not building athletes. We're building kids comfortable and capable in their own bodies.",
+  },
+  {
+    q: "What's the difference between personal training and group?",
+    a: "Personal training is built around your child specifically, strength, coordination, speed, balance, sport prep, etc. We track progress and share progress reports with parents every 2 months.",
+  },
 ];
 
-export function FaqSection() {
-  const [active, setActive] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const current = faqSections[active];
-  const contentRef = useRef<HTMLDivElement>(null);
+interface FAQSectionProps {
+  openFaq: number | null;
+  setOpenFaq: React.Dispatch<React.SetStateAction<number | null>>;
+}
 
-  const handleTabChange = (i: number) => {
-    if (i === active) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setActive(i);
-      setAnimating(false);
-    }, 180);
-  };
-
-  useEffect(() => {
-    contentRef.current?.scrollTo({ top: 0 });
-  }, [active]);
+export const FAQSection: React.FC<FAQSectionProps> = ({ openFaq, setOpenFaq }) => {
+  const toggleFaq = (i: number) => setOpenFaq((s) => (s === i ? null : i));
 
   return (
-    <section
-      id="faq"
-      className="relative overflow-hidden bg-brand-dark text-white bg-grain py-24 sm:py-24 md:py-32"
-    >
-      {/* Background decoration */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        <div className="absolute -right-32 -top-32 h-[300px] w-[300px] rounded-full bg-primary/10 blur-[80px] md:-right-64 md:-top-64 md:h-[500px] md:w-[500px] md:blur-[100px]" />
-        <div className="absolute -bottom-24 -left-24 h-[250px] w-[250px] rounded-full bg-primary/5 blur-[80px] md:-bottom-48 md:-left-48 md:h-[400px] md:w-[400px] md:blur-[100px]" />
-      </div>
+    <section className="relative overflow-hidden px-6 md:px-12 py-24" style={{ background: "var(--gf-cream)" }}>
+      <img
+          src="/images/Grow VI Elements/Icons/Yellow abs.png"
+          alt="flower"
+          className="absolute w-[360px] opacity-70 pointer-events-none"
+          style={{ right: -80, top: -60 }}
+        />
 
-      <Container className="relative">
-        {/* Header */}
-        <div className="mx-auto mb-10 md:mb-16 max-w-2xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
-            FAQ
-          </span>
-
-          <h2 className="mt-4 md:mt-5 font-insanibc text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-wide text-white font-bold">
-            Everything parents
-            <span className="relative ml-3 whitespace-nowrap text-primary">
-              need to know
-              <svg
-                aria-hidden
-                viewBox="0 0 220 12"
-                fill="none"
-                className="absolute -bottom-2 left-0 w-full"
-                preserveAspectRatio="none"
-              >
-                <path
-                  d="M2 9C60 3 120 3 218 9"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  className="text-primary/30"
-                />
-              </svg>
-            </span>
+      <div className="max-w-[760px] mx-auto relative z-10">
+        <div className="text-center mb-16">
+          <p className="font-bold text-xs uppercase tracking-widest mb-4" style={{ color: "var(--gf-green)" }}>Got questions</p>
+          <h2 className="uppercase" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(34px,5vw,64px)", lineHeight: 0.92, color: "var(--gf-green-deep)" }}>
+            FAIR
+            <br />
+            QUESTIONS.
           </h2>
-
-          <p className="mt-4 md:mt-6 text-sm sm:text-base md:text-lg leading-relaxed text-white/70">
-            Find quick answers to the questions we hear most from families.
-          </p>
         </div>
 
-        <div className="grid gap-8 md:gap-10 lg:grid-cols-[280px_1fr] lg:gap-12 xl:grid-cols-[300px_1fr]">
-
-          {/* ── Sidebar ── */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            {/*
-              Mobile:  2-column grid so all 4 tabs are fully visible — zero scrolling
-              Desktop: vertical flex column (unchanged)
-            */}
-            <nav className="grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-2">
-              {faqSections.map((s, i) => (
-                <button
-                  key={s.title}
-                  onClick={() => handleTabChange(i)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium transition-all duration-200",
-                    "sm:gap-3 sm:px-4 sm:py-3 sm:text-sm",
-                    "lg:gap-3 lg:px-4 lg:py-3 lg:text-sm",
-                    active === i
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : "border border-border/40 bg-secondary/20 text-white/70 hover:bg-secondary/40 hover:text-white"
-                  )}
-                >
-                  <span className="shrink-0 leading-none">{SECTION_ICONS[i]}</span>
-                  <span className="flex-1 leading-snug">{s.title}</span>
-                  <span
-                    className={cn(
-                      "ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                      active === i ? "bg-black/20 text-white" : "bg-black/30 text-white/50"
-                    )}
-                  >
-                    {s.faqs.length}
-                  </span>
-                </button>
-              ))}
-            </nav>
-
-            {/* WhatsApp CTA — desktop only */}
-            <a
-              href="https://wa.me/94770569954"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 hidden lg:flex items-center gap-3 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/20"
+        <div className="flex flex-col">
+          {faqs.map((f, i) => (
+            <div
+              key={f.q}
+              className="gf-faq-row"
+              style={{
+                borderTop: "1.5px solid var(--line)",
+                borderBottom: i === faqs.length - 1 ? "1.5px solid var(--line)" : "none",
+              }}
+              onClick={() => toggleFaq(i)}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500 text-white">
-                <MessageCircle className="h-4 w-4" />
-              </span>
-              <span className="leading-snug">
-                Still have questions?
-                <br />
-                <span className="font-semibold text-white">WhatsApp us</span>
-              </span>
-              <ChevronRight className="ml-auto h-4 w-4 text-green-400/70" />
-            </a>
-          </aside>
-
-          {/* ── Accordion content ── */}
-          <div
-            ref={contentRef}
-            className={cn(
-              "transition-opacity duration-200",
-              animating ? "opacity-0" : "opacity-100"
-            )}
-          >
-            {/* Category header */}
-            <div className="mb-4 md:mb-6 flex items-center gap-3">
-              <span className="text-xl md:text-2xl text-primary">
-                {SECTION_ICONS[active]}
-              </span>
-              <div>
-                <h3 className="text-lg md:text-xl font-bold text-white">
-                  {current.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-white/50">
-                  {current.faqs.length} question
-                  {current.faqs.length !== 1 ? "s" : ""}
+              <div className="flex items-center justify-between gap-6 px-2 py-6 cursor-pointer">
+                <p style={{ fontFamily: "var(--font-alt)", fontWeight: 900, fontSize: 19, color: "var(--gf-green-deep)", lineHeight: 1.3 }}>
+                  {f.q}
                 </p>
-              </div>
-            </div>
-
-            {/* Accordion */}
-            <Accordion
-              key={current.title}
-              type="single"
-              collapsible
-              className="flex flex-col gap-2 md:gap-3 w-full"
-            >
-              {current.faqs.map((faq, i) => (
-                <AccordionItem
-                  key={i}
-                  value={`item-${i}`}
-                  className="overflow-hidden rounded-xl border border-border/40 bg-secondary/40 hover:bg-secondary/60"
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: "var(--gf-green)", boxShadow: "0 3px 0 var(--gf-green-deep)" }}
                 >
-                  {/* FIX: text-black → text-white (was invisible on dark background) */}
-                  <AccordionTrigger className="px-4 py-3 sm:px-6 sm:py-4 md:py-5 text-sm sm:text-base font-semibold text-black hover:text-primary transition-colors text-left">
-                    <span className="flex items-start gap-3 flex-1 text-left pr-4">
-                      <span className="grid place-items-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-bold flex-shrink-0">
-                        {i + 1}
-                      </span>
-                      <span className="flex-1 pt-0.5">{faq.q}</span>
-                    </span>
-                  </AccordionTrigger>
-
-                  {/* FIX: removed hover:text-black which made answers invisible on hover */}
-                  <AccordionContent className="px-4 py-4 sm:px-6 sm:py-6 text-sm sm:text-base leading-relaxed font-bold text-white/80 hover:text-black">
-                    <div className="pl-10 sm:pl-11">{faq.a}</div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-
-            {/* Mobile WhatsApp CTA */}
-            <a
-              href="https://wa.me/94770569954"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 flex items-center justify-center gap-3 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3.5 text-sm font-medium text-green-400 hover:bg-green-500/20 lg:hidden"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500 text-white">
-                <MessageCircle className="h-4 w-4" />
-              </span>
-              <span>
-                Still have questions?{" "}
-                <span className="font-semibold text-white">WhatsApp us</span>
-              </span>
-              <ChevronRight className="ml-auto h-4 w-4 text-green-400/70" />
-            </a>
-          </div>
+                  <ChevronDown
+                    size={14}
+                    color="white"
+                    strokeWidth={3}
+                    style={{ transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 200ms" }}
+                  />
+                </div>
+              </div>
+              {openFaq === i && (
+                <div className="px-2 pb-7 -mt-2">
+                  <p style={{ fontSize: 16, lineHeight: 1.7, color: "var(--fg-2)" }}>{f.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-      </Container>
+
+        <div className="mt-11 flex items-center justify-center gap-4 flex-wrap">
+          <p style={{ fontSize: 16, color: "var(--fg-2)" }}>More questions?</p>
+          <a
+            href="https://wa.me/94770569954"
+            target="_blank"
+            rel="noreferrer"
+            className="gf-btn-pop text-[15px] px-6 py-3"
+            style={{ color: "white", background: "#25d366", boxShadow: "0 5px 0 #1da851" }}
+          >
+            WhatsApp us
+            <ArrowRight size={14} strokeWidth={2.5} />
+          </a>
+        </div>
+      </div>
     </section>
   );
-}
+};

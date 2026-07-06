@@ -1,72 +1,71 @@
-import { Phone, Lightbulb, Megaphone } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Container } from "../layout/Container";
+import React from 'react';
+import { PhoneCall, Lightbulb, PlayCircle } from "lucide-react";
 
-const steps = [
-  {
-    icon: Phone,
-    title: "Discovery",
-    desc: "We understand your child's current needs over a call.",
-    dark: false,
-  },
-  {
-    icon: Lightbulb,
-    title: "Program selection",
-    desc: "We recommend you a program. Group sessions, personal training sessions, or both.",
-    dark: false,
-  },
-  {
-    icon: Megaphone,
-    title: "First session",
-    desc: "Group sessions have fixed time slots. If you'd like to enroll into personal training, we discuss times and dates for sessions.",
-    dark: true,
-  },
-];
+export const HowItWorksSection: React.FC = () => (
+  <section className="relative overflow-hidden px-6 md:px-12 py-24" style={{ background: "var(--gf-cream)" }}>
+    <img src="images/Grow VI Elements/Icons/Mix abs 2.png" alt='Personal' className="absolute w-[200px] opacity-30 pointer-events-none" style={{ right: -30, top: 60 }} />
 
-export function HowItWorksSection() {
-  return (
-    <section id="about" className="py-20 bg-primary/10">
-      <Container>
-        <h2 className="font-insanibc text-3xl md:text-4xl text-center text-foreground uppercase tracking-wide mb-12 font-bold">
-          How Grow Fitness Works
+
+    <div className="max-w-[1240px] mx-auto relative z-10">
+      <div className="text-center mb-16">
+        <p className="font-bold text-xs uppercase tracking-widest mb-4" style={{ color: "var(--gf-green)" }}>The process</p>
+        <h2
+          className="uppercase"
+          style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px,5vw,60px)", lineHeight: 0.95, color: "var(--gf-green-deep)" }}
+        >
+          HOW GROW
+          <br />
+          FITNESS WORKS.
         </h2>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {steps.map((s, i) => (
-            <div
-              key={s.title}
-              className={`rounded-3xl p-8 shadow-card transition-transform hover:-translate-y-1 
-                ${s.dark
-                  ? "bg-brand-dark text-white"
-                  : "bg-card text-foreground"
-                }`}
-            >
-              <span
-                className={`grid place-items-center w-16 h-16 rounded-2xl mb-6 ${s.dark ? "bg-accent text-brand-dark" : "bg-primary text-primary-foreground"
-                  }`}
+      <div className="grid md:grid-cols-3 gap-6 mb-14">
+        {[
+          { icon: <PhoneCall size={24} color="white" strokeWidth={2} />, step: "Step 1", t: "Discuss about your kid", d: "Five minute call to discuss what they're like, what they struggle with, what they need.", dark: false },
+          { icon: <Lightbulb size={24} color="white" strokeWidth={2} />, step: "Step 2", t: "Program selection", d: "We recommend the right program. Group sessions, personal training, or both. You decide what fits.", dark: false },
+          { icon: <PlayCircle size={24} color="var(--gf-green-deep)" strokeWidth={2} />, step: "Step 3", t: "First session", d: "Group sessions have fixed weekly slots. Personal training is scheduled around your free time slots.", dark: true },
+        ].map((s) => (
+          <div
+            key={s.t}
+            className="gf-step-card rounded-[32px] p-9"
+            style={
+              s.dark
+                ? { background: "var(--gf-green-deep)", border: "2px solid var(--gf-green-deep)", boxShadow: "var(--shadow-pop)" }
+                : { background: "white", border: "1.5px solid var(--line)", boxShadow: "var(--shadow-2)" }
+            }
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div
+                className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center"
+                style={{ background: s.dark ? "var(--gf-sun)" : "var(--gf-green)", boxShadow: s.dark ? "0 4px 0 rgba(0,0,0,0.3)" : "0 4px 0 var(--gf-green-deep)" }}
               >
-                <s.icon className="w-7 h-7" />
-              </span>
-              <div className={`text-xs font-bold mb-2 ${s.dark ? "text-accent" : "text-primary"}`}>
-                Step {i + 1}
+                {s.icon}
               </div>
-              <h3 className="font-insanibc text-2xl mb-3 leading-snug font-bold">{s.title}</h3>
-              <div className={`h-px w-12 mb-3 ${s.dark ? "bg-white/20" : "bg-border"}`} />
-              <p className={`text-base leading-relaxed ${s.dark ? "text-white/80" : "text-muted-foreground"}`}>
-                {s.desc}
-              </p>
+              <span
+                className="uppercase text-[15px]"
+                style={{ fontFamily: "var(--font-display)", color: s.dark ? "var(--gf-sun)" : "var(--gf-green)", letterSpacing: "0.05em" }}
+              >
+                {s.step}
+              </span>
             </div>
-          ))}
-        </div>
+            <h3 style={{ fontFamily: "var(--font-alt)", fontWeight: 900, fontSize: 26, color: s.dark ? "white" : "var(--gf-green-deep)", marginBottom: 12 }}>
+              {s.t}
+            </h3>
+            <div className="w-8 h-[3px] rounded mb-4" style={{ background: s.dark ? "var(--gf-sun)" : "var(--gf-green)" }} />
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: s.dark ? "var(--gf-leaf)" : "var(--fg-2)" }}>{s.d}</p>
+          </div>
+        ))}
+      </div>
 
-        <div className="mt-10 flex justify-center">
-          <Button className="rounded-full bg-brand-dark hover:bg-brand-dark/90 text-white h-12 px-8" asChild>
-            <a href="/free-session" className="hover:text-white">
-              Try the first session
-            </a>
-          </Button>
-        </div>
-      </Container>
-    </section>
-  );
-}
+      <div className="text-center">
+        <a
+          href="#"
+          className="gf-btn-pop text-[16px] px-10 py-4"
+          style={{ color: "white", background: "var(--gf-green)", boxShadow: "0 7px 0 var(--gf-green-deep)" }}
+        >
+          Try the first session
+        </a>
+      </div>
+    </div>
+  </section>
+);
