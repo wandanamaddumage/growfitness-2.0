@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react';
-import { Container } from '../layout/Container';
+import { Container } from '../../layout/Container';
 
 export const MidStats = () => {
   const stats = [

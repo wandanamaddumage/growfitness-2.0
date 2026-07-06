@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { Container } from '../layout/Container';
+import { Container } from '../../layout/Container';
 
 export function BenefitsSection() {
   const benefits = [
