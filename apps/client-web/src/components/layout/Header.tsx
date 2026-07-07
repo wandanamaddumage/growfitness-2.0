@@ -114,18 +114,18 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
   return (
     <>
-      <nav 
+      <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-2"
         style={{
-          background: isSolid 
-            ? 'rgba(251, 248, 237, 0.95)' 
+          background: isSolid
+            ? 'rgba(251, 248, 237, 0.95)'
             : 'rgba(251, 248, 237, 0.85)',
           backdropFilter: 'blur(12px)',
-          borderBottom: isSolid 
-            ? '1.5px solid var(--line)' 
+          borderBottom: isSolid
+            ? '1.5px solid var(--line)'
             : '1px solid transparent',
-          boxShadow: isSolid 
-            ? '0 4px 20px rgba(36, 62, 54, 0.08)' 
+          boxShadow: isSolid
+            ? '0 4px 20px rgba(36, 62, 54, 0.08)'
             : 'none',
           fontFamily: 'var(--font-sans)',
         }}
@@ -212,15 +212,15 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                   </button>
 
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 transition-all rounded-full"
+                    variant="ghost"
+                    size="default"
+                    className="ml-3 font-semibold transition-all rounded-full px-6 py-5 bg-transparent hover:bg-transparent hover:border-none gf-btn-pop"
                     style={{
-                      border: '1.5px solid var(--line)',
-                      color: 'var(--fg-2)',
+                      color: 'var(--gf-green-deep)',
+                      border: '3px solid var(--gf-green-deep)',
                       fontFamily: 'var(--font-sans)',
                     }}
+                    onClick={handleLogout}
                   >
                     <LogOut className="h-4 w-4" />
                     Logout
@@ -245,7 +245,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div 
+          <div
             className="md:hidden border-b"
             style={{
               background: 'var(--gf-cream)',
@@ -274,8 +274,8 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
               {isAuthenticated ? (
                 <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => navigate('/dashboard')}
                     className="rounded-full"
                     style={{
@@ -287,8 +287,8 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     Dashboard
                   </Button>
 
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => navigate('/profile')}
                     className="rounded-full"
                     style={{
@@ -300,8 +300,8 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     Profile
                   </Button>
 
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     onClick={handleLogout}
                     className="rounded-full"
                     style={{
@@ -313,7 +313,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                 </div>
               ) : (
                 <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/login')}
                     className="rounded-full"
                     style={{
@@ -325,7 +325,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     Sign In
                   </Button>
 
-                  <Button 
+                  <Button
                     onClick={() => navigate('/free-session')}
                     className="rounded-full"
                     style={{
