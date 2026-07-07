@@ -22,11 +22,11 @@ const stats = [
 export const StatsSection: React.FC = () => (
   <section className="relative overflow-hidden px-6 md:px-12 py-24" style={{ background: "var(--gf-green-deep)" }}>
     <img
-        src="/images/Grow VI Elements/Icons/Yellow abs.png"
-        alt="flower"
-        className="absolute w-[360px] opacity-70 pointer-events-none"
-        style={{ left: -80, top: -60 }}
-      />
+      src="/images/Grow VI Elements/Icons/Yellow abs.png"
+      alt="flower"
+      className="absolute w-[360px] opacity-10 pointer-events-none"
+      style={{ left: -80, top: -60 }}
+    />
 
     <div className="max-w-[1240px] mx-auto text-center relative z-10">
       <p className="font-bold text-xs uppercase tracking-widest mb-5" style={{ color: "var(--gf-leaf)" }}>
@@ -103,10 +103,10 @@ export const StatsSection: React.FC = () => (
     </div>
 
     <img
-      src="/images/Grow VI Elements/Icons/Mix abs 2.png"
+      src="/images/Grow VI Elements/Icons/Mix abs.png"
       alt="mix abs"
-      className="absolute w-[240px] opacity-50 pointer-events-none"
-      style={{ right: -0, bottom: -20 }}
+      className="absolute w-[350px] opacity-20 pointer-events-none"
+      style={{ right: -60, bottom: -80 }}
     />
   </section>
 );
