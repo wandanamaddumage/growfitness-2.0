@@ -6,7 +6,7 @@ export const CTASection: React.FC = () => (
     className="relative overflow-hidden px-6 md:px-12 py-24"
     style={{ background: "var(--gf-sun)", borderTop: "2px solid var(--gf-green-deep)", borderBottom: "2px solid var(--gf-green-deep)" }}
   >
-     <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[200px] opacity-30 pointer-events-none" style={{ left: -20, top: -40 }} />
+    <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[250px] opacity-20 pointer-events-none" style={{ left: -20, top: -40 }} />
 
     <div className="max-w-[1240px] mx-auto grid md:grid-cols-[1fr_auto] gap-16 items-center relative z-10">
       <div>
@@ -40,6 +40,6 @@ export const CTASection: React.FC = () => (
       </div>
     </div>
 
-    <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[200px] opacity-30 pointer-events-none" style={{ right: -10, bottom: -20 }} />
+    <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[250px] opacity-20 pointer-events-none" style={{ right: -10, bottom: -20 }} />
   </section>
 );

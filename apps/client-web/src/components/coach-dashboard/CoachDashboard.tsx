@@ -34,7 +34,7 @@ export default function ClientDashboard() {
     );
   };
 
-  const tabComponents: Record<string, JSX.Element> = {
+  const tabComponents: Record<string, React.ReactNode> = {
     overview: <OverviewTab />,
     schedule: <ScheduleTab />,
   };

@@ -1,6 +1,70 @@
 /* src/index.css */
 
 /* ------------------- */
+/* Google Fonts Import */
+/* ------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* ------------------- */
+/* Custom Web Fonts Import */
+/* ------------------- */
+@font-face {
+  font-family: 'Insaniburger';
+  src: url('/fonts/insaniburger/Insanibu.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Insanibc';
+  src: url('/fonts/insaniburger/Insanibc.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now-Regular';
+  src: url('/fonts/now/Now-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+/* ------------------- */
 /* Tailwind Directives  */
 /* ------------------- */
 @tailwind base;
@@ -8,39 +72,15 @@
 @tailwind utilities;
 
 /* ------------------- */
-/* Custom Font Declarations */
-/* ------------------- */
-@font-face {
-  font-family: 'Insanibc';
-  src: url('./assets/fonts/Insanibc.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Now-Regular';
-  src: url('./assets/fonts/Now-Regular.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ------------------- */
-/* Google Fonts Import */
-/* ------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
-
-/* ------------------- */
 /* CSS Variables / Theme */
 /* ------------------- */
 :root {
-  font-family: 'Now-Regular', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Now', 'Poppins', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #1f2937;
   background-color: #ffffff;
-  font-synthesis: none;
+  font-synthesis: style;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -81,9 +121,9 @@
   --fg-2: #4a6359;
   --fg-3: #88a297;
   --line: #d8e6dd;
-  --font-display: "Lilita One", "Poppins", system-ui, sans-serif;
-  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-alt: "Poppins", system-ui, sans-serif;
+  --font-display: "Insaniburger", "Lilita One", system-ui, sans-serif;
+  --font-sans: "Now", "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-alt: "Now", "Poppins", system-ui, sans-serif;
   --shadow-1: 0 1px 2px rgba(36,62,54,0.06), 0 2px 6px rgba(36,62,54,0.04);
   --shadow-2: 0 4px 12px rgba(36,62,54,0.08), 0 2px 4px rgba(36,62,54,0.05);
   --shadow-pop: 0 8px 0 var(--gf-green-deep);
@@ -115,7 +155,7 @@ html, body, #root {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Insanibc', system-ui, Arial, sans-serif;
+  font-family: 'Insaniburger', system-ui, Arial, sans-serif;
 }
 
 h1 {
