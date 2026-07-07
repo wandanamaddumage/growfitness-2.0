@@ -4,11 +4,11 @@ import { Users, ArrowRight } from "lucide-react";
 export const HeadCoachSection: React.FC = () => (
   <section className="relative overflow-hidden px-6 md:px-12 py-24" style={{ background: "var(--gf-green-deep)" }}>
     <img
-        src="/images/Grow VI Elements/Icons/Yellow abs.png"
-        alt="flower"
-        className="absolute w-[360px] opacity-70 pointer-events-none"
-        style={{ right: -80, top: -60 }}
-      />
+      src="/images/Grow VI Elements/Icons/Yellow abs.png"
+      alt="flower"
+      className="absolute w-[360px] opacity-5 pointer-events-none"
+      style={{ right: -80, top: -60 }}
+    />
 
     <div className="max-w-[1240px] mx-auto grid md:grid-cols-[360px_1fr] gap-16 items-center relative z-10">
       <div className="relative">
@@ -73,5 +73,11 @@ export const HeadCoachSection: React.FC = () => (
         </a>
       </div>
     </div>
+    <img
+      src="/images/Grow VI Elements/Icons/Mix abs.png"
+      alt="mix abs"
+      className="absolute w-[300px] opacity-10 pointer-events-none"
+      style={{ left: -60, bottom: -80 }}
+    />
   </section>
 );

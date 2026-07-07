@@ -36,6 +36,12 @@ export const TestimonialsSection: React.FC = () => {
       className="relative overflow-hidden px-6 md:px-12 py-24"
       style={{ background: "var(--gf-leaf-50)" }}
     >
+      <img
+        src="/images/Grow VI Elements/Icons/Yellow abs.png"
+        alt="flower"
+        className="absolute w-[360px] opacity-40 pointer-events-none"
+        style={{ left: -80, bottom: -90 }}
+      />
       <div className="max-w-[1240px] mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14">
@@ -70,15 +76,15 @@ export const TestimonialsSection: React.FC = () => {
                 style={
                   isFeatured
                     ? {
-                        background: "white",
-                        border: "3px solid var(--gf-green-deep)",
-                        boxShadow: "var(--shadow-pop)",
-                      }
+                      background: "white",
+                      border: "3px solid var(--gf-green-deep)",
+                      boxShadow: "var(--shadow-pop)",
+                    }
                     : {
-                        background: "white",
-                        border: "1.5px solid var(--line)",
-                        boxShadow: "var(--shadow-2)",
-                      }
+                      background: "white",
+                      border: "1.5px solid var(--line)",
+                      boxShadow: "var(--shadow-2)",
+                    }
                 }
               >
                 {/* Top Review Badge (middle card only) */}
