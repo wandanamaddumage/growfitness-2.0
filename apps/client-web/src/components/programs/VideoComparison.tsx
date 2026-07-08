@@ -70,9 +70,9 @@ export function VideoComparison() {
 
           {/* VS Badge */}
           <span
-            className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-base font-bold uppercase text-black"
+            className="absolute left-1/2 top-1/2 flex h-12 w-12 opacity-80 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-base font-bold uppercase text-black"
             style={{
-              backgroundColor: "white/60",
+              backgroundColor: "white",
               border: "1px solid rgba(255,255,255,0.15)",
             }}
           >
