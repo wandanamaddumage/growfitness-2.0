@@ -2,16 +2,22 @@ import { LocationRow } from './common/LocationRow'
 
 export function MapSection() {
   return (
-    <section className="px-6 py-20" style={{ backgroundColor: "var(--gf-green-deep)" }}>
+    <section className="relative px-6 py-20" style={{ backgroundColor: "var(--gf-green-deep)" }}>
+      <img
+        src="/images/Grow VI Elements/Icons/Yellow abs.png"
+        alt="flower"
+        className="absolute w-[360px] pointer-events-none opacity-10 animate-spin-slow"
+        style={{ right: -80, top: -80 }}
+      />
       <div className="mx-auto max-w-6xl">
-        <h2
-          className="text-4xl font-extrabold uppercase leading-tight text-white md:text-5xl"
+        <h1
+          className="text-5xl font-extrabold uppercase leading-tight text-white md:text-7xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Where we
           <br />
           <span style={{ color: "var(--gf-sun)" }}>host sessions.</span>
-        </h2>
+        </h1>
 
         <div className="mt-10 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
           <div
@@ -28,10 +34,11 @@ export function MapSection() {
             </svg>
             {[
               { label: "Independence Square", top: "18%", left: "38%", type: "personal" },
-              { label: "Colpetty · Our office", top: "34%", left: "26%", type: "both" },
+              { label: "Colpetty", top: "34%", left: "26%", type: "both" },
               { label: "Nawala", top: "36%", left: "58%", type: "group" },
               { label: "Kirulapone", top: "56%", left: "44%", type: "group" },
               { label: "Dehiwala", top: "78%", left: "34%", type: "group" },
+              { label: "Our office", top: "40%", left: "30%", type: "personal" },
             ].map((pin) => (
               <div
                 key={pin.label}
@@ -41,7 +48,7 @@ export function MapSection() {
                 <span
                   className="flex h-4 w-4 items-center justify-center rounded-full ring-4"
                   style={{
-                    backgroundColor: pin.type === "personal" ? "var(--gf-green)" : "var(--gf-sun)",
+                    backgroundColor: pin.type === "personal" ? "var(--gf-leaf)" : "var(--gf-sun)",
                     boxShadow: "0 0 0 4px rgba(255,255,255,0.08)",
                   }}
                 />
@@ -55,7 +62,7 @@ export function MapSection() {
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "var(--gf-sun)" }} /> Group Sessions
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "var(--gf-green)" }} /> Personal Training
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "var(--gf-leaf)" }} /> Personal Training
               </span>
             </div>
             <p className="absolute left-3 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] tracking-[0.3em] text-white/25">
@@ -64,15 +71,15 @@ export function MapSection() {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <LocationRow name="Colpetty" sub="Saturdays · Colombo 3" />
-            <LocationRow name="Kirulapone" sub="Saturdays · Colombo 6" />
-            <LocationRow name="Nawala" sub="Saturdays · Nawala" />
-            <LocationRow name="Dehiwala" sub="Saturdays · Dehiwala" />
-            <p className="mt-2 text-center text-[11px] font-bold uppercase tracking-widest text-white/40">
+            <LocationRow name="Colpetty" sub="Saturdays · Colombo 3" sessionType={'group'} />
+            <LocationRow name="Kirulapone" sub="Saturdays · Colombo 6" sessionType={'group'} />
+            <LocationRow name="Nawala" sub="Saturdays · Nawala" sessionType={'group'} />
+            <LocationRow name="Dehiwala" sub="Saturdays · Dehiwala" sessionType={'group'} />
+            <p className="mt-2 text-center text-sm font-bold uppercase tracking-widest" style={{ color: "var(--gf-leaf)" }}>
               Personal Training
             </p>
-            <LocationRow name="Independence Square" sub="Any day · Colombo 7" />
-            <LocationRow name="Our office" sub="Any day · Colombo" />
+            <LocationRow name="Independence Square" sub="Any day · Colombo 7" sessionType={'personal'} />
+            <LocationRow name="Our office" sub="Any day · Colombo" sessionType={'personal'} />
           </div>
         </div>
       </div>

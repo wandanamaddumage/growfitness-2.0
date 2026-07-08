@@ -4,12 +4,18 @@ import { CheckItem } from "./common/CheckItem";
 
 export function ProgramCards() {
   return (
-    <section className="px-6 py-20" style={{ backgroundColor: "var(--gf-cream)" }}>
+    <section className="relative px-6 py-20" style={{ backgroundColor: "var(--gf-cream)" }}>
+       <img
+        src="/images/Grow VI Elements/Icons/Yellow abs.png"
+        alt="flower"
+        className="absolute w-[360px] pointer-events-none opacity-50"
+        style={{ left: -70, bottom: -90}}
+      />
       <div className="mx-auto flex max-w-6xl items-center md:grid md:grid-cols-2">
        
       </div>
 
-      <div className="mx-auto mt-6 grid max-w-6xl gap-6 md:grid-cols-2">
+      <div className="mx-auto mt-6 grid max-w-6xl gap-6 md:grid-cols-2" style={{ position: 'relative', zIndex: 1 }}>
         {/* Group Sessions Card */}
         <div>
           <div className="my-4">
@@ -19,13 +25,13 @@ export function ProgramCards() {
           </div>
          
          <div 
-          className="overflow-hidden rounded-3xl bg-white"
+          className="overflow-hidden rounded-3xl bg-white gf-card-lift"
           style={{ 
             border: `3px solid var(--gf-ink)`,
             boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
           }}
         >
-          <div className="relative px-7 pb-8 pt-7" style={{ backgroundColor: "var(--gf-green)" }}>
+          <div className="relative px-7 pb-8 pt-7" style={{ backgroundColor: "var(--gf-green)", position: 'relative', zIndex: 1}}>
              <img
               src="/images/Grow VI Elements/Icons/Heart g.png"
               alt="Mix Abs"
@@ -40,8 +46,8 @@ export function ProgramCards() {
               For kids who want a fun way to start fitness.
             </h3>
             <div className="mt-4 flex gap-2">
-              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)" }}>Ages 4 to 12</div>
-              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)" }}>1 hr per session</div>
+              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>Ages 4 to 12</div>
+              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>1 hr per session</div>
             </div>
             <img
               src="/images/Grow VI Elements/Icons/Mix abs 2.png"
@@ -121,7 +127,7 @@ export function ProgramCards() {
           For kids who need dedicated attention first
         </p>
           <div 
-          className="overflow-hidden rounded-3xl bg-white"
+          className="overflow-hidden rounded-3xl bg-white gf-card-lift"
           style={{ 
             border: `3px solid var(--gf-ink)`,
             boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
@@ -212,7 +218,7 @@ export function ProgramCards() {
       </div>
 
       {/* Not sure box */}
-      <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white px-8 py-6" style={{ border: "1px solid rgba(19,32,24,0.08)" }}>
+      <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white px-8 py-6" style={{ border: "1px solid rgba(19,32,24,0.08)", position: 'relative', zIndex: 1 }}>
         <div className="flex gap-3">
           <span 
             className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -228,12 +234,7 @@ export function ProgramCards() {
           </div>
         </div>
       </div>
-      <img
-        src="/images/Grow VI Elements/Icons/Yellow abs.png"
-        alt="flower"
-        className="absolute w-[360px] pointer-events-none animate-spin-slow"
-        style={{ right: 60, top: 80 }}
-      />
+     
     </section>
   );
 }
