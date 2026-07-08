@@ -1,5 +1,5 @@
-import { Star, Users } from "lucide-react";
-import { Pill } from "./Pill";
+import { Users } from "lucide-react";
+import { StarRow } from "@/components/home/common/StarRow";
 
 interface TestimonialCardProps {
   tag: string;
@@ -7,21 +7,6 @@ interface TestimonialCardProps {
   name: string;
   parentOf: string;
   highlighted?: boolean;
-}
-
-function Stars() {
-  return (
-    <div className="flex gap-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={18}
-          fill="var(--gf-sun)"
-          strokeWidth={0}
-        />
-      ))}
-    </div>
-  );
 }
 
 export function TestimonialCard({
@@ -51,30 +36,43 @@ export function TestimonialCard({
       {/* Featured badge */}
       {highlighted && (
         <div
-          className="inline-flex items-center w-fit gap-1.5 rounded-full px-3 py-1 mb-4"
+          className="inline-flex items-center w-fit gap-1.5 rounded-full px-3 py-1 mb-6"
           style={{
             background: "var(--gf-sun)",
             border: "1.5px solid var(--gf-green-deep)",
           }}
         >
           <span
-            className="font-bold text-[11px] uppercase tracking-widest"
+            className="font-bold text-[12px] uppercase tracking-widest"
             style={{ color: "var(--gf-green-deep)" }}
           >
-            Top Review
+            Group Session
           </span>
         </div>
       )}
 
       {/* Optional Tag */}
-      {!highlighted && (
-        <Pill variant="sun" className="w-fit uppercase mb-4">
-          {tag}
-        </Pill>
-      )}
+    {!highlighted && (
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide uppercase mb-6"
+        style={{
+          backgroundColor:
+            tag.toLowerCase() === "personal training sessions"
+              ? "var(--gf-green-50)"
+              : "var(--gf-sun-50)",
+          border: "1px solid var(--gf-green-50)",
+          color:
+            tag.toLowerCase() === "personal training sessions"
+              ? "var(--gf-green)"
+              : "var(--gf-green-deep)",
+        }}
+      >
+        {tag}
+      </span>
+    )}
 
       {/* Stars */}
-      <Stars />
+     <StarRow />
 
       {/* Quote */}
       <p

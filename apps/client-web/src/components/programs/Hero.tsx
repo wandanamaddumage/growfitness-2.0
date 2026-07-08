@@ -41,7 +41,7 @@ export function Hero() {
               className="font-bold text-[13px]"
               style={{ color: "var(--gf-green-deep)" }}
             >
-              FOR KIDS AGED 4 TO 12
+              FOR KIDS AGED 4 AND ABOVE
             </span>
           </div> 
           <h1
