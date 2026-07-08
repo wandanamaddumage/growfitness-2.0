@@ -1,132 +1,218 @@
-import { Check, Plus, Heart, Calendar, ArrowRight, Info } from "lucide-react";
+import { Check, Plus, Calendar, ArrowRight, Info, Users } from "lucide-react";
 import { Pill } from "./common/Pill";
 import { CheckItem } from "./common/CheckItem";
 
 export function ProgramCards() {
   return (
     <section className="px-6 py-20" style={{ backgroundColor: "var(--gf-cream)" }}>
-      <div className="mx-auto flex max-w-6xl items-center justify-between">
-        <Pill variant="sun">
-          <Check size={12} strokeWidth={3} /> MOST KIDS START HERE
-        </Pill>
-        <p className="hidden text-sm italic" style={{ color: "var(--fg-2)" }}>
-          For kids who need dedicated attention first
-        </p>
+      <div className="mx-auto flex max-w-6xl items-center md:grid md:grid-cols-2">
+       
       </div>
 
       <div className="mx-auto mt-6 grid max-w-6xl gap-6 md:grid-cols-2">
         {/* Group Sessions Card */}
-        <div 
+        <div>
+          <div className="my-4">
+            <Pill variant="sun">
+              <Check size={12} strokeWidth={3} /> MOST KIDS START HERE
+            </Pill>
+          </div>
+         
+         <div 
           className="overflow-hidden rounded-3xl bg-white"
           style={{ 
-            border: `1px solid var(--gf-ink)`,
+            border: `3px solid var(--gf-ink)`,
             boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
           }}
         >
           <div className="relative px-7 pb-8 pt-7" style={{ backgroundColor: "var(--gf-green)" }}>
-            <span className="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-white" />
+             <img
+              src="/images/Grow VI Elements/Icons/Heart g.png"
+              alt="Mix Abs"
+              className="absolute w-[90px] pointer-events-none"
+              style={{ right: 20, top: 20 }}
+            />
             <p className="text-xs font-bold uppercase tracking-widest text-white/80">Group Sessions</p>
             <h3
-              className="mt-2 text-2xl font-extrabold uppercase leading-tight text-white"
+              className="mt-2 text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               For kids who want a fun way to start fitness.
             </h3>
             <div className="mt-4 flex gap-2">
-              <Pill variant="white" className="bg-white/20 text-white">Ages 4 to 12</Pill>
-              <Pill variant="white" className="bg-white/20 text-white">1 hr per session</Pill>
+              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)" }}>Ages 4 to 12</div>
+              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)" }}>1 hr per session</div>
             </div>
+            <img
+              src="/images/Grow VI Elements/Icons/Mix abs 2.png"
+              alt="Mix Abs"
+              className="absolute w-[200px] opacity-30 pointer-events-none"
+              style={{ right: 10, bottom: -20 }}
+            />
           </div>
 
           <div className="space-y-5 px-7 py-7">
-            <CheckItem title="6 kids per coach" desc="Small enough that every kid is seen. Big enough to bring the energy." />
-            <CheckItem title="Saturdays, 4 locations" desc="Find a spot near you. Same great session everywhere." />
-            <CheckItem title="Agility, strength, balance" desc="Built through play. No drills, no lectures. Just moving." />
+           <div className="divide-y" style={{ borderColor: "var(--gf-ink)" }}>
+            <div className="py-4">
+              <CheckItem
+                title="6 kids per coach"
+                desc="Small enough that every kid is seen. Big enough to bring the energy."
+              />
+            </div>
 
-            <div className="flex items-start gap-3 rounded-2xl px-4 py-3" style={{ backgroundColor: "var(--gf-sun)" }}>
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/40">
-                <Info size={14} style={{ color: "var(--gf-ink)" }} />
+            <div className="py-4">
+              <CheckItem
+                title="Saturdays, 4 locations"
+                desc="Find a spot near you. Same great session everywhere."
+              />
+            </div>
+
+            <div className="py-4">
+              <CheckItem
+                title="Agility, strength, balance"
+                desc="Built through play. No drills, no lectures. Just moving."
+              />
+            </div>
+          </div>
+
+            <div className="flex items-start gap-3 rounded-2xl px-6 py-6" style={{ 
+              backgroundColor: "var(--gf-sun)",
+              border: `3px solid var(--gf-ink)`,
+              boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
+            }}>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: "var(--gf-green-deep)" }}>
+                <Users size={14} style={{ color: "var(--gf-sun)", backgroundColor: "var(--gf-green-deep)" }} />
               </span>
               <div>
-                <p className="text-sm font-bold" style={{ color: "var(--gf-ink)" }}>Only 30 spots per batch</p>
-                <p className="text-xs" style={{ color: "var(--gf-ink)", opacity: 0.75 }}>
+                <p className="text-md font-bold" style={{ color: "var(--gf-ink)" }}>Only 30 spots per batch</p>
+                <p className="text-md" style={{ color: "var(--gf-ink)", opacity: 0.75 }}>
                   Batches fill up fast. Check if there&apos;s still a spot for your kid.
                 </p>
               </div>
             </div>
 
-            <div className="rounded-2xl px-4 py-4" style={{ backgroundColor: "var(--gf-green-50)" }}>
-              <p className="text-sm italic leading-relaxed" style={{ color: "var(--gf-ink)" }}>
+            <div className="rounded-2xl px-6 py-6" style={{ 
+              backgroundColor: "var(--gf-green-50)",
+              border: `1px solid var(--gf-ink)`,
+              boxShadow: "-6px 0 0 var(--gf-green)"
+            }}>
+              
+              <p className="text-lg italic leading-relaxed" style={{ color: "var(--gf-ink)" }}>
                 “They&apos;ll start to love physical activities and gain confidence doing them.”
               </p>
             </div>
 
-            <button
-              className="flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold text-white"
-              style={{ backgroundColor: "var(--gf-ink)" }}
+            <a
+              href="/free-session"
+              className="gf-btn-pop text-[18px] px-10 py-[18px]"
+              style={{ color: "white", background: "var(--gf-green)", boxShadow: "0 8px 0 var(--gf-green-deep)" }}
             >
-              Try out a free session <ArrowRight size={15} />
-            </button>
+              Try out a free session
+              <ArrowRight size={18} strokeWidth={2.5} />
+            </a>
           </div>
         </div>
+        </div>
+       
 
         {/* Personal Training Card */}
-        <div 
+        <div>
+           <p className="my-4 text-sm italic text-left items-start self-start" style={{ color: "var(--fg-3)" }}>
+          For kids who need dedicated attention first
+        </p>
+          <div 
           className="overflow-hidden rounded-3xl bg-white"
           style={{ 
-            border: `1px solid var(--gf-ink)`,
+            border: `3px solid var(--gf-ink)`,
             boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
           }}
         >
-          <div style={{ height: 5, backgroundColor: "var(--gf-sun)" }} />
+       
           <div className="relative px-7 pb-8 pt-6" style={{ backgroundColor: "var(--gf-ink)" }}>
-            <span
-              className="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: "var(--gf-sun)", color: "var(--gf-ink)" }}
-            >
-              <Heart size={16} />
-            </span>
+            <img
+              src="/images/Grow VI Elements/Icons/Cup y.png"
+              alt="Mix Abs"
+              className="absolute w-[90px] pointer-events-none"
+              style={{ right: 20, top: 20 }}
+            />
             <Pill variant="sun" className="mb-3">
               <Plus size={12} strokeWidth={3} /> 1-ON-1
             </Pill>
-            <h3
-              className="text-2xl font-extrabold uppercase leading-tight text-white"
+             <h3
+              className="mt-2 text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               For kids who need individual attention
             </h3>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Pill variant="white" className="bg-white/10 text-white">Weekday sessions</Pill>
-              <Pill variant="white" className="bg-white/10 text-white">1 hr / session</Pill>
+              <div className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>Weekday sessions</div>
+              <div className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>1 hr / session</div>
             </div>
-            <div className="mt-3">
-              <Pill variant="sun">Under 4 or over 12? Start here.</Pill>
+            <div className="mt-3 text-md">
+              <Pill variant="sun" className="text-md">Under 4 or over 18? Start here.</Pill>
             </div>
+            <img
+              src="/images/Grow VI Elements/Icons/Mix abs.png"
+              alt="Mix Abs"
+              className="absolute w-[200px] opacity-30 pointer-events-none"
+              style={{ right: -30, bottom: -30 }}
+            />
           </div>
+            <div style={{ height: 5, backgroundColor: "var(--gf-sun)" }} />
 
           <div className="space-y-5 px-7 py-7">
-            <CheckItem title="We start with an assessment" desc="Before the first session, we get to know your kid. Their strengths, gaps, and what they actually enjoy." />
-            <CheckItem title="A plan built just for them" desc="No templates. Every session follows a customised workout plan designed around your child's specific goals." />
-            <CheckItem title="Bi-monthly progress reports" desc="Parents receive a detailed update every two months. You'll always know exactly how your kid is growing." />
+           <div className="divide-y" style={{ borderColor: "var(--gf-ink)" }}>
+          <div className="py-4">
+            <CheckItem
+              title="We start with an assessment"
+              desc="Before the first session, we get to know your kid. Their strengths, gaps, and what they actually enjoy."
+              bgColor="var(--gf-sun)"
+              checkColor="var(--gf-ink)"
+            />
+          </div>
 
-            <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: "var(--gf-sun)" }}>
-              <p className="text-sm italic leading-relaxed" style={{ color: "var(--gf-ink)" }}>
+          <div className="py-4">
+            <CheckItem
+              title="A plan built just for them"
+              desc="No templates. Every session follows a customised workout plan designed around your child's specific goals."
+              bgColor="var(--gf-sun)"
+              checkColor="var(--gf-ink)"
+            />
+          </div>
+
+          <div className="py-4">
+            <CheckItem
+              title="Bi-monthly progress reports"
+              desc="Parents receive a detailed update every two months. You'll always know exactly how your kid is growing."
+              bgColor="var(--gf-sun)"
+              checkColor="var(--gf-ink)"
+            />
+          </div>
+        </div>
+            <div className="rounded-2xl px-6 py-4" style={{ 
+              backgroundColor: "var(--gf-sun)",
+              border: `3px solid var(--gf-ink)`,
+              boxShadow: "0 6px 0 rgba(19,32,24,0.9)"
+            }}>
+              <p className="text-md font-semibold italic leading-relaxed" style={{ color: "var(--gf-ink)" }}>
                 “They will be perform better at any sport or any form of physical activity within 12 or less weeks.”
               </p>
             </div>
 
             <button
-              className="flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold text-white"
-              style={{ backgroundColor: "var(--gf-ink)" }}
+               className="gf-btn-pop text-[18px] px-10 py-[18px]"
+              style={{ color: "black", background: "var(--gf-sun)", boxShadow: "0 8px 0 var(--gf-ink)" }}
+              onClick={() => window.location.href = '/free-session'}
             >
-              Book a free assessment <Calendar size={15} />
+              Book a free assessment <Calendar size={20} />
             </button>
           </div>
+        </div>
         </div>
       </div>
 
       {/* Not sure box */}
-      <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white px-6 py-5" style={{ border: "1px solid rgba(19,32,24,0.08)" }}>
+      <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white px-8 py-6" style={{ border: "1px solid rgba(19,32,24,0.08)" }}>
         <div className="flex gap-3">
           <span 
             className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -142,6 +228,12 @@ export function ProgramCards() {
           </div>
         </div>
       </div>
+      <img
+        src="/images/Grow VI Elements/Icons/Yellow abs.png"
+        alt="flower"
+        className="absolute w-[360px] pointer-events-none animate-spin-slow"
+        style={{ right: 60, top: 80 }}
+      />
     </section>
   );
 }
