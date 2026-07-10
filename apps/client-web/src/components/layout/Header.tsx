@@ -14,8 +14,8 @@ import { Container } from './Container';
 const logo = '/images/Grow VI Elements/Logos/New logo dark green.png';
 
 const navLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'Programs', href: '#programs' },
+  { label: 'Home', href: '/' },
+  { label: 'Programs', href: '/programs' },
   { label: 'Preschool', href: '#preschool' },
   { label: 'About', href: '#about' },
   { label: 'Blog', href: '#blog' },
@@ -144,23 +144,35 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map(link => {
-                return (
+              
+              {navLinks.map(link =>
+                link.href.startsWith('#') ? (
                   <Button
                     key={link.label}
-                    onClick={() => handleNavClick(link.href)}
                     variant="ghost"
-                    size="default"
                     className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:border-none"
                     style={{
                       color: 'var(--fg-1)',
                       fontFamily: 'var(--font-sans)',
                     }}
+                    onClick={() => handleNavClick(link.href)}
                   >
                     {link.label}
                   </Button>
-                );
-              })}
+                ) : (
+                  <Link key={link.label} to={link.href}>
+                    <Button variant="ghost"
+                    className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:border-none"
+                    style={{
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                    >
+                      {link.label}
+                    </Button>
+                  </Link>
+                )
+              )}
 
               {!isAuthenticated && (
                 <>

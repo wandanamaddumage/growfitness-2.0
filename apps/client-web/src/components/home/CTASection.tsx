@@ -25,7 +25,7 @@ export const CTASection: React.FC = () => (
         </p>
 
         <a
-          href="#"
+          href="/free-session"
           className="gf-btn-pop text-[18px] px-10 py-[18px]"
           style={{ color: "white", background: "var(--gf-green-deep)", boxShadow: "0 8px 0 rgba(36,62,54,0.35)" }}
         >
