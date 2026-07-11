@@ -18,6 +18,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { Toaster } from "./components/ui/toaster";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProgramsPage from "./pages/ProgramsPage";
+import AboutPage from "./pages/AboutPage";
 
 // Dashboard wrapper (unchanged)
 function DashboardWrapper() {
@@ -49,6 +50,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/programs" element={<ProgramsPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Route>
 
         {/* ---------- PROTECTED ROUTES WITH SIDENAV ---------- */}

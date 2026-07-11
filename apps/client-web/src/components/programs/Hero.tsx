@@ -1,4 +1,3 @@
-import { Squiggle } from "./common/Squiggle";
 import { Mascot } from "./common/Mascot";
 
 export function Hero() {
@@ -16,13 +15,6 @@ export function Hero() {
         className="absolute w-[240px] opacity-10 pointer-events-none"
         style={{ left: -40, bottom: -20 }}
       />
-      <Squiggle className="absolute -right-6 top-10 h-40 w-40" opacity={0.12} />
-      {/* <img
-          src="/images/Grow VI Elements/Icons/Grow buddy.png"
-          alt="mix abs"
-          className="absolute w-[320px] pointer-events-none z-10 animate-bounce"
-          style={{ right: 150, bottom: -50, color: "var(--gf-sun)" }}
-        /> */}
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 md:grid-cols-[1.1fr_0.9fr] md:py-28">
         <div>
           <div
