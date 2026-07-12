@@ -39,6 +39,11 @@ const IMAGE_UPLOAD_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const PDF_UPLOAD_TYPES = ['application/pdf'];
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024;
 const MAX_CV_UPLOAD_BYTES = 10 * 1024 * 1024;
+const DEFAULT_COACH_COLOR = '#23B685';
+
+function isHexColor(value: string | undefined): value is string {
+  return /^#[0-9A-Fa-f]{6}$/.test(value ?? '');
+}
 
 function flattenNestedArray<T>(value: T | T[] | (T | T[])[]): T[] {
   if (!Array.isArray(value)) {
@@ -71,6 +76,7 @@ const defaultValues: CreateCoachDto = {
   availableTimes: [],
   employmentType: undefined,
   cvUrl: undefined,
+  assignedColor: DEFAULT_COACH_COLOR,
 };
 
 export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps) {
@@ -184,12 +190,18 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
       availableTimes: normalizeAvailableTimes(values.availableTimes),
       employmentType: values.employmentType ?? undefined,
       cvUrl: cvFile ? undefined : values.cvUrl || undefined,
+      assignedColor: values.assignedColor || undefined,
     };
     createMutation.mutate({ payload, photoFile, cvFile });
   };
 
   const [showPassword, setShowPassword] = useState(false);
-  
+
+  const assignedColor = form.watch('assignedColor') ?? '';
+  const handleAssignedColorChange = (value: string) => {
+    form.setValue('assignedColor', value, { shouldDirty: true, shouldValidate: true });
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="p-0 flex flex-col max-h-[90vh]">
@@ -260,6 +272,25 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
                       <SelectItem value={EmploymentType.OTHER}>Other</SelectItem>
                     </SelectContent>
                   </Select>
+                </CustomFormField>
+
+                <CustomFormField label="Assigned color" error={form.formState.errors.assignedColor?.message}>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="color"
+                      className="w-12 h-10 p-1 cursor-pointer"
+                      value={isHexColor(assignedColor) ? assignedColor : DEFAULT_COACH_COLOR}
+                      onChange={(e) => handleAssignedColorChange(e.target.value)}
+                    />
+                    <Input
+                      type="text"
+                      className="flex-1 uppercase font-mono text-xs"
+                      placeholder="#23B685"
+                      value={assignedColor}
+                      onChange={(e) => handleAssignedColorChange(e.target.value)}
+                      onBlur={() => form.trigger('assignedColor')}
+                    />
+                  </div>
                 </CustomFormField>
 
                 <div className="space-y-2 sm:col-span-2">

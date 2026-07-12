@@ -164,6 +164,7 @@ export interface CoachProfile {
   availableTimes?: CoachProfileAvailableTime[];
   employmentType?: EmploymentType;
   cvUrl?: string;
+  assignedColor?: string;
 }
 
 export interface Kid {

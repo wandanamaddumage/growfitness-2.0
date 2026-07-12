@@ -54,6 +54,7 @@ export class User {
       }],
       employmentType: { type: String, enum: Object.values(EmploymentType), required: false },
       cvUrl: { type: String, required: false },
+      assignedColor: { type: String, required: false },
     },
     required: false,
   })
@@ -66,6 +67,7 @@ export class User {
     availableTimes?: Array<{ dayOfWeek: string; startTime: string; endTime: string }>;
     employmentType?: EmploymentType;
     cvUrl?: string;
+    assignedColor?: string;
   };
 
   @Prop({ required: false, type: String })

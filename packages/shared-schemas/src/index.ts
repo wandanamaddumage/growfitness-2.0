@@ -204,6 +204,7 @@ export const CreateCoachSchema = z.object({
   availableTimes: AvailableTimesSchema,
   employmentType: z.nativeEnum(EmploymentType).optional(),
   cvUrl: z.union([z.string().url(), z.literal('')]).optional(),
+  assignedColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format').optional(),
 });
 
 export type CreateCoachDto = z.infer<typeof CreateCoachSchema>;
@@ -219,6 +220,7 @@ export const UpdateCoachSchema = z.object({
   availableTimes: AvailableTimesSchema,
   employmentType: z.nativeEnum(EmploymentType).optional(),
   cvUrl: z.union([z.string().url(), z.literal('')]).optional(),
+  assignedColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format').optional(),
 });
 
 export type UpdateCoachDto = z.infer<typeof UpdateCoachSchema>;

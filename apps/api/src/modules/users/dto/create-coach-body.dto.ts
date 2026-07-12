@@ -39,4 +39,7 @@ export class CreateCoachBodyDto {
 
   @Allow()
   cvUrl?: string;
+
+  @Allow()
+  assignedColor?: string;
 }

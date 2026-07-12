@@ -28,6 +28,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+function CoachColorSwatch({ color }: { color?: string }) {
+  if (!color) {
+    return <span className="text-muted-foreground">N/A</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="h-5 w-10 rounded-md border border-border shadow-sm"
+        style={{ backgroundColor: color }}
+        title={`Assigned Color: ${color}`}
+      />
+      <span className="font-mono text-xs uppercase text-muted-foreground">{color}</span>
+    </div>
+  );
+}
+
 export function CoachesTable() {
   const { user: currentUser } = useAuth();
   const { page, pageSize, setPage, setPageSize } = usePagination();
@@ -129,6 +146,11 @@ export function CoachesTable() {
       accessorKey: 'coachProfile.name',
       header: 'Name',
       cell: ({ row }) => row.original.coachProfile?.name || 'N/A',
+    },
+    {
+      accessorKey: 'coachProfile.assignedColor',
+      header: 'Color',
+      cell: ({ row }) => <CoachColorSwatch color={row.original.coachProfile?.assignedColor} />,
     },
     {
       accessorKey: 'email',

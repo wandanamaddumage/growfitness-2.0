@@ -624,6 +624,7 @@ export class UsersService {
         availableTimes,
         employmentType: createCoachDto.employmentType || null,
         cvUrl: createCoachDto.cvUrl || null,
+        assignedColor: createCoachDto.assignedColor || null,
       },
     });
 
@@ -685,6 +686,9 @@ export class UsersService {
       }),
       ...(updateCoachDto.cvUrl !== undefined &&
         updateCoachDto.cvUrl !== '' && { cvUrl: updateCoachDto.cvUrl }),
+      ...(updateCoachDto.assignedColor !== undefined && {
+        assignedColor: updateCoachDto.assignedColor,
+      }),
     };
 
     await coach.save();
