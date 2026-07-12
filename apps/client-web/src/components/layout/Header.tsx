@@ -37,6 +37,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeLink, setActiveLink] = useState<string | null>(null);
 
   const isHomePage = location.pathname === '/';
   const isSolid = !isHomePage || scrolled || forceSolid;
@@ -88,13 +89,21 @@ export default function Header({ forceSolid = false }: HeaderProps) {
   // ----------------------------
   // Navigation click handler
   // ----------------------------
-  const handleNavClick = (hash: string) => {
-    if (location.pathname !== '/') {
-      navigate(`/${hash}`);
+  const handleNavClick = (href: string) => {
+    // Close mobile menu
+    setMenuOpen(false);
+    setActiveLink(href);
+    
+    if (href.startsWith('#')) {
+      if (location.pathname !== '/') {
+        navigate(`/${href}`);
+      } else {
+        const id = href.replace('#', '');
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
-      const id = hash.replace('#', '');
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      navigate(href);
     }
   };
 
@@ -150,23 +159,30 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                   <Button
                     key={link.label}
                     variant="ghost"
-                    className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:border-none"
+                    className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:text-[var(--gf-green)] focus-visible:ring-0 focus-visible:ring-offset-0"
                     style={{
-                      color: 'var(--fg-1)',
+                      color: activeLink === link.href ? 'var(--gf-green)' : 'var(--fg-1)',
                       fontFamily: 'var(--font-sans)',
+                      border: 'none',
+                      boxShadow: 'none',
+                      outline: 'none',
                     }}
                     onClick={() => handleNavClick(link.href)}
                   >
                     {link.label}
                   </Button>
                 ) : (
-                  <Link key={link.label} to={link.href}>
-                    <Button variant="ghost"
-                    className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:border-none"
-                    style={{
-                      color: 'var(--fg-1)',
-                      fontFamily: 'var(--font-sans)',
-                    }}
+                  <Link key={link.label} to={link.href} onClick={() => setActiveLink(link.href)}>
+                    <Button
+                      variant="ghost"
+                      className="gf-nav-a px-4 py-2 text-lg font-semibold flex items-center gap-2 transition-all duration-200 bg-transparent hover:bg-transparent hover:text-[var(--gf-green)] focus-visible:ring-0 focus-visible:ring-offset-0"
+                      style={{
+                        color: activeLink === link.href ? 'var(--gf-green)' : 'var(--fg-1)',
+                        fontFamily: 'var(--font-sans)',
+                        border: 'none',
+                        boxShadow: 'none',
+                        outline: 'none',
+                      }}
                     >
                       {link.label}
                     </Button>
@@ -241,17 +257,51 @@ export default function Header({ forceSolid = false }: HeaderProps) {
               )}
             </div>
 
-            {/* Mobile Toggle */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded-lg transition-colors"
-              style={{
-                color: isSolid ? 'var(--fg-1)' : 'var(--gf-green)',
-                background: 'transparent',
-              }}
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Mobile - Show Sign In button or User Avatar in header */}
+            <div className="flex items-center gap-3 md:hidden">
+              {isAuthenticated ? (
+                <>
+                  <NotificationBell />
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="rounded-full p-1 transition-transform hover:scale-105"
+                    style={{ background: 'transparent' }}
+                  >
+                    <UserAvatar
+                      photoUrl={headerPhotoUrl}
+                      displayName={headerDisplayName}
+                      email={user?.email}
+                      className="size-8 cursor-pointer border-2 border-solid border-[var(--gf-green)]"
+                    />
+                  </button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="font-semibold transition-all rounded-full px-4 py-2 bg-transparent hover:bg-transparent hover:border-none"
+                  style={{
+                    color: 'var(--gf-green-deep)',
+                    border: '2px solid var(--gf-green-deep)',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                  onClick={() => navigate('/login')}
+                >
+                  Sign In
+                </Button>
+              )}
+              
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-lg transition-colors"
+                style={{
+                  color: isSolid ? 'var(--fg-1)' : 'var(--gf-green)',
+                  background: 'transparent',
+                }}
+              >
+                {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </Container>
 
@@ -268,12 +318,11 @@ export default function Header({ forceSolid = false }: HeaderProps) {
             <div className="px-4 py-4 space-y-1">
 
               {navLinks.map(link => {
-
                 return (
                   <button
                     key={link.label}
                     onClick={() => handleNavClick(link.href)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left transition-all duration-200"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left transition-all duration-200 hover:text-[var(--gf-green)]"
                     style={{
                       color: 'var(--fg-1)',
                       fontFamily: 'var(--font-sans)',
@@ -288,7 +337,10 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                 <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/dashboard');
+                    }}
                     className="rounded-full"
                     style={{
                       borderColor: 'var(--line)',
@@ -301,7 +353,10 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/profile')}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/profile');
+                    }}
                     className="rounded-full"
                     style={{
                       borderColor: 'var(--line)',
@@ -314,7 +369,10 @@ export default function Header({ forceSolid = false }: HeaderProps) {
 
                   <Button
                     variant="destructive"
-                    onClick={handleLogout}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleLogout();
+                    }}
                     className="rounded-full"
                     style={{
                       fontFamily: 'var(--font-sans)',
@@ -326,7 +384,10 @@ export default function Header({ forceSolid = false }: HeaderProps) {
               ) : (
                 <div className="pt-3 border-t mt-3 flex flex-col gap-2" style={{ borderColor: 'var(--line)' }}>
                   <Button
-                    onClick={() => navigate('/login')}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/login');
+                    }}
                     className="rounded-full"
                     style={{
                       background: 'var(--gf-green)',
@@ -338,7 +399,10 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                   </Button>
 
                   <Button
-                    onClick={() => navigate('/free-session')}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/free-session');
+                    }}
                     className="rounded-full"
                     style={{
                       background: 'var(--gf-green-deep)',
