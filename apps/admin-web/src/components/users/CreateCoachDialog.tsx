@@ -95,6 +95,7 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [showPhotoUrl, setShowPhotoUrl] = useState(false);
   const [showCvUrl, setShowCvUrl] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [uploadingFileLabel, setUploadingFileLabel] = useState<string | null>(null);
 
   const form = useForm<CreateCoachDto>({
@@ -115,6 +116,7 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
       setCvFile(null);
       setShowPhotoUrl(false);
       setShowCvUrl(false);
+      setShowPassword(false);
       setUploadingFileLabel(null);
     } else {
       form.reset(defaultValues);
@@ -122,6 +124,7 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
       setCvFile(null);
       setShowPhotoUrl(false);
       setShowCvUrl(false);
+      setShowPassword(false);
       setUploadingFileLabel(null);
     }
   }, [open, form]);
@@ -195,8 +198,6 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
     createMutation.mutate({ payload, photoFile, cvFile });
   };
 
-  const [showPassword, setShowPassword] = useState(false);
-
   const assignedColor = form.watch('assignedColor') ?? '';
   const handleAssignedColorChange = (value: string) => {
     form.setValue('assignedColor', value, { shouldDirty: true, shouldValidate: true });
@@ -230,27 +231,28 @@ export function CreateCoachDialog({ open, onOpenChange }: CreateCoachDialogProps
                   <Input {...form.register('phone')} />
                 </CustomFormField>
 
-               <CustomFormField
-                label="Password"
-                required
-                error={form.formState.errors.password?.message}
-              >
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    {...form.register('password')}
-                    className="pr-10"
-                  />
+                <CustomFormField
+                  label="Password"
+                  required
+                  error={form.formState.errors.password?.message}
+                >
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      {...form.register('password')}
+                      className="pr-10"
+                    />
 
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(prev => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </CustomFormField>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </CustomFormField>
 
                 <CustomFormField label="Date of birth" error={form.formState.errors.dateOfBirth?.message}>
                   <Input type="date" {...form.register('dateOfBirth')} />
