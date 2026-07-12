@@ -47,7 +47,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ slide, setSlide }) => 
     <img
     src="/images/Grow VI Elements/Icons/Yellow abs.png"
     alt="flower"
-    className="absolute w-[360px] opacity-70 pointer-events-none"
+    className="absolute w-[360px] opacity-70 pointer-events-none animate-spin-slow"
     style={{ right: -60, top: -80 }}
   />
    <img

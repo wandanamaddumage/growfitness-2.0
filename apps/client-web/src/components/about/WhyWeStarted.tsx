@@ -1,6 +1,5 @@
 import { Eyebrow, NumberBadge } from "./SharedComponents";
 
-
 const TIMELINE = [
   {
     number: "1",
@@ -31,27 +30,71 @@ const TIMELINE = [
 export default function WhyWeStarted() {
   return (
     <section style={{ maxWidth: 1180, margin: "0 auto", padding: "80px 24px" }}>
+      
+      <style>{`
+        .timeline-item {
+          position: relative;
+        }
+
+        .timeline-item::after {
+          content: "";
+          position: absolute;
+          top: 28px;
+          left: 56px;
+          right: -40px;
+          height: 2px;
+          background: rgba(28, 43, 28, 0.18);
+          z-index: 0;
+        }
+
+        .timeline-item:last-child::after {
+          display: none;
+        }
+
+        .timeline-item > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+          .timeline-item::after {
+            display: none;
+          }
+        }
+      `}</style>
+
       <div style={{ textAlign: "center", marginBottom: 48 }}>
         <Eyebrow>Part One</Eyebrow>
+
         <h2 
-        className="text-4xl font-extrabold uppercase leading-[0.95] tracking-tight md:text-6xl"
-        style={{
-          marginTop: 8,
-          fontFamily: "var(--font-display)",
-          textTransform: "uppercase",
-          color: "var(--gf-green-deep)"
-        }}>
+          className="text-4xl font-extrabold uppercase leading-[0.95] tracking-tight md:text-6xl"
+          style={{
+            marginTop: 8,
+            fontFamily: "var(--font-display)",
+            textTransform: "uppercase",
+            color: "var(--gf-green-deep)"
+          }}
+        >
           Why we started
         </h2>
       </div>
+
+
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
         gap: 40
       }}>
         {TIMELINE.map((item) => (
-          <div key={item.title}>
-            <NumberBadge number={parseInt(item.number)} color={item.badgeColor} />
+          <div 
+            key={item.title}
+            className="timeline-item"
+          >
+            <NumberBadge 
+              number={parseInt(item.number)} 
+              color={item.badgeColor} 
+            />
+
             <p style={{
               marginTop: 20,
               fontSize: 22,
@@ -60,6 +103,7 @@ export default function WhyWeStarted() {
             }}>
               {item.title}
             </p>
+
             <p style={{
               marginTop: 8,
               fontSize: 17,
@@ -71,6 +115,7 @@ export default function WhyWeStarted() {
           </div>
         ))}
       </div>
+
     </section>
   );
 }

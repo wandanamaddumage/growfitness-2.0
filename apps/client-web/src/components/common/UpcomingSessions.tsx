@@ -56,7 +56,6 @@ export const UpcomingSessions = ({
     }
   );
 
-  // ✅ ensure correct ordering + limit
   const upcomingSessions = useMemo(() => {
     return [...sessions]
       .filter((s) => new Date(s.dateTime) >= new Date())
@@ -66,7 +65,6 @@ export const UpcomingSessions = ({
       )
       .slice(0, limit);
   }, [sessions, limit]);
-
 
   const getSessionAccent = (status: SessionStatus) => {
     switch (status) {
@@ -109,68 +107,100 @@ export const UpcomingSessions = ({
   return (
     <div>
       <ul className="space-y-3">
-        {upcomingSessions.map((session) => (
-          <li key={session.id}>
-            <div
-              onClick={() => setSelectedSession(session)}
-              className={`cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-[#23B685]/30 ${getSessionAccent(
-                session.status
-              )}`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-[#CDEEE3] text-[#243E36]">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide">
-                    {format(new Date(session.dateTime), 'MMM')}
-                  </span>
-
-                  <span className="text-xl font-bold leading-none">
-                    {format(new Date(session.dateTime), 'dd')}
-                  </span>
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="truncate text-xl font-semibold text-[#243E36]">
-                      {session.title?.trim() || formatSessionType(session.type)}
-                    </h3>
-                    <SessionSpecialBadges session={session} />
-                    <span className="rounded-full bg-[#CDEEE3] px-2 py-0.5 text-xs font-medium text-[#1B7F5D]">
-                      • {session.status}
+        {upcomingSessions.map((session, index) => {
+          const isNext = index === 0; // First session is the next one
+          
+          return (
+            <li key={session.id}>
+              <div
+                onClick={() => setSelectedSession(session)}
+                className={`
+                  cursor-pointer rounded-2xl border bg-white px-5 py-4 
+                  shadow-sm transition-all duration-200 hover:shadow-md 
+                  ${getSessionAccent(session.status)}
+                  ${
+                    isNext
+                      ? // 🎯 Highlight styling for the next session
+                        `border-[#23B685] shadow-[0_0_0_3px_rgba(35,182,133,0.15)] 
+                         hover:shadow-[0_0_0_4px_rgba(35,182,133,0.25)] 
+                         bg-gradient-to-r from-[#23B685]/5 to-white`
+                      : 'border-gray-200 hover:border-[#23B685]/30'
+                  }
+                `}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Date badge */}
+                  <div
+                    className={`
+                      flex h-14 w-14 flex-col items-center justify-center 
+                      rounded-xl text-[#243E36]
+                      ${
+                        isNext
+                          ? 'bg-[#23B685] text-white'
+                          : 'bg-[#CDEEE3]'
+                      }
+                    `}
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wide">
+                      {format(new Date(session.dateTime), 'MMM')}
+                    </span>
+                    <span className="text-xl font-bold leading-none">
+                      {format(new Date(session.dateTime), 'dd')}
                     </span>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Clock size={14} />
-                      <span>
-                        {format(new Date(session.dateTime), 'hh:mm a')} -{' '}
-                        {format(
-                          addMinutes(new Date(session.dateTime), session.duration),
-                          'hh:mm a'
-                        )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate text-xl font-semibold text-[#243E36]">
+                        {session.title?.trim() || formatSessionType(session.type)}
+                      </h3>
+                      
+                      {/* 🏷️ "Next Session" badge */}
+                      {isNext && (
+                        <span className="rounded-full bg-[#23B685] px-3 py-0.5 text-xs font-semibold text-white shadow-sm animate-pulse">
+                          Next Session
+                        </span>
+                      )}
+                      
+                      <SessionSpecialBadges session={session} />
+                      <span className="rounded-full bg-[#CDEEE3] px-2 py-0.5 text-xs font-medium text-[#1B7F5D]">
+                        • {session.status}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <User size={14} />
-                      <span>{session.coach?.coachProfile?.name || '-'}</span>
-                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Clock size={14} />
+                        <span>
+                          {format(new Date(session.dateTime), 'hh:mm a')} -{' '}
+                          {format(
+                            addMinutes(new Date(session.dateTime), session.duration),
+                            'hh:mm a'
+                          )}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center gap-1">
-                      <MapPin size={14} />
-                      <span>{session.location?.name || '-'}</span>
-                    </div>
+                      <div className="flex items-center gap-1">
+                        <User size={14} />
+                        <span>{session.coach?.coachProfile?.name || '-'}</span>
+                      </div>
 
-                    <div className="flex items-center gap-1">
-                      <Tag size={14} />
-                      <span>{formatSessionType(session.type)}</span>
+                      <div className="flex items-center gap-1">
+                        <MapPin size={14} />
+                        <span>{session.location?.name || '-'}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Tag size={14} />
+                        <span>{formatSessionType(session.type)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
       <SessionDetailsModal
@@ -179,7 +209,7 @@ export const UpcomingSessions = ({
         onClose={() => setSelectedSession(null)}
         kidId={kidId}
         parentKidSessionType={parentKidSessionType}
-        onReschedule={() => { }}
+        onReschedule={() => {}}
       />
     </div>
   );
