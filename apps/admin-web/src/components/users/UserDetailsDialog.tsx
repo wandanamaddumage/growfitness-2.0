@@ -27,6 +27,23 @@ interface UserDetailsDialogProps {
 }
 interface ParentWithKids extends User { kids?: Kid[] }
 
+function CoachColorSwatch({ color }: { color?: string }) {
+  if (!color) {
+    return <span className="text-muted-foreground">N/A</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="h-5 w-10 rounded-md border border-border shadow-sm"
+        style={{ backgroundColor: color }}
+        title={`Assigned Color: ${color}`}
+      />
+      <span className="font-mono text-xs uppercase text-muted-foreground">{color}</span>
+    </div>
+  );
+}
+
 export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDetailsDialogProps) {
   const { entityId, closeModal } = useModalParams('userId');
 
@@ -206,7 +223,9 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                       <CardHeader className="pb-3"><CardTitle className="text-base">About</CardTitle></CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                          <Field icon={UserIcon} label="Name">{fmt(userName)}</Field>
+                          <Field icon={UserIcon} label="Name">
+                            {fmt(userName)}
+                          </Field>
                           <Field icon={Mail} label="Email">{displayUser.email}</Field>
                           <Field icon={Phone} label="Phone">{fmt(displayUser.phone)}</Field>
                           {isCoach && <Field icon={Calendar} label="Date of birth">{fmtDate(coachProfile?.dateOfBirth as any)}</Field>}
@@ -215,6 +234,11 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                           </Field>
                           {isCoach && <Field icon={GraduationCap} label="School">{fmt(coachProfile?.school)}</Field>}
                           {isCoach && <Field icon={Briefcase} label="Employment">{formatEmploymentType(coachProfile?.employmentType)}</Field>}
+                          {isCoach && (
+                            <Field label="Assigned color">
+                              <CoachColorSwatch color={coachProfile?.assignedColor} />
+                            </Field>
+                          )}
                           <Field label="Status"><StatusBadge status={displayUser.status} /></Field>
                           <Field icon={Calendar} label="Member since">{formatDate(displayUser.createdAt)}</Field>
                         </div>
