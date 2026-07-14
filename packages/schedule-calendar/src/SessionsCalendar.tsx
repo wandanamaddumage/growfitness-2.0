@@ -53,6 +53,16 @@ function useContainerWidth(ref: React.RefObject<HTMLDivElement>) {
   return width;
 }
 
+// Helper function to determine contrast color
+function getContrastColor(hexColor: string): 'white' | 'black' {
+  const color = hexColor.replace('#', '');
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? 'black' : 'white';
+}
+
 // ── Unified event renderer (dot + title, all views) ───────────────────────────
 function EventContent({ arg }: { arg: EventContentArg }) {
   const session = arg.event.extendedProps as Session;
@@ -66,14 +76,23 @@ function EventContent({ arg }: { arg: EventContentArg }) {
       : undefined);
 
   const isCancelled = displayVariant === 'cancelled';
-  const dotColor = (!isCancelled && coachColor) ? coachColor : getStatusColor(session.status);
-  const textColor = displayVariant === 'cancelled' ? '#9aa0a6' : '#3c4043';
-  const timeColor = displayVariant === 'cancelled' ? '#9aa0a6' : (displayVariant === 'free' ? '#d97706' : displayVariant === 'extra' ? '#7e22ce' : '#1a9e72');
+  const hasCoachColor = !isCancelled && coachColor;
+  const computedContrastColor = hasCoachColor ? getContrastColor(coachColor) : undefined;
 
-  const customStyle = !isCancelled && coachColor ? {
-    backgroundColor: `color-mix(in srgb, ${coachColor} ${isMonth ? '12%' : '8%'}, white)`,
-    borderLeft: `3px solid ${coachColor}`,
+  const dotColor = hasCoachColor ? coachColor : getStatusColor(session.status);
+  const textColor = isCancelled 
+    ? '#9aa0a6' 
+    : (hasCoachColor ? computedContrastColor : '#3c4043');
+  const timeColor = isCancelled 
+    ? '#9aa0a6' 
+    : (hasCoachColor ? computedContrastColor : (displayVariant === 'free' ? '#d97706' : displayVariant === 'extra' ? '#7e22ce' : '#1a9e72'));
+
+  const customStyle = hasCoachColor ? {
+    backgroundColor: coachColor,
+    color: computedContrastColor,
     borderRadius: isMonth ? '3px' : '0 4px 4px 0',
+    borderLeft: isTime ? `3px solid ${computedContrastColor === 'white' ? '#ffffff80' : '#00000080'}` : undefined,
+    padding: isMonth ? '2px 4px' : '4px 6px',
   } : undefined;
 
   return (
@@ -84,7 +103,11 @@ function EventContent({ arg }: { arg: EventContentArg }) {
       {/* Dot */}
       <span
         className="fc-custom-dot"
-        style={{ backgroundColor: dotColor, flexShrink: 0 }}
+        style={{ 
+          backgroundColor: dotColor, 
+          flexShrink: 0,
+          border: hasCoachColor ? `1px solid ${computedContrastColor === 'white' ? '#ffffffaa' : '#000000aa'}` : undefined
+        }}
       />
 
       {/* Content */}
