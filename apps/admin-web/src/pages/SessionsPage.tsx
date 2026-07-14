@@ -49,6 +49,23 @@ import { SessionsCalendar } from '@/components/sessions/SessionsCalendar';
 import { SessionSpecialBadges } from '@/components/sessions/SessionSpecialBadges';
 import { googleCalendarService } from '@/services/google-calendar.service';
 
+// Helper function to determine contrast color
+function getContrastColor(hexColor: string): 'white' | 'black' {
+  // Remove the '#' if it exists
+  const color = hexColor.replace('#', '');
+  
+  // Parse the hex color to RGB
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
+  
+  // Calculate luminance using the WCAG formula
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // Return white for dark colors, black for light colors
+  return luminance > 0.5 ? 'black' : 'white';
+}
+
 function CoachColorsLegend({ coaches }: { coaches: User[] }) {
   const coloredCoaches = (coaches || []).filter(
     (c) => c.coachProfile?.assignedColor
@@ -60,17 +77,28 @@ function CoachColorsLegend({ coaches }: { coaches: User[] }) {
     <div className="rounded-xl border bg-card p-4 shadow-sm mt-4">
       <h3 className="text-sm font-semibold text-muted-foreground mb-3">Coach Colors</h3>
       <div className="flex flex-wrap gap-x-6 gap-y-2">
-        {coloredCoaches.map((coach) => (
-          <div key={coach.id} className="flex items-center gap-2">
-            <span
-              className="h-3 w-3 rounded-full border border-border shadow-sm"
-              style={{ backgroundColor: coach.coachProfile?.assignedColor }}
-            />
-            <span className="text-sm font-medium">
-              {coach.coachProfile?.name || coach.email}
-            </span>
-          </div>
-        ))}
+        {coloredCoaches.map((coach) => {
+          const color = coach.coachProfile?.assignedColor || '#000000';
+          const textColor = getContrastColor(color);
+          
+          return (
+            <div key={coach.id} className="flex items-center gap-2">
+              <span
+                className="h-3 w-3 rounded-full border border-border shadow-sm"
+                style={{ backgroundColor: color }}
+              />
+              <span 
+                className="text-sm font-medium px-2 py-0.5 rounded"
+                style={{ 
+                  color: textColor,
+                  backgroundColor: color,
+                }}
+              >
+                {coach.coachProfile?.name || coach.email}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -106,6 +134,14 @@ export function SessionsPage() {
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [calendarBusy, setCalendarBusy] = useState(false);
+
+  const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
+    usersService.getCoaches(1, 100)
+  );
+
+  const { data: locationsData } = useApiQuery(['locations', 'all'], () =>
+    locationsService.getLocations(1, 100)
+  );
 
   useEffect(() => {
     if (page !== 1) {
@@ -194,14 +230,6 @@ export function SessionsPage() {
   const createDialogOpen = modal === 'create' && isOpen;
   const rescheduleDialogOpen = modal === 'reschedule' && isOpen;
 
-  const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
-    usersService.getCoaches(1, 100)
-  );
-
-  const { data: locationsData } = useApiQuery(['locations', 'all'], () =>
-    locationsService.getLocations(1, 100)
-  );
-
   const { data, isLoading, error } = useApiQuery(
     [
       'sessions',
@@ -251,16 +279,25 @@ export function SessionsPage() {
     }
   };
 
-  const getCoachColor = (coachId: any): string | undefined => {
-    if (!coachId) return undefined;
+  // Helper function to get coach color and contrast text color
+  const getCoachColorStyles = (coachId: any): { bgColor?: string; textColor?: string } => {
+    if (!coachId) return {};
+    
+    let color: string | undefined;
+    
     if (typeof coachId === 'string') {
       const coach = coachesData?.data?.find(c => c.id === coachId);
-      return coach?.coachProfile?.assignedColor || undefined;
+      color = coach?.coachProfile?.assignedColor;
+    } else if (typeof coachId === 'object') {
+      color = coachId.coachProfile?.assignedColor;
     }
-    if (typeof coachId === 'object') {
-      return coachId.coachProfile?.assignedColor || undefined;
-    }
-    return undefined;
+    
+    if (!color) return {};
+    
+    return {
+      bgColor: color,
+      textColor: getContrastColor(color)
+    };
   };
 
   const getCoachName = (coachId: any): string => {
@@ -282,17 +319,25 @@ export function SessionsPage() {
         accessorKey: 'title',
         header: 'Title',
         cell: ({ row }) => {
-          const coachColor = getCoachColor(row.original.coachId);
+          const { bgColor, textColor } = getCoachColorStyles(row.original.coachId);
           return (
             <div className="flex flex-wrap items-center gap-2">
-              {coachColor && (
+              {bgColor && (
                 <span
                   className="h-3 w-3 rounded-full border border-border shadow-sm shrink-0"
-                  style={{ backgroundColor: coachColor }}
+                  style={{ backgroundColor: bgColor }}
                   title={getCoachName(row.original.coachId)}
                 />
               )}
-              <span>{row.original.title || 'N/A'}</span>
+              <span 
+                className="px-2 py-0.5 rounded text-sm"
+                style={{
+                  backgroundColor: bgColor || 'transparent',
+                  color: bgColor ? textColor : 'inherit'
+                }}
+              >
+                {row.original.title || 'N/A'}
+              </span>
               <SessionSpecialBadges session={row.original} />
               {row.original.recurringGroupId ? (
                 <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
@@ -314,16 +359,24 @@ export function SessionsPage() {
         header: 'Coach',
         enableSorting: false,
         cell: ({ row }) => {
-          const coachColor = getCoachColor(row.original.coachId);
+          const { bgColor, textColor } = getCoachColorStyles(row.original.coachId);
           return (
             <div className="flex items-center gap-2">
-              {coachColor && (
+              {bgColor && (
                 <span
                   className="h-2.5 w-2.5 rounded-full border border-border shadow-sm shrink-0"
-                  style={{ backgroundColor: coachColor }}
+                  style={{ backgroundColor: bgColor }}
                 />
               )}
-              <span>{getCoachName(row.original.coachId)}</span>
+              <span 
+                className="px-2 py-0.5 rounded text-sm"
+                style={{
+                  backgroundColor: bgColor || 'transparent',
+                  color: bgColor ? textColor : 'inherit'
+                }}
+              >
+                {getCoachName(row.original.coachId)}
+              </span>
             </div>
           );
         },
@@ -512,10 +565,10 @@ export function SessionsPage() {
                 sorting={sorting}
                 onSortingChange={setSorting}
                 getRowStyle={(session) => {
-                  const coachColor = getCoachColor(session.coachId);
-                  if (!coachColor || session.status === SessionStatus.CANCELLED) return {};
+                  const { bgColor } = getCoachColorStyles(session.coachId);
+                  if (!bgColor || session.status === SessionStatus.CANCELLED) return {};
                   return {
-                    backgroundColor: `color-mix(in srgb, ${coachColor} 4%, transparent)`,
+                    backgroundColor: `color-mix(in srgb, ${bgColor} 8%, transparent)`,
                   };
                 }}
               />
