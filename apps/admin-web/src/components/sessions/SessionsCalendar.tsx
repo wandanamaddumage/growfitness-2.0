@@ -8,6 +8,7 @@ import { useApiQuery, useApiMutation } from '@/hooks';
 import { sessionsService } from '@/services/sessions.service';
 import { formatSessionType } from '@/lib/formatters';
 import { useToast } from '@/hooks/useToast';
+import { usersService } from '@/services/users.service';
 
 interface SessionsCalendarProps {
   onSessionClick: (session: Session) => void;
@@ -24,6 +25,10 @@ export function SessionsCalendar({
 }: SessionsCalendarProps) {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
+
+  const { data: coachesData } = useApiQuery(['users', 'coaches', 'all'], () =>
+    usersService.getCoaches(1, 100)
+  );
 
   const { data, isLoading, refetch } = useApiQuery(
     [
@@ -70,8 +75,13 @@ export function SessionsCalendar({
     }
   );
 
-  const events = (data?.data || []).map((session) =>
-    sessionToCalendarEvent(session, {
+  const events = (data?.data || []).map((session) => {
+    const coachIdStr = typeof session.coachId === 'string' ? session.coachId : (session.coachId as any)?.id;
+    const coach = coachesData?.data?.find(c => c.id === coachIdStr);
+    const coachColor = coach?.coachProfile?.assignedColor || undefined;
+    const sessionWithColor = { ...session, coachColor };
+
+    return sessionToCalendarEvent(sessionWithColor, {
       formatTitle: (s) => {
         const recurringPrefix = s.recurringGroupId ? '↻ ' : '';
         if (s.title) return `${recurringPrefix}${s.title}`;
@@ -83,11 +93,13 @@ export function SessionsCalendar({
             (c.email as string) ||
             (c.firstName as string) ||
             'Coach';
+        } else if (typeof s.coachId === 'string' && coach) {
+          coachName = coach.coachProfile?.name || coach.email || 'Coach';
         }
         return `${recurringPrefix}${formatSessionType(s.type)} - ${coachName}`;
       },
-    })
-  );
+    });
+  });
 
   const handleEventDrop = (sessionId: string, newStart: Date, durationMinutes: number) => {
     updateSessionMutation.mutate({

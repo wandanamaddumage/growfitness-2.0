@@ -73,6 +73,7 @@ interface DataTableProps<TData, TValue> {
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
+  getRowStyle?: (row: TData) => React.CSSProperties;
 }
 
 export function DataTable<TData, TValue>({
@@ -87,6 +88,7 @@ export function DataTable<TData, TValue>({
   sorting: controlledSorting,
   onSortingChange,
   manualSorting = false,
+  getRowStyle,
 }: DataTableProps<TData, TValue>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -169,6 +171,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="hover:bg-muted/50"
+                style={getRowStyle?.(row.original)}
               >
                 {row.getVisibleCells().map(cell => (
                   <TableCell key={cell.id}>

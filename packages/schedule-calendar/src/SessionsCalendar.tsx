@@ -60,12 +60,27 @@ function EventContent({ arg }: { arg: EventContentArg }) {
   const isMonth = arg.view.type === 'dayGridMonth';
   const isTime = arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay';
 
-  const dotColor = getStatusColor(session.status);
+  const coachColor = (session as any).coachColor || 
+    (session.coachId && typeof session.coachId === 'object' 
+      ? (session.coachId as any).coachProfile?.assignedColor 
+      : undefined);
+
+  const isCancelled = displayVariant === 'cancelled';
+  const dotColor = (!isCancelled && coachColor) ? coachColor : getStatusColor(session.status);
   const textColor = displayVariant === 'cancelled' ? '#9aa0a6' : '#3c4043';
   const timeColor = displayVariant === 'cancelled' ? '#9aa0a6' : (displayVariant === 'free' ? '#d97706' : displayVariant === 'extra' ? '#7e22ce' : '#1a9e72');
 
+  const customStyle = !isCancelled && coachColor ? {
+    backgroundColor: `color-mix(in srgb, ${coachColor} ${isMonth ? '12%' : '8%'}, white)`,
+    borderLeft: `3px solid ${coachColor}`,
+    borderRadius: isMonth ? '3px' : '0 4px 4px 0',
+  } : undefined;
+
   return (
-    <div className={`fc-custom-event ${isMonth ? 'fc-custom-event--month' : 'fc-custom-event--time'} ${displayVariant !== 'normal' ? `fc-event-${displayVariant}` : ''}`}>
+    <div 
+      className={`fc-custom-event ${isMonth ? 'fc-custom-event--month' : 'fc-custom-event--time'} ${displayVariant !== 'normal' ? `fc-event-${displayVariant}` : ''}`}
+      style={customStyle}
+    >
       {/* Dot */}
       <span
         className="fc-custom-dot"

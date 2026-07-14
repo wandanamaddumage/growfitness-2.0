@@ -8,7 +8,7 @@ interface FilterBarProps {
 
 export function FilterBar({ children, className }: FilterBarProps) {
   return (
-    <div className={cn('flex flex-wrap items-center gap-4 p-4 border-b bg-muted/50', className)}>
+    <div className={cn('flex flex-wrap items-center gap-4 p-4 border-b', className)}>
       {children}
     </div>
   );
