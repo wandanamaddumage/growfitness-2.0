@@ -19,6 +19,7 @@ import { Toaster } from "./components/ui/toaster";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProgramsPage from "./pages/ProgramsPage";
 import AboutPage from "./pages/AboutPage";
+import PreschoolPage from "./pages/ PreschoolPage";
 
 // Dashboard wrapper (unchanged)
 function DashboardWrapper() {
@@ -51,6 +52,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/programs" element={<ProgramsPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/preschool" element={<PreschoolPage />} />
         </Route>
 
         {/* ---------- PROTECTED ROUTES WITH SIDENAV ---------- */}
