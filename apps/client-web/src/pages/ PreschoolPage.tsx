@@ -9,11 +9,14 @@ import StatsBar from "../components/preschool/StatsBar";
 import Testimonial from "../components/preschool/Testimonial";
 import WhatWeActuallyDo from "../components/preschool/WhatWeActuallyDo";
 import WhyPartner from "../components/preschool/WhyPartner";
+import { useState } from "react";
 
 export default function PreschoolPage() {
+  const [slide, setSlide] = useState(0);
+
   return (
     <div className="gf-scope">
-      <Hero />
+      <Hero slide={slide} setSlide={setSlide} />
       <HearThisALot />
       <StatsBar />
       <SeeItInAction />
