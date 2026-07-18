@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 
 export default function WhatWeActuallyDo() {
   const outcomes = [
@@ -22,30 +22,35 @@ export default function WhatWeActuallyDo() {
   ];
 
   return (
-    <section style={{ background: "var(--gf-cream)" }}>
-      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20">
-        <div className="text-center mb-12">
-          {/* <Eyebrow color="var(--gf-green)" className="justify-center flex">
-            What we actually do
-          </Eyebrow> */}
-          <h2 className="gf-h-display text-[28px] md:text-[38px] max-w-[560px] mx-auto leading-tight">
+    <section style={{ background: "var(--gf-green-deep)" }}>
+      <div className="mx-auto max-w-[1200px] px-6 md:px-10 pb-20 pt-5">
+        <div className="text-center mb-20">
+           <span
+            className="gf-eyebrow inline-block text-md font-bold mb-8"
+            style={{ color: "var(--gf-leaf)" }}
+          >
+            WHAT WE ACTUALLY DO
+          </span>
+          <h1 className="gf-h-display text-7xl md:text-7xl max-w-[800px] mx-auto leading-tight text-white">
             Structured movement programs for preschools.
-          </h2>
+          </h1>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div
-            className="rounded-2xl p-8 text-white"
-            style={{ background: "var(--gf-green-deep)" }}
+            className="rounded-2xl p-8 text-white pb-32"
+            style={{ background: "var(--fg-5)", 
+              border: "1px solid var(--fg-2)"
+            }}
           >
             <span
-              className="gf-eyebrow inline-block px-3 py-1 rounded-full mb-5"
+              className="gf-eyebrow inline-block px-5 py-1 pt-2 rounded-full mb-5 mt-8 font-bold text-sm"
               style={{ background: "var(--gf-sun)", color: "var(--gf-green-deep)" }}
             >
-              The framework
+              THE FRAMEWORK
             </span>
-            <h3 className="gf-h-display text-[22px] mb-3">Built on LTAD</h3>
-            <p className="text-[14.5px] leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <p className="gf-h-display text-4xl my-3 font-bold">Built on LTAD</p>
+            <p className="text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
               &ldquo;Long Term Athlete Development&rdquo; — the framework used
               globally, adapted for how kids actually learn: through play.
               Age-appropriate, science-backed, and designed for preschoolers
@@ -54,85 +59,101 @@ export default function WhatWeActuallyDo() {
           </div>
 
           <div
-            className="rounded-2xl p-8"
+            className="rounded-2xl p-8 py-16"
             style={{ background: "#fff", boxShadow: "var(--shadow-1)" }}
           >
             <span
-              className="gf-eyebrow inline-block mb-5"
-              style={{ color: "var(--fg-3)" }}
+              className="gf-eyebrow inline-block mb-5 font-bold text-sm"
+              style={{ color: "var(--gf-green)" }}
             >
-              The distinction
+              THE DISTINCTION
             </span>
 
             <div
-              className="rounded-xl p-4 mb-3 flex items-center gap-3"
+              className="rounded-xl p-5 mb-3 flex items-center gap-5"
               style={{ background: "var(--gf-sun-50)" }}
             >
               <span
-                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-bold"
-                style={{ background: "rgba(36,62,54,0.08)" }}
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-md font-bold"
+                style={{ background: "var(--gf-green-50)", color: "var(--gf-green)" }}
               >
-                1
+                <ChevronRight size={16} />
               </span>
               <div>
-                <p className="font-bold text-[14.5px]">Standard play</p>
-                <p className="text-[13px]" style={{ color: "var(--fg-2)" }}>
+                <p className="font-bold text-lg">Standard play</p>
+                <p className="text-md" style={{ color: "var(--fg-2)" }}>
                   Free movement. It entertains. Important, but not enough.
                 </p>
               </div>
             </div>
 
             <div
-              className="rounded-xl p-4 flex items-center gap-3"
+              className="rounded-xl p-5 flex items-center gap-5"
               style={{ background: "var(--gf-green)" }}
             >
-              <span className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">
+              <span className="w-10 h-10 rounded-lg bg-white/25 flex items-center justify-center flex-shrink-0">
                 <Check size={14} color="#fff" strokeWidth={3} />
               </span>
               <div>
-                <p className="font-bold text-[14.5px] text-white">
+                <p className="font-bold text-lg text-white">
                   Grow sessions
                 </p>
-                <p className="text-[13px] text-white/85">
+                <p className="text-md text-white/85">
                   Structured skill-building. It develops.
                 </p>
               </div>
             </div>
 
-            <p className="text-[13px] font-semibold mt-4" style={{ color: "var(--fg-2)" }}>
+            <p className="text-lg font-bold mt-6" style={{ color: "var(--fg-2)" }}>
               We build the second — kids experience the first.
             </p>
           </div>
         </div>
 
+        <div className="pt-20">
+          <div style={{ borderTop: "1px solid rgba(82, 99, 82, 0.75)" }} />
+        </div>
+
         {/* Outcomes */}
-        <div className="grid md:grid-cols-[280px_1fr] gap-6 items-start">
+        <div className="grid md:grid-cols-[280px_1fr] gap-16 items-start mt-32">
           <div>
-            {/* <Eyebrow color="var(--fg-3)">The outcomes</Eyebrow> */}
-            <h3 className="gf-h-display text-[24px] leading-tight">
+            <span
+              className="gf-eyebrow inline-block mb-5 font-bold text-sm"
+              style={{ color: "var(--gf-leaf)" }}
+            >
+              THE OUTCOMES
+            </span>
+            <p className="gf-h-display text-4xl leading-tight font-semibold" style={{ color: "var(--gf-cream)" }}>
               What your kids actually walk away with.
-            </h3>
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             {outcomes.map((o) => (
               <div
                 key={o.title}
-                className="gf-card-lift rounded-2xl p-5 bg-white"
-                style={{ boxShadow: "var(--shadow-1)" }}
+                className="gf-card-lift rounded-2xl p-5"
+                style={{
+                  boxShadow: "var(--shadow-1)",
+                  backgroundColor: "var(--fg-5)",
+                  border: "1px solid var(--fg-2)",
+                }}
               >
-                <span
-                  className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
-                  style={{ background: o.accent ?? "var(--gf-green)" }}
-                >
-                  <Check size={14} color={o.accent ? "var(--gf-green-deep)" : "#fff"} strokeWidth={3} />
-                </span>
-                <p className="font-bold text-[14.5px] mb-1 leading-snug">
-                  {o.title}
-                </p>
-                <p className="text-[13px]" style={{ color: "var(--fg-2)" }}>
-                  {o.body}
-                </p>
+                <div className="flex items-start gap-4">
+                  <span
+                    className="w-10 h-10 rounded-md flex-shrink-0 mt-1"
+                    style={{ background: o.accent ?? "var(--gf-green)" }}
+                  />
+
+                  <div>
+                    <p className="font-bold text-lg mb-1 leading-snug text-white">
+                      {o.title}
+                    </p>
+                    <p className="text-md text-white/85">
+                      {o.body}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

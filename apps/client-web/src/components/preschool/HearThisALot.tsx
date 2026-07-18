@@ -20,7 +20,7 @@ export default function HearThisALot() {
       <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20 grid md:grid-cols-2 gap-14 items-start">
         <div>
           <span
-            className="gf-eyebrow inline-block text-lg font-bold mb-8"
+            className="gf-eyebrow inline-block text-md font-bold mb-8"
             style={{ color: "var(--gf-green)" }}
           >
             FOR PRESCHOOL DIRECTORS
