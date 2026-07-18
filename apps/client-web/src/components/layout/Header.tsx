@@ -16,7 +16,7 @@ const logo = '/images/Grow VI Elements/Logos/New logo dark green.png';
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Programs', href: '/programs' },
-  { label: 'Preschool', href: '#preschool' },
+  { label: 'Preschool', href: '/preschool' },
   { label: 'About', href: '/about' },
   { label: 'Blog', href: '#blog' },
 ];
