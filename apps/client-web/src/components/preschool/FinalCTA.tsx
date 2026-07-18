@@ -1,4 +1,5 @@
-import { Circle } from "lucide-react";
+import { ArrowRight, Clock, Phone } from "lucide-react";
+import { TbBrandWhatsapp } from "react-icons/tb";
 
 export default function FinalCTA() {
   return (
@@ -6,26 +7,16 @@ export default function FinalCTA() {
       className="relative overflow-hidden"
       style={{ background: "var(--gf-sun)" }}
     >
-      {/* <FlowerMark
-        className="absolute left-6 top-8 opacity-60 hidden md:block"
-        fill="var(--gf-green-deep)"
-        size={70}
-      />
-      <FlowerMark
-        className="absolute right-8 bottom-10 opacity-40 hidden md:block"
-        fill="var(--gf-green-deep)"
-        size={50}
-      /> */}
-      <div className="mx-auto max-w-[720px] px-6 py-20 text-center relative">
-        <span
-          className="gf-eyebrow inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6"
+      <div className="mx-auto max-w-4xl px-6 py-20 text-center relative">
+        <p
+          className="gf-eyebrow text-md font-semibold inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6"
           style={{ background: "var(--gf-green-deep)", color: "#fff" }}
         >
-          <Circle size={7} fill="var(--gf-green)" color="var(--gf-green)" />
-          Running at 7 preschools — 2 new spots open
-        </span>
+          <Clock size={18} stroke="var(--gf-leaf)"/>
+          RUNNING AT 7 PRESCHOOL — 2 NEW SLOTS OPEN
+        </p>
 
-        <h2 className="gf-h-display text-[32px] md:text-[42px] leading-[1.05] mb-5">
+        <h2 className="gf-h-display text-7xl md:text-8xl leading-[1.05] mb-5">
           We&rsquo;ll run your
           <br />
           first session
@@ -34,26 +25,23 @@ export default function FinalCTA() {
         </h2>
 
         <p
-          className="text-[14.5px] max-w-[400px] mx-auto mb-8"
+          className="text-xl max-w-xl mx-auto mb-8"
           style={{ color: "rgba(25,25,25,0.65)" }}
         >
           Confirm a time, send us a few pictures of your space, and we bring
           everything needed to run it. No cost. No obligation.
         </p>
 
-        <div className="flex justify-center gap-4 mb-6 flex-wrap">
-          {/* <PillButton variant="ghostDark">
-            <Phone size={15} strokeWidth={2.5} />
-            Call Now
-            <ChevronRight size={15} strokeWidth={3} />
-          </PillButton>
-          <PillButton variant="ghostLight">
-            <MessageCircle size={15} strokeWidth={2.5} />
-            WhatsApp us
-          </PillButton> */}
+        <div className="flex justify-center gap-4 mb-16 flex-wrap">
+           <button className="gf-btn-pop relative text-white" style={{ marginTop: 36, background: "var(--gf-green-deep)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
+              <Phone style={{ width: 26, height: 26 }}/>Call Now <ArrowRight size={20} />
+            </button>
+            <button className="gf-btn-pop relative text-black" style={{ marginTop: 36, background: "var(--gf-cream)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
+               <TbBrandWhatsapp style={{ width: 26, height: 26, color: "var(--gf-green)" }}/> WhatsApp us
+            </button>
         </div>
 
-        <p className="font-bold text-[15px]">+94 77 056 9954</p>
+        <a href="tel:+94770569954" className="font-bold text-2xl font-bold hover:underline">+94 77 056 9954</a>
       </div>
     </section>
   );

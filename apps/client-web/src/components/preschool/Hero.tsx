@@ -37,8 +37,7 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
       className="relative overflow-hidden"
       style={{ background: "var(--gf-green-deep)" }}
     >
-      {/* <Squiggle className="absolute right-[6%] top-8 opacity-70 hidden md:block" /> */}
-      <div className="mx-auto max-w-[1200px] px-6 md:px-10 pt-28 pb-20 grid md:grid-cols-2 gap-14 items-center relative">
+      <div className="mx-auto max-w-7xl px-6 md:px-10 pt-28 grid md:grid-cols-2 gap-14 items-center relative">
         <div>
           <span
             className="gf-eyebrow inline-block px-4 py-1.5 rounded-full mb-6"
@@ -77,28 +76,6 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
             <br />
             Real results, no disruption, one week to prove it.
           </p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <button className="gf-btn-pop relative" style={{ marginTop: 36, background: "var(--gf-sun)", color: "var(--gf-green-deep)", boxShadow: "0 6px 0 #c7c400", fontSize: 20, padding: "16px 50px" }}>
-              Book your first session <ArrowRight size={20} />
-            </button>
-            <Button
-              variant="outline"
-              className="gf-btn-pop relative bg-transparent text-white hover:text-white"
-              style={{ 
-                border: "1px solid var(--fg-3)", 
-                backgroundColor: "var(--fg-2)",
-                fontSize: 18, 
-                padding: "32px 40px",
-                marginTop: 16
-              }}
-           >
-              <TbBrandWhatsapp style={{ width: 26, height: 26 }}/>
-              WhatsApp
-            </Button>
-          </div>
-
-          {/* <FlowerMark className="mt-14 opacity-90" fill="rgba(255,255,255,0.15)" /> */}
         </div>
 
         <div className="relative">
@@ -201,21 +178,36 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
                   </div>
                 </div>
         </div>
-
       </div>
 
       {/* Call strip */}
-      <div className="border-t border-white/10">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-5 flex items-center justify-center gap-4 flex-wrap">
-          {/* <PillButton variant="sun">
-            <Phone size={15} strokeWidth={2.5} />
-            Call +94 77 056 9954
-          </PillButton>
-          <PillButton variant="ghostLight">
-            <MessageCircle size={15} strokeWidth={2.5} />
+        <div className="mx-auto max-w-[1200px] px-6 md:px-6 py-5 pb-20 flex items-center justify-start gap-4 flex-wrap">
+          <button 
+            className="gf-btn-pop relative" 
+            style={{ 
+              background: "var(--gf-sun)", 
+              color: "var(--gf-green-deep)", 
+              boxShadow: "0 6px 0 #c7c400", 
+              fontSize: 20, 
+              padding: "16px 50px" 
+            }}
+          >
+            Book your first session <ArrowRight size={20} />
+          </button>
+          <Button
+            variant="outline"
+            className="gf-btn-pop relative bg-transparent text-white hover:text-white"
+            style={{ 
+              border: "1px solid var(--fg-3)", 
+              backgroundColor: "var(--fg-2)",
+              fontSize: 18, 
+              padding: "32px 40px",
+              marginTop: 16
+            }}
+          >
+            <TbBrandWhatsapp style={{ width: 26, height: 26 }} />
             WhatsApp
-          </PillButton> */}
-        </div>
+          </Button>
       </div>
     </section>
   );

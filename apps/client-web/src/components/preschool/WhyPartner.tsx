@@ -1,5 +1,3 @@
-import { Check } from "lucide-react";
-
 export default function WhyPartner() {
   const cards = [
     {
@@ -33,40 +31,45 @@ export default function WhyPartner() {
     <section style={{ background: "#fff" }}>
       <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20">
         <div className="text-center mb-12">
-          {/* <Eyebrow color="var(--gf-green)" className="justify-center flex">
-            The business case
-          </Eyebrow> */}
-          <h2 className="gf-h-display text-[28px] md:text-[38px]">
+          <span
+              className="gf-eyebrow inline-block mb-5 font-bold text-sm"
+              style={{ color: "var(--gf-green)" }}
+            >
+              THE BUSINESS CASE
+            </span>
+          <h1 className="gf-h-display text-6xl md:text-6xl max-w-2xl mx-auto">
             Why preschools partner with us.
-          </h2>
+          </h1>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {cards.map((c) => (
             <div
               key={c.title}
-              className="gf-card-lift rounded-2xl p-7"
+              className="gf-card-lift rounded-3xl p-10 py-12"
               style={{
                 background: c.dark ? "var(--gf-green-deep)" : "var(--gf-cream)",
                 boxShadow: "var(--shadow-1)",
               }}
             >
               <span
-                className="w-8 h-8 rounded-lg flex items-center justify-center mb-5"
-                style={{ background: c.dot }}
+                className="w-14 h-14 rounded-lg flex items-center justify-center mb-5"
+                style={{ 
+                  background: c.dot,
+                  boxShadow: "0 4px 0 var(--gf-green-deep)",
+                }}
               >
-                <Check size={15} color="var(--gf-green-deep)" strokeWidth={3} />
               </span>
-              <h3
-                className={`font-bold text-[16px] mb-2 leading-snug ${
+              <p
+                className={`font-bold text-2xl mb-2 leading-snug ${
                   c.dark ? "text-white" : ""
                 }`}
               >
                 {c.title}
-              </h3>
+              </p>
               <p
-                className="text-[13.5px] leading-relaxed"
-                style={{ color: c.dark ? "rgba(255,255,255,0.7)" : "var(--fg-2)" }}
+                className="text-lg leading-relaxed mt-6"
+                style={{ color: c.dark ? "var(--gf-leaf)" : "var(--fg-2)" }}
               >
                 {c.body}
               </p>
