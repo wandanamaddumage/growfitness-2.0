@@ -86,14 +86,14 @@ export const StatsSection: React.FC = () => (
         <p className="text-[15px]" style={{ color: "rgba(255,255,255,0.65)" }}>
           We partner directly with preschools across Colombo.
         </p>
-        <a href="#" className="inline-flex items-center gap-1.5 font-bold text-[15px]" style={{ color: "var(--gf-leaf)" }}>
+        <a href="/preschool" className="inline-flex items-center gap-1.5 font-bold text-[15px]" style={{ color: "var(--gf-leaf)" }}>
           See our preschool partnerships
           <ArrowRight size={14} strokeWidth={2.5} />
         </a>
       </div>
 
       <a
-        href="#"
+        href="/free-session"
         className="gf-btn-pop text-[16px] px-9 py-4"
         style={{ color: "var(--gf-green-deep)", background: "var(--gf-sun)", boxShadow: "0 6px 0 rgba(255,253,119,0.3)" }}
       >

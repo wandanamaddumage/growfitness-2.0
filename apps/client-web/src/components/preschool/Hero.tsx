@@ -193,8 +193,9 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
       </div>
 
       {/* Call strip */}
-        <div className="mx-auto max-w-[1200px] px-6 md:px-6 py-5 pb-20 flex items-center justify-start gap-4 flex-wrap">
+        <div className="mx-auto max-w-[1200px] py-10 pb-20 flex items-center justify-start gap-4 flex-wrap">
           <button 
+            onClick={() => window.location.href = '/free-session'}
             className="gf-btn-pop relative" 
             style={{ 
               background: "var(--gf-sun)", 
@@ -207,6 +208,7 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
             Book your first session <ArrowRight size={20} />
           </button>
           <Button
+            onClick={() => window.location.href = 'https://wa.me/94770569954'}
             variant="outline"
             className="gf-btn-pop relative bg-transparent text-white hover:text-white"
             style={{ 

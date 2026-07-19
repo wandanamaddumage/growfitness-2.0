@@ -18,7 +18,7 @@ const navLinks = [
   { label: 'Programs', href: '/programs' },
   { label: 'Preschool', href: '/preschool' },
   { label: 'About', href: '/about' },
-  { label: 'Blog', href: '#blog' },
+  // { label: 'Blog', href: '#blog' },
 ];
 
 type HeaderProps = {
