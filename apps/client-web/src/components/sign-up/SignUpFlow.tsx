@@ -17,6 +17,7 @@ import QuestionRenderer from '../common/QuestionRenderer';
 // import ProgressBar from '../common/ProgressBar';
 import ConfettiCelebration from './ConfettiCelebration';
 import type { SessionType } from '@grow-fitness/shared-types';
+import SharedButton from '../common/SharedButton';
 
 interface SignupFlowProps {
   onSubmit: (data: CreateParentDto) => Promise<void> | void;
@@ -353,12 +354,6 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
 
   const renderForm = () => (
     <>
-      {/* <ProgressBar
-        progress={progress}
-        currentStep={currentStep + 1}
-        totalSteps={totalSteps}
-      /> */}
-
       <div className="flex-1 flex flex-col px-4">
         <form 
           onSubmit={(e) => {
@@ -402,24 +397,30 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
           )}
 
           <div className="flex justify-between items-center py-4 border-t px-4 border-amber-100 bg-white/70 backdrop-blur rounded-t-2xl shadow-md">
-            <Button
+            <SharedButton
               type="button"
-              variant="outline"
               onClick={goToPrevious}
               disabled={isFirstStep}
               className="flex items-center gap-2"
+              backgroundColor="white"
+              color="black"
+              size="custom"
             >
               <ChevronLeft className="w-4 h-4" /> Back
-            </Button>
+            </SharedButton>
 
             <div className="text-sm text-gray-500">
               {currentStep + 1} / {totalSteps}
             </div>
 
-            <Button
+            <SharedButton
               type="submit"
               disabled={isLoading || isSubmitting}
-              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 !bg-emerald-500 !text-white hover:!bg-emerald-600 !border-0"
+              isLoading={isLoading}
+              isSubmitting={isSubmitting}
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3"
+              color="white"
+              size="custom"
             >
               {isLoading || isSubmitting ? (
                 <motion.div
@@ -437,21 +438,23 @@ const SignupFlow: React.FC<SignupFlowProps> = ({
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
-            </Button>
+            </SharedButton>
           </div>
         </form>
       </div>
 
       {onCancel && (
         <div className="p-4 text-center">
-          <Button
+          <SharedButton
             type="button"
-            variant="ghost"
             onClick={onCancel}
             className="text-gray-600 hover:text-gray-800"
+            backgroundColor="white"
+            color="gray-600"
+            size="custom"
           >
             Cancel
-          </Button>
+          </SharedButton>
         </div>
       )}
     </>
