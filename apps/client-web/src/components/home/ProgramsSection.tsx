@@ -20,7 +20,7 @@ export const ProgramsSection: React.FC = () => (
             </h3>
           </div>
           <a
-            href="#"
+            href="/programs"
             className="gf-btn-pop text-sm px-[22px] py-3"
             style={{ color: "var(--gf-green-deep)", background: "var(--gf-sun)", boxShadow: "0 4px 0 rgba(255,253,119,0.25)" }}
           >

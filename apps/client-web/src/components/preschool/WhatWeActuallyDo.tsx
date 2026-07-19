@@ -24,17 +24,18 @@ export default function WhatWeActuallyDo() {
   return (
     <section style={{ background: "var(--gf-green-deep)" }}>
       <div className="mx-auto max-w-[1200px] px-6 md:px-10 pb-20 pt-5">
-        <div className="text-center mb-20">
-           <span
-            className="gf-eyebrow inline-block text-md font-bold mb-8"
-            style={{ color: "var(--gf-leaf)" }}
-          >
-            WHAT WE ACTUALLY DO
-          </span>
-          <h1 className="gf-h-display text-7xl md:text-7xl max-w-[800px] mx-auto leading-tight text-white">
-            Structured movement programs for preschools.
-          </h1>
-        </div>
+       <div className="text-center mb-10 sm:mb-14 md:mb-20">
+        <span
+          className="gf-eyebrow inline-block text-xs sm:text-sm md:text-base font-bold mb-4 sm:mb-6 md:mb-8"
+          style={{ color: "var(--gf-leaf)" }}
+        >
+          WHAT WE ACTUALLY DO
+        </span>
+
+        <h1 className="gf-h-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl max-w-full sm:max-w-2xl lg:max-w-[800px] mx-auto leading-tight px-4 sm:px-6 text-white">
+          Structured movement programs for preschools.
+        </h1>
+      </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div

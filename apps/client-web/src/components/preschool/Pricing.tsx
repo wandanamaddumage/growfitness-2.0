@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 export default function Pricing() {
   const features = [
@@ -86,6 +86,16 @@ export default function Pricing() {
                 <span className="text-gf-deep-green text-md">{f}</span>
               </div>
             ))}
+             <div>
+          <a
+            href="/free-session"
+            className="gf-btn-pop text-[17px] px-9 py-[18px] mt-3"
+            style={{ color: "white", background: "var(--gf-green)", boxShadow: "0 8px 0 var(--gf-green-deep)" }}
+          >
+            Book the free session
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </a>
+        </div>
           </div>
         </div>
       </div>

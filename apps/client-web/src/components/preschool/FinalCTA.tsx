@@ -34,10 +34,10 @@ export default function FinalCTA() {
         </p>
 
         <div className="flex justify-center gap-4 mb-16 flex-wrap">
-           <button className="gf-btn-pop relative text-white" style={{ marginTop: 36, background: "var(--gf-green-deep)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
+           <button onClick={() => window.open("tel:+94770569954", "_blank")} className="gf-btn-pop relative text-white" style={{ marginTop: 36, background: "var(--gf-green-deep)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
               <Phone style={{ width: 26, height: 26 }}/>Call Now <ArrowRight size={20} />
             </button>
-            <button className="gf-btn-pop relative text-black" style={{ marginTop: 36, background: "var(--gf-cream)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
+            <button onClick={() => window.open("https://wa.me/94770569954", "_blank")} className="gf-btn-pop relative text-black" style={{ marginTop: 36, background: "var(--gf-cream)", boxShadow: "0 8px 0 var(--fg-3)", fontSize: 20, padding: "16px 50px" }}>
                <TbBrandWhatsapp style={{ width: 26, height: 26, color: "var(--gf-green)" }}/> WhatsApp us
             </button>
         </div>
