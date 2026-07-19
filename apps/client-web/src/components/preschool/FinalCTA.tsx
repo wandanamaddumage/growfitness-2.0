@@ -7,6 +7,7 @@ export default function FinalCTA() {
       className="relative overflow-hidden"
       style={{ background: "var(--gf-sun)" }}
     >
+      <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[250px] opacity-20 pointer-events-none" style={{ left: -20, top: -40 }} />
       <div className="mx-auto max-w-4xl px-6 py-20 text-center relative">
         <p
           className="gf-eyebrow text-md font-semibold inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6"
@@ -43,6 +44,7 @@ export default function FinalCTA() {
 
         <a href="tel:+94770569954" className="font-bold text-2xl font-bold hover:underline">+94 77 056 9954</a>
       </div>
+      <img src="images/Grow VI Elements/Icons/Mix abs.png" alt='Personal' className="absolute w-[250px] opacity-20 pointer-events-none" style={{ right: -10, bottom: -20 }} />
     </section>
   );
 }
