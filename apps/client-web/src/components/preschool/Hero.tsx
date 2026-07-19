@@ -37,6 +37,18 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
       className="relative overflow-hidden"
       style={{ background: "var(--gf-green-deep)" }}
     >
+      <img
+        src="/images/Grow VI Elements/Icons/Yellow abs.png"
+        alt="flower"
+        className="absolute w-[360px] opacity-10 pointer-events-none animate-spin-slow"
+        style={{ right: -60, top: -80 }}
+      />
+      <img
+        src="/images/Grow VI Elements/Icons/Mix abs 2.png"
+        alt="mix abs"
+        className="absolute w-[240px] opacity-30 pointer-events-none"
+        style={{ left: -40, bottom: -20 }}
+      />
       <div className="mx-auto max-w-7xl px-6 md:px-10 pt-28 grid md:grid-cols-2 gap-14 items-center relative">
         <div>
           <span
