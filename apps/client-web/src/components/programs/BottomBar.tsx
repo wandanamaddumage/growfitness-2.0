@@ -12,7 +12,7 @@ export function BottomBar() {
         <span>Have a child with special needs?</span>
 
         <a
-          href="#"
+          href="https://wa.me/94770569954"
           className="font-bold underline underline-offset-4"
           style={{
             color: "var(--gf-green)",

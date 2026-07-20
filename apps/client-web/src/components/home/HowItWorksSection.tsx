@@ -59,7 +59,7 @@ export const HowItWorksSection: React.FC = () => (
 
       <div className="text-center">
         <a
-          href="#"
+          href="/free-session"
           className="gf-btn-pop text-[16px] px-10 py-4"
           style={{ color: "white", background: "var(--gf-green)", boxShadow: "0 7px 0 var(--gf-green-deep)" }}
         >

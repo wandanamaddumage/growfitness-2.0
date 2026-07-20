@@ -59,7 +59,7 @@ export const ForNotForSection: React.FC = () => (
         </div>
 
         <a
-          href="#"
+          href="/free-session"
           className="gf-btn-pop w-full justify-center text-[16px] px-6 py-4"
           style={{ color: "white", background: "var(--gf-green)", boxShadow: "0 6px 0 var(--gf-green-deep)" }}
         >
