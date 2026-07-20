@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import '@/components/home/common/HomePage.css';
 import { ChallengesSection, CTASection, FAQSection, FeaturesSection, ForNotForSection, HeadCoachSection, HeroSection, HowItWorksSection, ProgramsSection, StatsSection, TestimonialsSection, VideoSection } from '@/components/home';
 import { ArrowRight } from 'lucide-react';
 

@@ -127,12 +127,12 @@ export default function ParentDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[var(--gf-cream)] gf-scope pb-12">
       <DashboardHeader />
 
       {isDashboardLoading ? (
-        <div className="bg-gray-50 flex items-center justify-center py-20 rounded-2xl border border-dashed border-gray-200">
-          <p className="text-gray-500 animate-pulse">Loading dashboard...</p>
+        <div className="bg-[var(--gf-green-50)]/30 flex items-center justify-center py-20 rounded-2xl border border-dashed border-[var(--line)]">
+          <p className="text-[var(--gf-green)] font-bold animate-pulse">Loading dashboard...</p>
         </div>
       ) : showDashboard && user && kidData ? (
         <>
@@ -166,8 +166,8 @@ export default function ParentDashboard() {
           />
         </>
       ) : (
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
-          <div className="text-gray-500">
+        <div className="bg-[var(--gf-paper)] border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] rounded-2xl p-8 flex flex-col items-center justify-center gap-4">
+          <div className="text-[var(--gf-green-deep)] font-extrabold uppercase text-lg tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
             Please select a child to continue.
           </div>
         </div>

@@ -1,5 +1,3 @@
-import "../components/home/common/HomePage.css"
-
 import FinalCTA from "../components/preschool/FinalCTA";
 import Hero from "../components/preschool/Hero";
 import HearThisALot from "../components/preschool/HearThisALot";

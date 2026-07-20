@@ -321,25 +321,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 pb-8 pt-20 sm:px-6 sm:pt-24 lg:px-10">
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="text-start space-y-1">
-          <h1 className="text-2xl font-bold sm:text-3xl">Your Profile</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Your Profile</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
             {user.role === 'PARENT'
               ? 'Update your personal information'
               : 'View your personal information'}
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+          <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Account & contact details</CardDescription>
+                <CardTitle className="text-lg sm:text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Personal Information</CardTitle>
+                <CardDescription className="text-xs font-semibold text-[var(--fg-2)] mt-0.5">Account & contact details</CardDescription>
               </div>
-              <Badge variant="outline">{user.role}</Badge>
+              <Badge className="bg-[var(--gf-sun)] text-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider rounded-full px-2.5 py-0.5">{user.role}</Badge>
             </div>
           </CardHeader>
 
@@ -469,6 +469,7 @@ export default function ProfilePage() {
                     <Button
                       type="button"
                       onClick={() => setIsEditing(true)}
+                      className="bg-[var(--gf-green)] text-sm text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl transition-all duration-120 h-9 w-full sm:w-auto"
                     >
                       Edit Profile
                     </Button>
@@ -477,6 +478,7 @@ export default function ProfilePage() {
                       <Button
                         type="submit"
                         disabled={savingParent || uploadingParentPhoto || !hasChanges}
+                        className="h-10 px-4 bg-[var(--gf-green)] text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] transition-all duration-200 active:translate-y-[2px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl disabled:opacity-50 disabled:pointer-events-none"
                       >
                         {savingParent || uploadingParentPhoto ? (
                           <>
@@ -495,6 +497,7 @@ export default function ProfilePage() {
                         type="button"
                         variant="outline"
                         onClick={handleCancel}
+                        className="h-10 px-4 border-2 border-[var(--line)] bg-[var(--gf-paper)] text-[var(--fg-2)] font-bold rounded-xl transition-all hover:bg-[var(--gf-cream)]"
                       >
                         Cancel
                       </Button>
@@ -632,7 +635,7 @@ export default function ProfilePage() {
         </Card>
 
         {isGmail && (
-          <Card>
+           <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
             <CardHeader>
               <CardTitle>Google Calendar</CardTitle>
               <CardDescription>Sync your sessions to Google Calendar</CardDescription>
@@ -664,7 +667,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={() => void calendarSync.connect()}
                   disabled={calendarSync.loading || calendarSync.busy}
-                  className="sm:w-auto"
+                  className="bg-[var(--gf-green)] text-sm text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl transition-all duration-120 h-9 w-full sm:w-auto"
                 >
                   {calendarSync.connected ? 'Reconnect Google Calendar' : 'Connect Google Calendar'}
                 </Button>

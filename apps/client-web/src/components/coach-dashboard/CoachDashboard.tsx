@@ -42,7 +42,7 @@ export default function ClientDashboard() {
   if (isLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope">
       <DesktopTabs activeTab={activeTab} onTabChange={handleTabChange} user={user}>
         {tabs.map(tab => (
           <TabsContent key={tab.id} value={tab.id} className="space-y-6 pb-20 md:pb-6">

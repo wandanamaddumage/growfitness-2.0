@@ -41,15 +41,17 @@ export function DashboardHeader() {
 
   /* ---------- UI ---------- */
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 gf-scope">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {/* ---------- LEFT ---------- */}
         <div className="text-center md:text-left">
-          <h1 className="text-base sm:text-2xl font-bold text-gray-800">{config?.greeting}</h1>
-          <p className="text-xs sm:text-sm text-gray-500">{config?.subtitle}</p>
+          <h1 className="text-xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+            {config?.greeting}
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">{config?.subtitle}</p>
 
           {role === 'PARENT' && selectedKid && (
-            <p className="text-[11px] sm:text-xs text-gray-400 mt-1">
+            <p className="text-[11px] sm:text-xs text-[var(--fg-3)] mt-1 font-medium">
               {isKidLoading ? 'Loading...' : `Selected: ${selectedKid.name}`}
             </p>
           )}
@@ -58,10 +60,10 @@ export function DashboardHeader() {
         {/* ---------- RIGHT (KID SELECTOR) ---------- */}
         {role === 'PARENT' && (
           <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <span className="text-sm font-bold text-gray-700">Kid&apos;s Name:</span>
+            <span className="text-sm font-bold text-[var(--gf-green-deep)]">Kid&apos;s Name:</span>
 
             {kids.length === 1 ? (
-              <span className="px-3 py-1 rounded-md bg-gray-100 text-sm font-medium">
+              <span className="px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--gf-paper)] text-sm font-bold text-[var(--gf-green-deep)]">
                 {kids[0].name}
               </span>
             ) : (
@@ -72,13 +74,13 @@ export function DashboardHeader() {
                   if (kid) setSelectedKid(kid);
                 }}
               >
-                <SelectTrigger className="w-full text-sm sm:w-[200px]">
+                <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                   <SelectValue placeholder="Select Kid" />
                 </SelectTrigger>
-
-                <SelectContent>
+                
+                <SelectContent className="bg-[var(--gf-paper)] border border-[var(--line)]">
                   {kids.map(kid => (
-                    <SelectItem key={kid.id} value={kid.id}>
+                    <SelectItem key={kid.id} value={kid.id} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">
                       {kid.name}
                     </SelectItem>
                   ))}
