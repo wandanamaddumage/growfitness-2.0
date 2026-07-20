@@ -449,7 +449,7 @@ export function NotificationBell() {
                   navigate('/notifications');
                   setOpen(false);
                 }}
-                className="w-full text-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors"
+                className="w-full text-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors border-2 border-[var(--gf-green)] shadow-[4px_4px_0_0_var(--gf-green-deep)]"
               >
                 View all notifications →
               </button>

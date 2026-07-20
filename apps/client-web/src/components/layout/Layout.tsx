@@ -18,7 +18,7 @@ export function Layout() {
 
 export function DashboardLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-[var(--gf-cream)] gf-scope">
       {/* Header (fixed) */}
       <Header />
 
@@ -27,8 +27,8 @@ export function DashboardLayout() {
         <SideNav />
 
         {/* scrollable area for content and footer */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto lg:ml-64">
-          <main className="flex-1 p-4 pb-24 sm:p-6 sm:pb-6">
+        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto lg:ml-64 bg-[var(--gf-cream)]">
+          <main className="flex-1 p-4 pb-24 sm:p-6 sm:pb-6 bg-[var(--gf-cream)]">
             <Outlet />
           </main>
           <DashboardFooter />
