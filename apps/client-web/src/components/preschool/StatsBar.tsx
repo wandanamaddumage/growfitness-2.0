@@ -7,7 +7,7 @@ export default function StatsBar() {
   
   return (
   <section
-  className="relative z-50 -mt-16"
+  className="relative -mt-16"
   style={{ background: "var(--gf-green)" }}
 >
   <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-9 grid grid-cols-3 divide-x divide-white/25 rounded-3xl shadow-2xl">
