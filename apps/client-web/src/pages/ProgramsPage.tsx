@@ -1,4 +1,3 @@
-import '@/components/home/common/HomePage.css';
 import { Hero } from "@/components/programs/Hero";
 import { VideoComparison } from "@/components/programs/VideoComparison";
 import { ProgramCards } from "@/components/programs/ProgramCards";

@@ -50,7 +50,7 @@ export function GoogleCalendarSyncButton({
         variant={connected ? 'outline' : 'default'}
         onClick={handleClick}
         disabled={loading || busy}
-        className="flex items-center gap-2"
+        className="bg-[var(--gf-green)] text-sm text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl transition-all duration-120 h-9 w-full sm:w-auto"
       >
         <CalendarIcon className="h-4 w-4" />
         {connected ? 'Disconnect Google Calendar' : 'Sync with Google Calendar'}

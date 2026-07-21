@@ -421,29 +421,29 @@ export function KidProfileTab() {
   const selectedConditionsCount = (formData.medicalConditions || []).length;
 
   return (
-    <Card className="animate-fade-in overflow-hidden border-none shadow-none bg-transparent">
-      <Card className="overflow-hidden border-border/60 shadow-[var(--shadow-card)]">
-        <CardContent className=" space-y-5 pb-6">
+    <div>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardContent className="space-y-5 pb-6 pt-6">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-end">
               <div className="relative">
-                <Avatar className="h-24 w-24 rounded-2xl border-4 border-card shadow-[var(--shadow-card)]">
+                <Avatar className="h-24 w-24 rounded-2xl border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                   <AvatarImage src={avatarSrc} alt={formData.name || ""} className="object-cover" />
-                  <AvatarFallback className="rounded-2xl bg-secondary text-xl font-bold text-secondary-foreground">
+                  <AvatarFallback className="rounded-2xl bg-[var(--gf-green-50)] text-xl font-extrabold text-[var(--gf-green-deep)]">
                     {initials || "K"}
                   </AvatarFallback>
                 </Avatar>
                 {isEditing && (
-                  <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md">
+                  <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--gf-green-deep)] text-white shadow-md">
                     <Camera className="h-4 w-4" />
                   </div>
                 )}
               </div>
               <div className="text-center sm:pb-2 sm:text-left">
-                <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+                <h2 className="text-2xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
                   {formData.name || "Untitled"}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[var(--fg-2)] font-semibold mt-0.5">
                   {age !== null ? `${age} years old` : "Add birth date"} ·{" "}
                   {formData.sessionType === "INDIVIDUAL" ? "Private sessions" : "Group sessions"}
                 </p>
@@ -453,12 +453,12 @@ export function KidProfileTab() {
         </CardContent>
       </Card>
 
-      <CardContent className="pt-6 px-0">
-        <form noValidate onSubmit={handleSubmit} className="space-y-8 bg-card border border-border/60 rounded-xl p-6 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between pb-4 border-b border-border/40">
+      <CardContent className="pt-8 px-0">
+        <form noValidate onSubmit={handleSubmit} className="space-y-8 bg-[var(--gf-paper)] border-2 border-[var(--gf-green-deep)] rounded-2xl p-6 shadow-[4px_4px_0_0_var(--gf-green-deep)]">
+          <div className="flex items-center justify-between pb-4 border-b border-[var(--line)]">
             <div>
-              <h3 className="text-lg font-bold tracking-tight text-foreground">Kid Profile</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="text-xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Kid Profile</h3>
+              <p className="text-xs text-[var(--fg-2)] font-semibold mt-0.5">
                 {isEditing ? "Update profile details and save." : "View profile details."}
               </p>
             </div>
@@ -468,7 +468,6 @@ export function KidProfileTab() {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={() => {
                       if (backupFormData) {
                         setFormData(backupFormData);
@@ -483,15 +482,14 @@ export function KidProfileTab() {
                       setIsEditing(false);
                     }}
                     disabled={saving}
-                    className="h-9"
+                    className="h-10 px-4 border-2 border-[var(--line)] bg-[var(--gf-paper)] text-[var(--fg-2)] font-bold rounded-xl transition-all hover:bg-[var(--gf-cream)]"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    size="sm"
                     disabled={saving || uploadingPhoto}
-                    className="h-9 shadow-sm"
+                    className="h-10 px-4 bg-[var(--gf-green)] text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] transition-all duration-200 active:translate-y-[2px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl"
                   >
                     {saving || uploadingPhoto ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -505,9 +503,8 @@ export function KidProfileTab() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={() => setIsEditing(true)}
-                  className="h-9 px-4 border-primary/30 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                  className="h-10 px-4 border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-sm text-[var(--fg-2)] font-semibold uppercase tracking-wider text-xs hover:bg-[var(--gf-green-50)] transition-all duration-200 shadow-[2px_2px_0_0_var(--gf-green-deep)] rounded-xl"
                 >
                   Edit Profile
                 </Button>
@@ -532,8 +529,8 @@ export function KidProfileTab() {
           {/* Section: Basic Information */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <User className="h-5 w-5 text-[var(--gf-green)]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--gf-green-deep)]">
                 Basic Information
               </h3>
             </div>
@@ -726,8 +723,8 @@ export function KidProfileTab() {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Stethoscope className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                <Stethoscope className="h-5 w-5 text-[var(--gf-green)]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--gf-green-deep)]">
                   Medical Conditions
                 </h3>
               </div>
@@ -822,6 +819,6 @@ export function KidProfileTab() {
           </section>
         </form>
       </CardContent>
-    </Card>
+    </div>
   );
 }

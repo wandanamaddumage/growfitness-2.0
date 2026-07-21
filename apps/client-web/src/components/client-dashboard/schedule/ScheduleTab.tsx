@@ -191,28 +191,28 @@ export default function ScheduleTab() {
   }, [sessions]);
 
   return (
-    <>
-      <Card className="border-[#23B685]/20 shadow-sm">
-        <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="flex items-center text-base font-semibold">
-            <CalendarIcon className="mr-2 h-5 w-5 text-[#23B685]" />
+    <div>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-[var(--gf-green-deep)] text-lg sm:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
+            <CalendarIcon className="mr-2 h-5 w-5 text-[var(--gf-green)]" />
             Schedule
           </CardTitle>
           {canRequestExtraSession && (
-            <Button size="sm" onClick={() => setOpenBooking(true)} className="w-full sm:w-auto">
+            <Button size="sm" onClick={() => setOpenBooking(true)} className="bg-[var(--gf-green)] text-sm text-white hover:bg-[var(--gf-green)]/90 font-bold border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl transition-all duration-120 h-9 w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Book Extra Session
             </Button>
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Tabs value={view} onValueChange={v => setView(v as ScheduleView)}>
-            <TabsList className="mb-4 grid w-full grid-cols-2 sm:max-w-[240px]">
-              <TabsTrigger value="list" className="flex items-center gap-2">
+            <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[240px] gap-2 p-1">
+              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 <List className="h-4 w-4" />
                 List
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 <CalendarDays className="h-4 w-4" />
                 Calendar
               </TabsTrigger>
@@ -346,9 +346,9 @@ export default function ScheduleTab() {
         onReschedule={() => { }}
       />
 
-      {canRequestExtraSession && (
+      {openBooking && (
         <BookSessionModal open={openBooking} onClose={() => setOpenBooking(false)} />
       )}
-    </>
+    </div>
   );
 }

@@ -17,7 +17,7 @@ const QUOTES = [
 export default function HearThisALot() {
   return (
     <section style={{ background: "var(--gf-cream)" }} className="relative my-16">
-      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20 grid md:grid-cols-2 gap-14 items-start relative z-50">
+      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20 grid md:grid-cols-2 gap-14 items-start relative">
         <div>
           <span
             className="gf-eyebrow inline-block text-md font-bold mb-8"

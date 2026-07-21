@@ -133,7 +133,7 @@ export function ProfilePhotoEditor({
           isDragOver ? 'ring-2 ring-primary ring-offset-2' : '',
         ].join(' ')}
       >
-        <Avatar className="h-28 w-28 rounded-2xl border-4 border-card shadow-[var(--shadow-card)] border-border">
+        <Avatar className="h-28 w-28 rounded-2xl border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
           {avatarSrc ? <AvatarImage src={avatarSrc} alt="" className="object-cover" /> : null}
           <AvatarFallback className="rounded-2xl bg-secondary text-xl font-bold text-secondary-foreground">
             {fallbackLabel.slice(0, 2).toUpperCase()}

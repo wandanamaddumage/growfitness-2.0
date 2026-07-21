@@ -136,49 +136,53 @@ export function Payments() {
   ];
 
   return (
-    <div className="mt-24 mx-12 space-y-6">
+    <div className="mx-4 sm:mx-12 space-y-6 bg-[var(--gf-cream)] pb-12 pt-6">
       <div>
-        <h1 className="text-3xl font-bold">Payment Invoices</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+          Payment Invoices
+        </h1>
+        <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
           View and download your invoices
         </p>
       </div>
 
       <FilterBar>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-muted-foreground">Status:</label>
+          <label className="text-sm font-bold text-[var(--gf-green-deep)]">Status:</label>
           <Select
             value={statusFilter || 'all'}
             onValueChange={v =>
               setStatusFilter(v === 'all' ? '' : (v as InvoiceStatus))
             }
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value={InvoiceStatus.PENDING}>Pending</SelectItem>
-              <SelectItem value={InvoiceStatus.PAID}>Paid</SelectItem>
-              <SelectItem value={InvoiceStatus.OVERDUE}>Overdue</SelectItem>
+            <SelectContent className="bg-[var(--gf-paper)] border border-[var(--line)]">
+              <SelectItem value="all" className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">All statuses</SelectItem>
+              <SelectItem value={InvoiceStatus.PENDING} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Pending</SelectItem>
+              <SelectItem value={InvoiceStatus.PAID} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Paid</SelectItem>
+              <SelectItem value={InvoiceStatus.OVERDUE} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Overdue</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </FilterBar>
-
       {error ? (
         <ErrorState
           title="Failed to load invoices"
-          onRetry={() => location.reload()}
+          onRetry={() => window.location.reload()}
         />
       ) : (
         <>
-          <DataTable
-            columns={columns}
-            data={data?.data ?? []}
-            isLoading={isLoading}
-            emptyMessage="No invoices found"
-          />
+          <div className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] rounded-2xl bg-[var(--gf-paper)] overflow-hidden">
+            <DataTable
+              columns={columns}
+              data={data?.data ?? []}
+              isLoading={isLoading}
+              emptyMessage="No invoices found"
+              className="border-0 rounded-none shadow-none"
+            />
+          </div>
           {data && (
             <Pagination
               data={data}
