@@ -8,7 +8,7 @@ export function Layout() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-[var(--gf-cream)] gf-scope overflow-hidden">
       {/* Desktop Sidebar */}
       <Sidebar className="hidden md:flex" />
 
@@ -40,7 +40,7 @@ export function Layout() {
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header onMenuClick={() => setIsMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 mx-4">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 mx-4 md:ml-64">
           <Outlet />
         </main>
       </div>

@@ -65,18 +65,18 @@ export function DashboardStatsCards({ stats }: DashboardStatsCardsProps) {
         return (
           <Card
             key={card.title}
-            className="cursor-pointer hover:bg-muted/50 transition-colors"
+            className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden cursor-pointer hover:bg-[var(--gf-green-50)]/40 transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[2px_2px_0_0_var(--gf-green-deep)]"
             onClick={card.onClick}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <Icon className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+              <CardTitle className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{card.title}</CardTitle>
+              <Icon className="h-4 w-4 text-[var(--gf-green)]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-extrabold text-[var(--gf-green-deep)]">
                 {typeof card.value === 'number' ? card.value.toLocaleString() : card.value ?? '0'}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+              <p className="text-xs text-[var(--fg-2)] font-semibold mt-1">{card.description}</p>
             </CardContent>
           </Card>
         );

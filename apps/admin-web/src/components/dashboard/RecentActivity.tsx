@@ -15,9 +15,9 @@ export function RecentActivity() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
@@ -30,9 +30,9 @@ export function RecentActivity() {
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <ErrorState title="Failed to load activity" />
@@ -44,9 +44,9 @@ export function RecentActivity() {
   const logs = data?.data || [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+    <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+      <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+        <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
         {logs.length === 0 ? (
@@ -58,13 +58,13 @@ export function RecentActivity() {
         ) : (
           <div className="space-y-3">
             {logs.map((log: AuditLog) => (
-              <div key={log.id} className="flex items-start space-x-3">
+              <div key={log.id} className="flex items-start space-x-3 p-2 rounded-xl hover:bg-[var(--gf-green-50)]/40 transition-colors">
                 <div className="mt-1">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  <div className="h-2 w-2 rounded-full bg-[var(--gf-green)]" />
                 </div>
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">{log.action}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm font-extrabold text-[var(--gf-green-deep)]">{log.action}</p>
+                  <p className="text-xs text-[var(--fg-2)] font-semibold">
                     {log.entityType} • {formatRelativeTime(log.timestamp)}
                   </p>
                 </div>

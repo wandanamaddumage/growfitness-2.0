@@ -26,7 +26,7 @@ export function Pagination<T>({
   return (
     <div className="flex flex-col gap-4 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       {/* Showing results */}
-      <p className="text-center text-sm text-muted-foreground sm:text-left">
+      <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
         Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} results
       </p>
 
@@ -34,7 +34,7 @@ export function Pagination<T>({
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
         {/* Rows per page */}
         <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground whitespace-nowrap">
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
             Rows per page
           </p>
 
@@ -42,7 +42,7 @@ export function Pagination<T>({
             value={limit.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-20">
+             <SelectTrigger className="h-8 w-20 text-sm border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
               <SelectValue />
             </SelectTrigger>
 
@@ -67,9 +67,9 @@ export function Pagination<T>({
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <span className="min-w-[90px] text-center text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
             {page} / {totalPages}
-          </span>
+          </p>
 
           <Button
             variant="outline"

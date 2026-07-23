@@ -38,7 +38,7 @@ export function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--gf-cream)] gf-scope">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -51,34 +51,34 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Side - Login Form (45% on desktop, full width on mobile) */}
-      <div className="w-full lg:w-[45%] bg-white flex flex-col min-h-screen lg:min-h-0">
+      <div className="w-full lg:w-[45%] bg-[var(--gf-paper)] flex flex-col min-h-screen lg:min-h-0">
         {/* Logo/Branding */}
         <div className="p-8">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">G</span>
+            <div className="w-10 h-10 rounded-full bg-[var(--gf-green)] flex items-center justify-center border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
+              <span className="text-white font-bold text-xl">G</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">Grow Fitness Admin</span>
+            <span className="text-2xl font-extrabold text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Grow Fitness Admin</span>
           </div>
         </div>
 
         {/* Form Container - Centered Vertically */}
         <div className="flex-1 flex items-center justify-center px-6 sm:px-12 py-8 lg:py-0">
           <div className="w-full max-w-md">
-            <h1 className="text-3xl font-bold mb-2 text-foreground">Sign in to your account</h1>
-            <p className="text-muted-foreground mb-8">
+            <h1 className="text-3xl font-extrabold mb-2 text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Sign in to your account</h1>
+            <p className="text-[var(--fg-2)] font-semibold mb-8">
               Enter your email and password to access the admin dashboard
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {error && (
-                <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
+                <div className="p-3 bg-red-50 text-red-600 text-sm font-semibold rounded-xl border-2 border-red-200">
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2 text-foreground">
+                <label htmlFor="email" className="block text-sm font-extrabold mb-2 text-[var(--gf-green-deep)] uppercase tracking-wider">
                   Email
                 </label>
                 <input
@@ -86,7 +86,7 @@ export function LoginPage() {
                   type="email"
                   {...register('email')}
                   placeholder="growfitnesslk@gmail.com"
-                  className="w-full px-4 py-3 border border-input rounded-md bg-muted/50 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring transition-colors"
+                  className="w-full px-4 py-3 border-2 border-[var(--line)] rounded-xl bg-[var(--gf-green-50)]/40 text-[var(--gf-green-deep)] placeholder:text-[var(--fg-3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gf-green)] focus-visible:border-[var(--gf-green-deep)] transition-colors font-semibold"
                   required
                 />
               </div>
@@ -94,7 +94,7 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium mb-2 text-foreground"
+                  className="block text-sm font-extrabold mb-2 text-[var(--gf-green-deep)] uppercase tracking-wider"
                 >
                   Password
                 </label>
@@ -103,33 +103,33 @@ export function LoginPage() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     {...register('password')}
-                    className="w-full px-4 py-3 pr-12 border border-input rounded-md bg-muted/50 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring transition-colors"
+                    className="w-full px-4 py-3 pr-12 border-2 border-[var(--line)] rounded-xl bg-[var(--gf-green-50)]/40 text-[var(--gf-green-deep)] placeholder:text-[var(--fg-3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gf-green)] focus-visible:border-[var(--gf-green-deep)] transition-colors font-semibold"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 font-medium"
-              >
-                {isSubmitting ? 'Logging in...' : 'Sign in'}
-              </button>
+             <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-[var(--gf-green-deep)] text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 font-extrabold uppercase tracking-wider border-2 border-black shadow-[2px_2px_0_0_black] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_black] active:translate-y-[1px] active:shadow-[0_0_0_0_black]"
+            >
+              {isSubmitting ? 'Logging in...' : 'Sign in'}
+            </button>
             </form>
           </div>
         </div>
       </div>
 
       {/* Right Side - Illustration (55% on desktop, hidden on mobile) */}
-      <div className="hidden lg:block lg:w-[55%] bg-black relative overflow-hidden">
+      <div className="hidden lg:block lg:w-[55%] bg-[var(--gf-green-deep)] relative overflow-hidden">
         {/* Illustration Pattern */}
         <div className="absolute inset-0 opacity-20">
           <svg
@@ -177,7 +177,7 @@ export function LoginPage() {
 
         {/* Welcome Text Overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <h2 className="text-8xl font-bold text-white mix-blend-screen select-none opacity-90">
+          <h2 className="text-8xl font-extrabold text-white mix-blend-screen select-none opacity-90" style={{ fontFamily: 'var(--font-display)' }}>
             Welcome
           </h2>
         </div>

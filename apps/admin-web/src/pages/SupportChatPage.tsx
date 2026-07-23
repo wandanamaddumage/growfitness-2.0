@@ -46,23 +46,24 @@ export function SupportChatPage() {
 
   if (isLoading && !data) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+      <div className="flex items-center justify-center h-[calc(100vh-200px)] bg-[var(--gf-cream)] gf-scope">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold">Support Chat</h1>
-        <p className="text-muted-foreground mt-1">Direct communication with administration</p>
-      </div>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Support Chat</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Direct communication with administration</p>
+        </div>
 
-      <Card className="flex-1 flex flex-col overflow-hidden border-none shadow-xl bg-card/50 backdrop-blur-sm">
-        <CardHeader className="border-b py-4 bg-primary/5">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <MessageCircle className="h-4 w-4 text-primary" />
+      <Card className="flex-1 flex flex-col overflow-hidden border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl h-[calc(100vh-200px)]">
+        <CardHeader className="border-b-2 border-[var(--gf-green-deep)] py-4 bg-[var(--gf-green-50)]/40">
+          <CardTitle className="text-sm font-extrabold uppercase tracking-wider flex items-center gap-2 text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+            <MessageCircle className="h-4 w-4 text-[var(--gf-green)]" />
             Support Channel
           </CardTitle>
         </CardHeader>
@@ -72,9 +73,9 @@ export function SupportChatPage() {
             className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth"
           >
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
-                <MessageCircle className="h-12 w-12 mb-2" />
-                <p>No messages yet. Start the conversation!</p>
+              <div className="h-full flex flex-col items-center justify-center text-[var(--fg-2)] opacity-50">
+                <MessageCircle className="h-12 w-12 mb-2 text-[var(--gf-green)]" />
+                <p className="font-semibold">No messages yet. Start the conversation!</p>
               </div>
             ) : (
               messages.map((msg: ChatMessage) => {
@@ -88,8 +89,8 @@ export function SupportChatPage() {
                     )}
                   >
                     {!isOwn && (
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                        <UserIcon className="h-4 w-4 text-primary" />
+                      <div className="h-8 w-8 rounded-full bg-[var(--gf-green-50)] flex items-center justify-center border-2 border-[var(--gf-green-deep)]">
+                        <UserIcon className="h-4 w-4 text-[var(--gf-green)]" />
                       </div>
                     )}
                     <div className={cn(
@@ -97,14 +98,14 @@ export function SupportChatPage() {
                       isOwn ? "items-end" : "items-start"
                     )}>
                       <div className={cn(
-                        "px-4 py-2.5 rounded-2xl text-sm shadow-sm",
+                        "px-4 py-2.5 rounded-2xl text-sm shadow-sm font-semibold",
                         isOwn 
-                          ? "bg-primary text-primary-foreground rounded-tr-none" 
-                          : "bg-muted text-foreground rounded-tl-none"
+                          ? "bg-[var(--gf-green)] text-white rounded-tr-none border-2 border-[var(--gf-green-deep)]" 
+                          : "bg-[var(--gf-green-50)] text-[var(--gf-green-deep)] rounded-tl-none border-2 border-[var(--gf-green-deep)]"
                       )}>
                         {msg.content}
                       </div>
-                      <span className="text-[10px] text-muted-foreground mt-1 px-1">
+                      <span className="text-[10px] text-[var(--fg-3)] font-medium mt-1 px-1">
                         {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
                       </span>
                     </div>
@@ -116,20 +117,20 @@ export function SupportChatPage() {
 
           <form 
             onSubmit={handleSend}
-            className="p-4 border-t bg-background/50 flex gap-2"
+            className="p-4 border-t-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-50)]/40 flex gap-2"
           >
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 bg-background border-muted-foreground/20 focus-visible:ring-primary"
+              className="flex-1 bg-[var(--gf-paper)] border-2 border-[var(--line)] focus-visible:ring-[var(--gf-green)] focus-visible:border-[var(--gf-green-deep)] font-semibold text-[var(--gf-green-deep)]"
               disabled={sendMutation.isPending}
             />
             <Button 
               type="submit" 
               size="icon"
               disabled={!message.trim() || sendMutation.isPending}
-              className="rounded-full shrink-0"
+              className="rounded-full shrink-0 bg-[var(--gf-green)] text-white border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] font-extrabold"
             >
               {sendMutation.isPending ? (
                 <LoadingSpinner size="sm" />
@@ -140,6 +141,7 @@ export function SupportChatPage() {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
