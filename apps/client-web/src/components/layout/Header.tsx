@@ -351,6 +351,22 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     Dashboard
                   </Button>
 
+                   <Button
+                    variant="outline"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/payments');
+                    }}
+                    className="rounded-full"
+                    style={{
+                      borderColor: 'var(--line)',
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    Invoice
+                  </Button>
+
                   <Button
                     variant="outline"
                     onClick={() => {

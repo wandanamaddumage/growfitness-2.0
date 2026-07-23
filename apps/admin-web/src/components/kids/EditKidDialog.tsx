@@ -173,21 +173,21 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Sticky Header */}
-          <div className="pb-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="pb-3 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
             <DialogHeader className="space-y-1 px-6 pt-6">
-              <DialogTitle className="text-xl">Edit Kid</DialogTitle>
-              <DialogDescription className="text-sm">Update kid information</DialogDescription>
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Edit Kid</DialogTitle>
+              <DialogDescription className="text-sm text-[var(--fg-2)] font-semibold">Update kid information</DialogDescription>
             </DialogHeader>
           </div>
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4 min-h-0">
             <form onSubmit={form.handleSubmit(onSubmit)} id="edit-kid-form" className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4 items-start rounded-lg border bg-muted/30 p-4">
-              <Avatar className="h-20 w-20 border-2 border-background">
+            <div className="flex flex-col sm:flex-row gap-4 items-start rounded-xl border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)]/30 p-4">
+              <Avatar className="h-20 w-20 border-2 border-[var(--gf-green-deep)]">
                 {form.watch('profilePhotoUrl') ? (
                   <AvatarImage
                     src={form.watch('profilePhotoUrl')}
@@ -198,7 +198,7 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
                 <AvatarFallback>{kid.name.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="space-y-2 flex-1 w-full">
-                <label className="text-sm font-medium">Profile photo</label>
+                <label className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Profile photo</label>
                 <FileDropzone
                   value={profilePhotoFile}
                   onChange={setProfilePhotoFile}
@@ -213,7 +213,7 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
                 <Button
                   type="button"
                   variant="link"
-                  className="h-auto p-0 text-xs text-muted-foreground"
+                  className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:text-[var(--gf-green-deep)] hover:underline"
                   onClick={() => setShowProfilePhotoUrl(v => !v)}
                 >
                   {showProfilePhotoUrl ? 'Hide photo URL field' : 'Paste photo URL instead'}
@@ -222,7 +222,7 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
                     <Button
                       type="button"
                       variant="link"
-                      className="h-auto p-0 text-xs text-destructive"
+                      className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-red-600 hover:text-red-700 hover:underline"
                       disabled={uploadingPhoto || updateMutation.isPending}
                       onClick={async () => {
                         const url = form.watch('profilePhotoUrl')?.trim() || '';
@@ -344,7 +344,7 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
                 checked={form.watch('currentlyInSports')}
                 onCheckedChange={checked => form.setValue('currentlyInSports', checked === true)}
               />
-              <label htmlFor="currentlyInSports" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label htmlFor="currentlyInSports" className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Currently in sports
               </label>
             </div>             <CustomFormField
@@ -402,7 +402,7 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
 
                                 <label
                                   htmlFor={`medical-condition-${condition}`}
-                                  className="text-sm font-normal leading-none"
+                                  className="text-sm font-semibold leading-none"
                                 >
                                   {condition}
                                 </label>
@@ -436,12 +436,12 @@ export function EditKidDialog({ open, onOpenChange, kid: kidProp }: EditKidDialo
           </div>
 
           {/* Sticky Footer */}
-          <div className="px-6 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 flex-shrink-0">
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                 Cancel
               </Button>
-              <Button type="submit" form="edit-kid-form" disabled={updateMutation.isPending || uploadingPhoto}>
+              <Button type="submit" form="edit-kid-form" disabled={updateMutation.isPending || uploadingPhoto} className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200">
                 {updateMutation.isPending || uploadingPhoto ? 'Updating...' : 'Update'}
               </Button>
             </div>

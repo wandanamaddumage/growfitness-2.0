@@ -63,12 +63,12 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start gap-3 min-w-0">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--gf-green-50)] text-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)]">
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        <div className="mt-0.5 text-sm font-medium text-foreground break-words">{children}</div>
+        <p className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{label}</p>
+        <div className="mt-0.5 text-sm font-semibold text-[var(--fg-2)] break-words">{children}</div>
       </div>
     </div>
   );
@@ -76,12 +76,12 @@ function InfoRow({
 
 function QuickStatsCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <Card className="border-primary/10">
+    <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
       <CardContent className="p-3 sm:p-4">
-        <p className="text-[10px] sm:text-xs uppercase tracking-wide text-muted-foreground truncate">
+        <p className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
           {label}
         </p>
-        <p className="mt-1 text-sm sm:text-base font-semibold text-foreground truncate">
+        <p className="mt-1 text-sm sm:text-base font-extrabold text-[var(--gf-green-deep)] truncate">
           {value}
         </p>
       </CardContent>
@@ -91,63 +91,63 @@ function QuickStatsCard({ label, value }: { label: string; value: string | numbe
 
 function KidCard({ kid }: { kid: any }) {
   return (
-       <Card key={kid.id} className="overflow-hidden">
+       <Card key={kid.id} className="overflow-hidden border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
         <CardHeader className="pb-3">
                               <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                  <Baby className="h-4 w-4" />
+                                <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] flex items-center gap-2" style={{ fontFamily: 'var(--font-display)' }}>
+                                  <Baby className="h-4 w-4 text-[var(--gf-green-deep)]" />
                                   {kid.name}
                                 </CardTitle>
-                                <Badge variant="outline">{kid.gender}</Badge>
+                                <Badge variant="outline" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)]">{kid.gender}</Badge>
                               </div>
         </CardHeader>
         <CardContent className="space-y-3">
                               <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div>
-                                  <p className="text-muted-foreground text-xs">Birth Date</p>
-                                  <p className="font-medium">{new Date(kid.birthDate).toLocaleDateString()}</p>
+                                  <p className="text-[var(--fg-2)] font-semibold text-xs">Birth Date</p>
+                                  <p className="font-semibold">{new Date(kid.birthDate).toLocaleDateString()}</p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground text-xs">Session Type</p>
-                                  <p className="font-medium">{formatSessionType(kid.sessionType)}</p>
+                                  <p className="text-[var(--fg-2)] font-semibold text-xs">Session Type</p>
+                                  <p className="font-semibold">{formatSessionType(kid.sessionType)}</p>
                                 </div>
                               </div>
 
                               {kid.goal && (
-                                <div className="flex items-start gap-2 pt-2 border-t">
-                                  <Target className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
+                                  <Target className="h-4 w-4 text-[var(--gf-green-deep)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Goal</p>
-                                    <p className="text-sm">{kid.goal}</p>
+                                    <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Goal</p>
+                                    <p className="text-sm font-semibold">{kid.goal}</p>
                                   </div>
                                 </div>
                               )}
 
-                              <div className="flex items-center gap-4 pt-2 border-t">
+                              <div className="flex items-center gap-4 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                 <div className="flex items-center gap-2">
                                   <Activity
                                     className={`h-4 w-4 ${
                                       kid.currentlyInSports
-                                        ? 'text-green-600'
-                                        : 'text-muted-foreground'
+                                        ? 'text-[var(--gf-green-deep)]'
+                                        : 'text-[var(--fg-2)]'
                                     }`}
                                   />
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-xs font-semibold text-[var(--fg-2)]">
                                     {kid.currentlyInSports ? 'In Sports' : 'Not in Sports'}
                                   </span>
                                 </div>
                               </div>
 
                               {kid.medicalConditions && kid.medicalConditions.length > 0 && (
-                                <div className="flex items-start gap-2 pt-2 border-t">
+                                <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                   <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs text-muted-foreground mb-1">
+                                    <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                                       Medical Conditions
                                     </p>
                                     <div className="flex flex-wrap gap-1">
                                       {kid.medicalConditions.map((condition: string, idx: number) => (
-                                        <Badge key={idx} variant="secondary" className="text-xs">
+                                        <Badge key={idx} variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white text-xs">
                                           {condition}
                                         </Badge>
                                       ))}
@@ -157,13 +157,13 @@ function KidCard({ kid }: { kid: any }) {
                               )}
 
                               {kid.achievements && kid.achievements.length > 0 && (
-                                <div className="flex items-start gap-2 pt-2 border-t">
+                                <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                   <Award className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs text-muted-foreground mb-1">
+                                    <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                                       Achievements
                                     </p>
-                                    <p className="text-xs">
+                                    <p className="text-xs font-semibold">
                                       {kid.achievements.length} achievement(s)
                                     </p>
                                   </div>
@@ -176,12 +176,12 @@ function KidCard({ kid }: { kid: any }) {
 
 function EmptyKidsCard() {
   return (
-    <Card className="border-dashed">
+    <Card className="border-2 border-dashed border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)]/30">
       <CardContent className="flex flex-col items-center justify-center py-8 sm:py-10 text-center">
-        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-muted">
-          <Baby className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
+        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[var(--gf-green-50)] border-2 border-[var(--gf-green-deep)]">
+          <Baby className="h-5 w-5 sm:h-6 sm:w-6 text-[var(--gf-green-deep)]" />
         </div>
-        <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-muted-foreground">
+        <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-[var(--fg-2)] font-semibold">
           No kids enrolled in this session
         </p>
       </CardContent>
@@ -319,29 +319,29 @@ export function SessionDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 sm:rounded-lg">
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         {/* Hero header - responsive padding */}
-        <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/15 via-primary/5 to-background px-4 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-5 border-b">
+        <div className="relative overflow-hidden rounded-t-lg bg-[var(--gf-green-50)] px-4 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-5 border-b-2 border-[var(--gf-green-deep)]/30">
           <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
+            <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-[var(--gf-green-deep)] text-white shadow-[2px_2px_0_0_var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)]">
               {isGroupSession ? <Users className="h-5 w-5 sm:h-7 sm:w-7" /> : <Dumbbell className="h-5 w-5 sm:h-7 sm:w-7" />}
             </div>
 
             <div className="min-w-0 flex-1">
               <DialogHeader className="space-y-1 sm:space-y-1.5">
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <DialogTitle className="text-lg sm:text-xl truncate">
+                  <DialogTitle className="text-lg sm:text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
                     {displaySession.title || `${formatSessionType(displaySession.type)} Session`}
                   </DialogTitle>
                   <StatusBadge status={displaySession.status as any} />
                 </div>
-                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-xs sm:text-sm text-[var(--fg-2)] font-semibold">
                   <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                    <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--gf-green-deep)]" />
                     {formatDateTime(displaySession.dateTime)}
                   </span>
                   <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                    <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--gf-green-deep)]" />
                     {displaySession.duration} min
                   </span>
                 </div>
@@ -353,13 +353,13 @@ export function SessionDetailsDialog({
           {(onReschedule || onEdit) && (
             <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
               {canAdminRescheduleSession(displaySession) && onReschedule && (
-                <Button size="sm" variant="outline" onClick={() => onReschedule(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm">
+                <Button size="sm" variant="outline" onClick={() => onReschedule(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm rounded-xl px-4 py-2 text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                   <CalendarClock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
                   Reschedule
                 </Button>
               )}
               {onEdit && (
-                <Button size="sm" variant="outline" onClick={() => onEdit(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm">
+                <Button size="sm" variant="outline" onClick={() => onEdit(displaySession)} className="h-8 sm:h-9 text-xs sm:text-sm rounded-xl px-4 py-2 text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                   <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
                   Edit
                 </Button>
@@ -371,12 +371,12 @@ export function SessionDetailsDialog({
         {/* Tabs - responsive padding */}
         <div className="px-4 sm:px-6 pt-3 sm:pt-4">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'kids')}>
-            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-              <TabsTrigger value="overview" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10 bg-[var(--gf-green-50)]/30 border-2 border-[var(--gf-green-deep)]/30">
+              <TabsTrigger value="overview" className="gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">
                 <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="kids" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="kids" className="gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Kids {totalKids > 0 && `(${totalKids})`}
               </TabsTrigger>
@@ -411,9 +411,9 @@ export function SessionDetailsDialog({
                   </div>
 
                   {/* Session info */}
-                  <Card>
+                  <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                     <CardContent className="p-4 sm:p-5">
-                      <h3 className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-foreground">
+                      <h3 className="mb-3 sm:mb-4 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
                         Session Information
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
@@ -431,7 +431,7 @@ export function SessionDetailsDialog({
                                 href={locationData.placeUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                                className="mt-1 inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:underline"
                               >
                                 <ExternalLink className="h-3 w-3" />
                                 Open map

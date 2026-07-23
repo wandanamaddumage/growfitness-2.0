@@ -85,27 +85,27 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         {/* Header */}
-        <DialogHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-5 border-b">
+        <DialogHeader className="bg-[var(--gf-green-50)] px-6 pt-6 pb-5 border-b-2 border-[var(--gf-green-deep)]/30">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 ring-2 ring-primary/20">
+            <Avatar className="h-16 w-16 ring-2 ring-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)]">
               {displayKid.profilePhotoUrl ? (
                 <AvatarImage src={displayKid.profilePhotoUrl} alt={displayKid.name} />
               ) : null}
-              <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
+              <AvatarFallback className="bg-[var(--gf-green-deep)] text-white text-lg font-extrabold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-2xl font-semibold tracking-tight">
+              <DialogTitle className="text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
                 {displayKid.name}
               </DialogTitle>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <Badge variant="secondary" className="capitalize">{displayKid.gender}</Badge>
-                {age !== null && <Badge variant="outline">{age} years old</Badge>}
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Cake className="h-3.5 w-3.5" />
+                <Badge variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white capitalize">{displayKid.gender}</Badge>
+                {age !== null && <Badge variant="outline" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)]">{age} years old</Badge>}
+                <span className="text-xs text-[var(--fg-2)] font-semibold flex items-center gap-1">
+                  <Cake className="h-3.5 w-3.5 text-[var(--gf-green-deep)]" />
                   Born {formatDate(displayKid.birthDate)}
                 </span>
               </div>
@@ -115,60 +115,60 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 max-h-[70vh] overflow-y-auto">
           {/* Sidebar */}
-          <aside className="md:col-span-1 bg-muted/30 p-6 space-y-6 border-r">
+          <aside className="md:col-span-1 bg-[var(--gf-green-50)]/30 p-6 space-y-6 border-r border-[var(--gf-green-deep)]/10">
             {parent && (
               <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-3" style={{ fontFamily: 'var(--font-display)' }}>
                   Parent
                 </h3>
                 <div className="space-y-2.5 text-sm">
                   <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="font-medium">{parent.parentProfile?.name || 'N/A'}</span>
+                    <User className="h-4 w-4 text-[var(--gf-green-deep)] shrink-0" />
+                    <span className="font-semibold">{parent.parentProfile?.name || 'N/A'}</span>
                   </div>
                   {parent.email && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="h-4 w-4 shrink-0" />
-                      <span className="truncate">{parent.email}</span>
+                    <div className="flex items-center gap-2 text-[var(--fg-2)]">
+                      <Mail className="h-4 w-4 text-[var(--gf-green-deep)] shrink-0" />
+                      <span className="truncate font-semibold">{parent.email}</span>
                     </div>
                   )}
                   {parent.phone && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4 shrink-0" />
-                      <span>{parent.phone}</span>
+                    <div className="flex items-center gap-2 text-[var(--fg-2)]">
+                      <Phone className="h-4 w-4 text-[var(--gf-green-deep)] shrink-0" />
+                      <span className="font-semibold">{parent.phone}</span>
                     </div>
                   )}
                   {parent.parentProfile?.location && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4 shrink-0" />
-                      <span>{parent.parentProfile.location}</span>
+                    <div className="flex items-center gap-2 text-[var(--fg-2)]">
+                      <MapPin className="h-4 w-4 text-[var(--gf-green-deep)] shrink-0" />
+                      <span className="font-semibold">{parent.parentProfile.location}</span>
                     </div>
                   )}
                 </div>
               </section>
             )}
 
-            {parent && <Separator />}
+            {parent && <Separator className="bg-[var(--gf-green-deep)]/10" />}
 
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-3" style={{ fontFamily: 'var(--font-display)' }}>
                 Highlights
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Session</span>
-                  <Badge variant="secondary">{formatSessionType(displayKid.sessionType)}</Badge>
+                  <span className="text-[var(--fg-2)] font-semibold">Session</span>
+                  <Badge variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white">{formatSessionType(displayKid.sessionType)}</Badge>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">In Sports</span>
-                  <Badge variant={displayKid.currentlyInSports ? 'default' : 'outline'}>
+                  <span className="text-[var(--fg-2)] font-semibold">In Sports</span>
+                  <Badge variant={displayKid.currentlyInSports ? 'default' : 'outline'} className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)]">
                     {displayKid.currentlyInSports ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Medical</span>
-                    <Badge variant="outline">{displayKid.medicalConditions.length}</Badge>
+                    <span className="text-[var(--fg-2)] font-semibold">Medical</span>
+                    <Badge variant="outline" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)]">{displayKid.medicalConditions.length}</Badge>
                   </div>
                 )}
               </div>
@@ -184,10 +184,10 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
             ) : (
               <>
                 <section>
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                  <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>
                     Overview
                   </h2>
-                  <Card>
+                  <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                     <CardContent className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                       <InfoItem icon={<UserCircle2 className="h-4 w-4" />} label="Name" value={displayKid.name} />
                       <InfoItem icon={<User className="h-4 w-4" />} label="Gender" value={displayKid.gender} className="capitalize" />
@@ -214,22 +214,22 @@ export function KidDetailsDialog({ open, onOpenChange, kid: kidProp }: KidDetail
                 </section>
 
                 <section>
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                    <Heart className="h-4 w-4" />
+                  <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-display)' }}>
+                    <Heart className="h-4 w-4 text-[var(--gf-green-deep)]" />
                     Medical Conditions
                   </h2>
-                  <Card>
+                  <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                     <CardContent className="p-5">
                       {displayKid.medicalConditions && displayKid.medicalConditions.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {displayKid.medicalConditions.map((condition, index) => (
-                            <Badge key={index} variant="secondary" className="text-sm py-1 px-3">
+                            <Badge key={index} variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white text-sm py-1 px-3">
                               {condition}
                             </Badge>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground">No medical conditions reported.</p>
+                        <p className="text-sm text-[var(--fg-2)] font-semibold">No medical conditions reported.</p>
                       )}
                     </CardContent>
                   </Card>
@@ -256,11 +256,11 @@ function InfoItem({
 }) {
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
         {icon}
         {label}
       </div>
-      <p className={`text-sm font-medium text-foreground ${className ?? ''}`}>{value}</p>
+      <p className={`text-sm font-semibold text-[var(--fg-2)] ${className ?? ''}`}>{value}</p>
     </div>
   );
 }

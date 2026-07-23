@@ -138,7 +138,7 @@ export function MapSection() {
             <MapContainer
               center={[6.89, 79.87]}
               zoom={13}
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: '100%', width: '100%', zIndex: 0 }}
               zoomControl={false}
               attributionControl={false}
             >
@@ -199,19 +199,41 @@ export function MapSection() {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            {locations.map((location) => (
-              <a href={location.link} target="_blank" rel="noopener noreferrer">
-              <div key={location.id} id={location.id}>
-                <LocationRow 
-                  name={location.label} 
-                  sub={location.sub} 
-                  sessionType={location.sessionType}
-                />
-                <div className="text-right">
-                </div>
-              </div>
-              </a>
-            ))}
+            {/* Group Training Section */}
+            <p className="text-lg font-extrabold mb-1 uppercase" style={{ color: "var(--gf-sun)" }}>Group Training</p>
+            {locations
+              .filter((location) => location.sessionType === "group")
+              .map((location) => (
+                <a key={location.id} href={location.link} target="_blank" rel="noopener noreferrer">
+                  <div id={location.id}>
+                    <LocationRow 
+                      name={location.label} 
+                      sub={location.sub} 
+                      sessionType={location.sessionType}
+                    />
+                    <div className="text-right"></div>
+                  </div>
+                </a>
+              ))}
+
+            {/* Personal Training Section */}
+             <p className="text-lg font-extrabold my-1 uppercase mt-2"  style={{
+              color: "var(--gf-leaf)",
+            }}>Personal Training</p>
+            {locations
+              .filter((location) => location.sessionType === "personal")
+              .map((location) => (
+                <a key={location.id} href={location.link} target="_blank" rel="noopener noreferrer">
+                  <div id={location.id}>
+                    <LocationRow 
+                      name={location.label} 
+                      sub={location.sub} 
+                      sessionType={location.sessionType}
+                    />
+                    <div className="text-right"></div>
+                  </div>
+                </a>
+              ))}
           </div>
         </div>
       </div>

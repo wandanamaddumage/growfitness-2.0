@@ -367,13 +367,13 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Sticky Header */}
-          <div className="pb-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="pb-3 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
             <DialogHeader className="space-y-1 px-6 pt-6">
-              <DialogTitle className="text-xl">Edit {userType === 'parent' ? 'Parent' : 'Coach'}</DialogTitle>
-              <DialogDescription className="text-sm">Update user information</DialogDescription>
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Edit {userType === 'parent' ? 'Parent' : 'Coach'}</DialogTitle>
+              <DialogDescription className="text-sm text-[var(--fg-2)] font-semibold">Update user information</DialogDescription>
             </DialogHeader>
           </div>
 
@@ -396,8 +396,8 @@ export function EditUserDialog({
 
             {userType === 'parent' && (
               <>
-                <div className="flex flex-col sm:flex-row gap-4 items-start rounded-lg border bg-muted/30 p-4">
-                  <Avatar className="h-20 w-20 border-2 border-background">
+                <div className="flex flex-col sm:flex-row gap-4 items-start rounded-xl border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)]/30 p-4">
+                  <Avatar className="h-20 w-20 border-2 border-[var(--gf-green-deep)]">
                     {((parentPhotoPreviewUrl ?? (form.watch('photoUrl') as string | undefined)) ||
                       '').trim() ? (
                       <AvatarImage
@@ -417,7 +417,7 @@ export function EditUserDialog({
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2 flex-1 w-full">
-                    <label className="text-sm font-medium">Profile photo</label>
+                    <label className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Profile photo</label>
                     <FileDropzone
                       value={parentPhotoFile}
                       onChange={setParentPhotoFile}
@@ -433,7 +433,7 @@ export function EditUserDialog({
                       <Button
                         type="button"
                         variant="link"
-                        className="h-auto p-0 text-xs text-muted-foreground"
+                        className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:text-[var(--gf-green-deep)] hover:underline"
                         onClick={() => setShowParentPhotoUrl(v => !v)}
                       >
                         {showParentPhotoUrl ? 'Hide photo URL field' : 'Paste photo URL instead'}
@@ -442,7 +442,7 @@ export function EditUserDialog({
                         <Button
                           type="button"
                           variant="link"
-                          className="h-auto p-0 text-xs text-destructive"
+                          className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-red-600 hover:text-red-700 hover:underline"
                           disabled={uploadingParentPhoto || updateMutation.isPending}
                           onClick={async () => {
                             const url = (form.watch('photoUrl') as string | undefined)?.trim() || '';
@@ -509,7 +509,7 @@ export function EditUserDialog({
                   <Button
                     type="button"
                     variant="link"
-                    className="h-auto p-0 text-xs text-muted-foreground"
+                    className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:text-[var(--gf-green-deep)] hover:underline"
                     onClick={() => setShowCoachPhotoUrl(v => !v)}
                   >
                     {showCoachPhotoUrl ? 'Hide image URL field' : 'Paste image URL instead'}
@@ -518,7 +518,7 @@ export function EditUserDialog({
                     <Button
                       type="button"
                       variant="link"
-                      className="h-auto p-0 text-xs text-destructive"
+                      className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-red-600 hover:text-red-700 hover:underline"
                       disabled={updateMutation.isPending || uploadingCoachFiles}
                       onClick={async () => {
                         const url = (form.watch('photoUrl') as string | undefined)?.trim() || '';
@@ -562,7 +562,7 @@ export function EditUserDialog({
                 </CustomFormField>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Available times</label>
+                    <label className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Available times</label>
                     <Button
                       type="button"
                       variant="outline"
@@ -570,6 +570,7 @@ export function EditUserDialog({
                       onClick={() =>
                         append({ dayOfWeek: 'Monday', startTime: '09:00', endTime: '17:00' })
                       }
+                      className="rounded-xl px-3 py-1.5 text-xs text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)] transition-all duration-200"
                     >
                       <Plus className="h-4 w-4 mr-1" />
                       Add slot
@@ -607,6 +608,7 @@ export function EditUserDialog({
                         variant="ghost"
                         size="icon"
                         onClick={() => remove(index)}
+                        className="hover:bg-red-50 hover:text-red-600"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -675,7 +677,7 @@ export function EditUserDialog({
                 <Button
                   type="button"
                   variant="link"
-                  className="h-auto p-0 text-xs text-muted-foreground"
+                  className="h-auto p-0 text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:text-[var(--gf-green-deep)] hover:underline"
                   onClick={() => setShowCoachCvUrl(v => !v)}
                 >
                   {showCoachCvUrl ? 'Hide CV URL field' : 'Paste CV URL instead'}
@@ -723,9 +725,9 @@ export function EditUserDialog({
           </div>
 
           {/* Sticky Footer */}
-          <div className="px-6 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 flex-shrink-0">
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                 Cancel
               </Button>
               <Button
@@ -737,6 +739,7 @@ export function EditUserDialog({
                   uploadingCoachFiles ||
                   uploadingParentPhoto
                 }
+                className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
               >
                 {updateMutation.isPending || uploadingCoachFiles || uploadingParentPhoto
                   ? 'Updating...'
