@@ -30,9 +30,9 @@ export function WeeklySessionsChart({ data, isLoading }: WeeklySessionsChartProp
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly Sessions</CardTitle>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Weekly Sessions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64">
@@ -44,9 +44,9 @@ export function WeeklySessionsChart({ data, isLoading }: WeeklySessionsChartProp
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Weekly Sessions</CardTitle>
+    <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+      <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+        <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Weekly Sessions</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

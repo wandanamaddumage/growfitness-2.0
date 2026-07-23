@@ -211,11 +211,12 @@ export function QuizzesPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Quizzes</h1>
-        <p className="text-muted-foreground mt-1">Manage quizzes and questions</p>
-      </div>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Quizzes</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage quizzes and questions</p>
+        </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -284,6 +285,7 @@ export function QuizzesPage() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
+      </div>
     </div>
   );
 }

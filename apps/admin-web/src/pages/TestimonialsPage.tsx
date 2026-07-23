@@ -161,20 +161,30 @@ export function TestimonialsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Testimonials</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage customer testimonials displayed on the website
-        </p>
-      </div>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Testimonials</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">
+            Manage customer testimonials displayed on the website
+          </p>
+        </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-end">
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Testimonial
-          </Button>
+           <button 
+            onClick={() => openModal(null, 'create')}
+            className="gf-btn-pop relative px-5 py-2 mb-10" 
+            style={{ 
+              marginTop: 36, 
+              background: "var(--fg-2)", 
+              color: "white", 
+              boxShadow: "0 6px 0 var(--gf-green-deep)", 
+              fontSize: 16, 
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Testimonial
+            </button>
         </div>
 
         {error ? (
@@ -216,6 +226,7 @@ export function TestimonialsPage() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
+      </div>
     </div>
   );
 }

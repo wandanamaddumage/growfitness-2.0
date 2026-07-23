@@ -21,6 +21,8 @@ import { useConfirm } from '@/hooks/useConfirm';
 import { ErrorState } from '@/components/common/ErrorState';
 import { useModalParams } from '@/hooks/useModalParams';
 import { useSearchParams } from 'react-router-dom';
+import { SelectValue } from '@radix-ui/react-select';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 const AGE_MIN = 0;
 const AGE_MAX = 18;
@@ -28,7 +30,7 @@ const AGE_MAX = 18;
 export function KidsPage() {
   const { page, pageSize, setPage, setPageSize } = usePagination();
   const [search, setSearch] = useState('');
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState('all');
   const [ageRange, setAgeRange] = useState<[number, number]>([AGE_MIN, AGE_MAX]);
   const [sessionTypeFilter, setSessionTypeFilter] = useState<SessionType | ''>('');
   const [searchInputKey, setSearchInputKey] = useState(0);
@@ -38,11 +40,11 @@ export function KidsPage() {
   const sortOrder = sorting[0]?.desc ? 'desc' : sorting[0] ? 'asc' : undefined;
   const hasCustomAgeRange = minAge !== AGE_MIN || maxAge !== AGE_MAX;
 
-  const hasActiveFilters = !!(search || gender || hasCustomAgeRange || sessionTypeFilter);
+  const hasActiveFilters = !!(search || gender !== 'all' || hasCustomAgeRange || sessionTypeFilter);
 
   const clearAllFilters = () => {
     setSearch('');
-    setGender('');
+    setGender('all');
     setAgeRange([AGE_MIN, AGE_MAX]);
     setSessionTypeFilter('');
     setSearchInputKey(key => key + 1);
@@ -111,7 +113,7 @@ export function KidsPage() {
       page.toString(),
       pageSize.toString(),
       search,
-      gender,
+      gender !== 'all' ? gender : '',
       minAge.toString(),
       maxAge.toString(),
       sessionTypeFilter,
@@ -126,7 +128,7 @@ export function KidsPage() {
         sessionTypeFilter || undefined,
         search || undefined,
         {
-          gender: gender || undefined,
+          gender: gender !== 'all' ? gender : undefined,
           minAge: hasCustomAgeRange ? minAge.toString() : undefined,
           maxAge: hasCustomAgeRange ? maxAge.toString() : undefined,
         },
@@ -243,11 +245,12 @@ export function KidsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Kids</h1>
-        <p className="text-muted-foreground mt-1">Manage kids and their profiles</p>
-      </div>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Kids</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage kids and their profiles</p>
+        </div>
 
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -256,20 +259,23 @@ export function KidsPage() {
               key={`kid-search-${searchInputKey}`}
               placeholder="Search kids..."
               onSearch={setSearch}
-              className="max-w-sm"
+             className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl"
             />
-            {/* Gender filter */}
-            <select
+            <Select
               value={gender}
-              onChange={e => setGender(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              onValueChange={setGender}
             >
-              <option value="">All Genders</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-            <div className="flex h-9 min-w-[240px] items-center gap-3 rounded-md border border-input bg-background px-3 shadow-sm">
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+                <SelectValue placeholder="All Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Gender</SelectItem>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex h-9 items-center gap-3 rounded-md px-3 shadow-sm w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
               <span className="whitespace-nowrap text-sm text-muted-foreground">
                 Age {minAge} - {maxAge}
               </span>
@@ -308,23 +314,37 @@ export function KidsPage() {
                 />
               </div>
             </div>
+            
             {/* Session type filter */}
-            <select
+             <Select
               value={sessionTypeFilter}
-              onChange={e => setSessionTypeFilter(e.target.value as SessionType | '')}
-              className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              onValueChange={value => setSessionTypeFilter(value as SessionType | '')}
             >
-              <option value="">All Session Types</option>
-              <option value={SessionType.INDIVIDUAL}>Private</option>
-              <option value={SessionType.GROUP}>Group</option>
-              <option value={SessionType.BOTH}>Both</option>
-            </select>
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+                <SelectValue placeholder="All Session Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Session Types</SelectItem>
+                <SelectItem value={SessionType.INDIVIDUAL}>Private</SelectItem>
+                <SelectItem value={SessionType.GROUP}>Group</SelectItem>
+                <SelectItem value={SessionType.BOTH}>Both</SelectItem>
+              </SelectContent>
+            </Select>
             <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
           </div>
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Kid
-          </Button>
+           <button 
+            onClick={() => openModal(null, 'create')}
+            className="gf-btn-pop relative px-5 py-2 mb-10" 
+            style={{ 
+              marginTop: 36, 
+              background: "var(--fg-2)", 
+              color: "white", 
+              boxShadow: "0 6px 0 var(--gf-green-deep)", 
+              fontSize: 16, 
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Kid
+            </button>
         </div>
 
         {error ? (
@@ -383,6 +403,7 @@ export function KidsPage() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
+      </div>
     </div>
   );
 }

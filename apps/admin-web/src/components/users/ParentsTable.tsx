@@ -199,44 +199,45 @@ export function ParentsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          <SearchInput
-            key={`parent-search-${searchInputKey}`}
-            placeholder="Search parents..."
-            onSearch={setSearch}
-            className="w-[250px]"
-          />
-          <input
-            type="search"
-            value={locationFilter}
-            onChange={event => setLocationFilter(event.target.value)}
-            placeholder="Filter by location"
-            className="h-9 w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-          />
-          <Select
-            value={statusFilter}
-            onValueChange={value => setStatusFilter(value as UserStatus | 'ALL')}
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Statuses</SelectItem>
-              <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
-              <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-          <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <SearchInput
+              key={`parent-search-${searchInputKey}`}
+              placeholder="Search parents..."
+              onSearch={setSearch}
+              className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl"
+            />
+            <Select
+              value={statusFilter}
+              onValueChange={value => setStatusFilter(value as UserStatus | 'ALL')}
+            >
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Statuses</SelectItem>
+                <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
+                <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => openModal(null, 'create')}
+              className="gf-btn-pop relative px-5 py-2 mb-10" 
+              style={{ 
+                marginTop: 36, 
+                background: "var(--fg-2)", 
+                color: "white", 
+                boxShadow: "0 6px 0 var(--gf-green-deep)", 
+                fontSize: 16, 
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Parent
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Parent
-          </Button>
-        </div>
-      </div>
-
       {error ? (
         <div>Error loading parents</div>
       ) : (

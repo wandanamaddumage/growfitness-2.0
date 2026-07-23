@@ -11,7 +11,6 @@ import { Location } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
-import { FilterBar } from '@/components/common/FilterBar';
 import { SearchInput } from '@/components/common/SearchInput';
 import { Button } from '@/components/ui/button';
 import {
@@ -199,34 +198,27 @@ export function LocationsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Locations</h1>
-        <p className="text-muted-foreground mt-1">Manage training locations</p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-end">
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Location
-          </Button>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Locations</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage training locations</p>
         </div>
 
-        <FilterBar>
+      <div className="space-y-4">
+       <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
           <SearchInput
             key={`location-search-${searchInputKey}`}
             placeholder="Search locations..."
             onSearch={setSearch}
-            className="w-[280px]"
+            className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl"
           />
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Status:</label>
             <Select
               value={statusFilter}
               onValueChange={value => setStatusFilter(value as LocationStatusFilter | 'all')}
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -235,9 +227,22 @@ export function LocationsPage() {
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
-          </div>
           <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
-        </FilterBar>
+          </div>
+        <button 
+            onClick={() => openModal(null, 'create')}
+            className="gf-btn-pop relative px-5 py-2 mb-10" 
+            style={{ 
+              marginTop: 36, 
+              background: "var(--fg-2)", 
+              color: "white", 
+              boxShadow: "0 6px 0 var(--gf-green-deep)", 
+              fontSize: 16, 
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Location
+        </button>
+        </div>
 
         {error ? (
           <div>Error loading locations</div>
@@ -288,6 +293,7 @@ export function LocationsPage() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
+      </div>
     </div>
   );
 }

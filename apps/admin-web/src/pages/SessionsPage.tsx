@@ -8,7 +8,6 @@ import { Session, SessionStatus, User } from '@grow-fitness/shared-types';
 import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
-import { FilterBar } from '@/components/common/FilterBar';
 import { SearchInput } from '@/components/common/SearchInput';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +22,6 @@ import {
   Pencil,
   Trash2,
   Eye,
-  LayoutList,
   Calendar as CalendarIcon,
   CalendarClock,
   Repeat,
@@ -48,6 +46,7 @@ import { useSearchParams } from 'react-router-dom';
 import { SessionsCalendar } from '@/components/sessions/SessionsCalendar';
 import { SessionSpecialBadges } from '@/components/sessions/SessionSpecialBadges';
 import { googleCalendarService } from '@/services/google-calendar.service';
+import { Card } from '@/components/ui/card';
 
 // Helper function to determine contrast color
 function getContrastColor(hexColor: string): 'white' | 'black' {
@@ -74,6 +73,7 @@ function CoachColorsLegend({ coaches }: { coaches: User[] }) {
   if (coloredCoaches.length === 0) return null;
 
   return (
+    <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden p-6">
     <div className="rounded-xl border bg-card p-4 shadow-sm mt-4">
       <h3 className="text-sm font-semibold text-muted-foreground mb-3">Coach Colors</h3>
       <div className="flex flex-wrap gap-x-6 gap-y-2">
@@ -101,6 +101,7 @@ function CoachColorsLegend({ coaches }: { coaches: User[] }) {
         })}
       </div>
     </div>
+    </Card>
   );
 }
 
@@ -452,20 +453,19 @@ export function SessionsPage() {
   );
 
   const filters = (
-    <FilterBar>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-2">
       <SearchInput
         key={`session-search-${searchInputKey}`}
         placeholder="Search sessions..."
         onSearch={setSearch}
-        className="w-[280px]"
+        className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl"
       />
-      <div className="flex items-center gap-2">
-        <label className="text-sm text-muted-foreground">Coach:</label>
         <Select
           value={coachFilter || 'all'}
           onValueChange={value => setCoachFilter(value === 'all' ? '' : value)}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All coaches" />
           </SelectTrigger>
           <SelectContent>
@@ -477,15 +477,12 @@ export function SessionsPage() {
             ))}
           </SelectContent>
         </Select>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <label className="text-sm text-muted-foreground">Location:</label>
         <Select
           value={locationFilter || 'all'}
           onValueChange={value => setLocationFilter(value === 'all' ? '' : value)}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All locations" />
           </SelectTrigger>
           <SelectContent>
@@ -497,15 +494,12 @@ export function SessionsPage() {
             ))}
           </SelectContent>
         </Select>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <label className="text-sm text-muted-foreground">Status:</label>
         <Select
           value={statusFilter || 'all'}
           onValueChange={value => setStatusFilter(value === 'all' ? '' : (value as SessionStatus))}
         >
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -516,34 +510,42 @@ export function SessionsPage() {
             <SelectItem value={SessionStatus.COMPLETED}>Completed</SelectItem>
           </SelectContent>
         </Select>
-      </div>
 
       <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
-    </FilterBar>
+    </div>
+     <button 
+            onClick={() => openModal(null, 'create')}
+            className="gf-btn-pop relative px-5 py-2 mb-10" 
+            style={{ 
+              marginTop: 36, 
+              background: "var(--fg-2)", 
+              color: "white", 
+              boxShadow: "0 6px 0 var(--gf-green-deep)", 
+              fontSize: 16, 
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Sessions
+            </button>
+    </div>
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Sessions</h1>
-          <p className="text-muted-foreground mt-1">Manage training sessions</p>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 sm:px-6 pt-5 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="text-start space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Sessions</h1>
+            <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage training sessions</p>
+          </div>
         </div>
-        <Button onClick={() => openModal(null, 'create')} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Session
-        </Button>
-      </div>
 
-      <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-4">
+      <Tabs value={currentTab} onValueChange={handleTabChange}>
         <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <LayoutList className="h-4 w-4" />
+          <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[350px] gap-2">
+            <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
               List View
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4" />
+            <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
               Calendar View
             </TabsTrigger>
           </TabsList>
@@ -581,28 +583,37 @@ export function SessionsPage() {
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-4">
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant={calendarConnected ? 'outline' : 'default'}
-              onClick={
-                calendarConnected ? handleDisconnectGoogleCalendar : handleSyncWithGoogleCalendar
-              }
-              disabled={calendarLoading || calendarBusy}
-              className="flex items-center gap-2"
-            >
-              <CalendarIcon className="h-4 w-4" />
-              {calendarConnected ? 'Disconnect Google Calendar' : 'Sync with Google Calendar'}
-            </Button>
-          </div>
-          <SessionsCalendar
-            coachId={coachFilter}
-            locationId={locationFilter}
-            status={statusFilter}
-            onSessionClick={session => {
-              setSelectedSession(session);
-              openModal(session.id, 'edit');
-            }}
-          />
+          <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden p-6">
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  variant={calendarConnected ? 'outline' : 'default'}
+                  onClick={
+                    calendarConnected ? handleDisconnectGoogleCalendar : handleSyncWithGoogleCalendar
+                  }
+                  disabled={calendarLoading || calendarBusy}
+                  className="gf-btn-pop relative px-5 py-2 mb-10" 
+                  style={{ 
+                    marginTop: 36, 
+                    background: "var(--fg-2)", 
+                    color: "white", 
+                    boxShadow: "0 6px 0 var(--gf-green-deep)", 
+                    fontSize: 16, 
+                  }}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  {calendarConnected ? 'Disconnect Google Calendar' : 'Sync with Google Calendar'}
+                </Button>
+              </div>
+              <SessionsCalendar
+                coachId={coachFilter}
+                locationId={locationFilter}
+                status={statusFilter}
+                onSessionClick={session => {
+                  setSelectedSession(session);
+                  openModal(session.id, 'edit');
+                }}
+              />
+          </Card>
           <CoachColorsLegend coaches={coachesData?.data || []} />
         </TabsContent>
       </Tabs>
@@ -649,6 +660,7 @@ export function SessionsPage() {
         variant={confirmState.options?.variant}
         onConfirm={confirmState.onConfirm}
       />
+      </div>
     </div>
   );
 }

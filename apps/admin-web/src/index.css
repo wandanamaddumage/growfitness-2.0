@@ -1,3 +1,67 @@
+/* ------------------- */
+/* Google Fonts Import */
+/* ------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* ------------------- */
+/* Custom Web Fonts Import */
+/* ------------------- */
+@font-face {
+  font-family: 'Insaniburger';
+  src: url('/fonts/insaniburger/Insanibu.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Insanibc';
+  src: url('/fonts/insaniburger/Insanibc.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now-Regular';
+  src: url('/fonts/now/Now-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Now';
+  src: url('/fonts/now/Now-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -111,6 +175,243 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Now-Regular', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Insanibc', system-ui, sans-serif;
   }
 }
 
+/* ------------------- */
+/* Custom CSS Variables */
+/* ------------------- */
+:root {
+  /* Grow Fitness Theme Colors */
+  --gf-green: #23b685;
+  --gf-green-deep: #243e36;
+  --gf-leaf: #afe27d;
+  --gf-sun: #fffd77;
+  --gf-ink: #191919;
+  --gf-paper: #ffffff;
+  --gf-green-50: #e8f7f0;
+  --gf-green-100: #c6ecd9;
+  --gf-leaf-50: #f1faea;
+  --gf-sun-50: #fffce0;
+  --gf-cream: #fbf8ed;
+  --fg-1: var(--gf-green-deep);
+  --fg-2: #4a6359;
+  --fg-3: #88a297;
+  --fg-4: #52c9a1;
+  --fg-5: #3b4e47;
+  --fg-6: #c8d7d1;
+  --line: #d8e6dd;
+  --font-display: "Insaniburger", "Lilita One", system-ui, sans-serif;
+  --font-sans: "Now", "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-alt: "Now", "Poppins", system-ui, sans-serif;
+  --shadow-1: 0 1px 2px rgba(36,62,54,0.06), 0 2px 6px rgba(36,62,54,0.04);
+  --shadow-2: 0 4px 12px rgba(36,62,54,0.08), 0 2px 4px rgba(36,62,54,0.05);
+  --shadow-pop: 0 8px 0 var(--gf-green-deep);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ------------------- */
+/* Keyframes for animations */
+/* ------------------- */
+@keyframes buddy-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes flower-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes support-chat-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px hsl(var(--primary) / 0);
+  }
+}
+
+@keyframes support-chat-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes support-chat-message-user {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes support-chat-message-assistant {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes support-chat-btn-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ------------------- */
+/* Animation Classes */
+/* ------------------- */
+.gf-buddy-float {
+  animation: buddy-float 3.5s ease-in-out infinite;
+}
+
+.gf-buddy-float-fast {
+  animation: buddy-float 2.5s ease-in-out infinite;
+}
+
+.gf-flower-spin {
+  animation: flower-spin 40s linear infinite;
+  transform-origin: center;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+.animate-spin-slow-reverse {
+  animation: spin-slow 40s linear infinite reverse;
+}
+
+.animate-spin-slower {
+  animation: spin-slow 60s linear infinite;
+}
+
+/* ------------------- */
+/* Utility Classes */
+/* ------------------- */
+.gf-dashboard-tab {
+  font-weight: 800 !important;
+}
+
+.gf-nav-a {
+  transition: color 140ms;
+}
+
+.gf-nav-a:hover {
+  color: var(--gf-green) !important;
+}
+
+.gf-btn-pop {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  border: none;
+  transition: transform 120ms var(--ease-bounce), box-shadow 120ms;
+  text-decoration: none;
+}
+
+.gf-btn-pop:hover {
+  transform: translateY(-2px);
+}
+
+.gf-btn-pop:active {
+  transform: translateY(5px) !important;
+  box-shadow: none !important;
+}
+
+.gf-card-lift {
+  transition: transform 220ms var(--ease-bounce), box-shadow 220ms;
+}
+
+.gf-card-lift:hover {
+  transform: translateY(-5px);
+}
+
+.gf-challenge-item {
+  transition: transform 180ms var(--ease-bounce), box-shadow 180ms;
+}
+
+.gf-challenge-item:hover {
+  transform: translateX(6px);
+}
+
+.gf-step-card {
+  transition: transform 220ms var(--ease-bounce), box-shadow 220ms;
+}
+
+.gf-step-card:hover {
+  transform: translateY(-6px);
+}
+
+.gf-faq-row {
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.gf-faq-row:hover {
+  background: var(--gf-green-50) !important;
+}
+
+.support-chat-panel-in {
+  animation: support-chat-panel-in 0.25s ease-out forwards;
+}
+
+.support-chat-btn-pulse {
+  animation: support-chat-pulse 2s ease-in-out infinite;
+}
+
+.support-chat-message-user {
+  animation: support-chat-message-user 0.2s ease-out;
+}
+
+.support-chat-message-assistant {
+  animation: support-chat-message-assistant 0.2s ease-out;
+}
+
+.support-chat-header {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.85) 50%,
+    hsl(var(--primary) / 0.75) 100%
+  );
+  border-radius: 0 0 2rem 2rem;
+}
+
+.support-chat-quick-reply:hover {
+  transform: translateY(-1px);
+}
