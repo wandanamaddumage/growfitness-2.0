@@ -54,11 +54,9 @@ export function LoginPage() {
       <div className="w-full lg:w-[45%] bg-[var(--gf-paper)] flex flex-col min-h-screen lg:min-h-0">
         {/* Logo/Branding */}
         <div className="p-8">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-[var(--gf-green)] flex items-center justify-center border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-              <span className="text-white font-bold text-xl">G</span>
-            </div>
-            <span className="text-2xl font-extrabold text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Grow Fitness Admin</span>
+          <div className="flex items-center gap-4">
+            <img src="/New logo dark green.png" alt="Grow Fitness Logo" className="w-16 h-16" />
+            <span className="text-3xl font-extrabold text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Grow Fitness Admin</span>
           </div>
         </div>
 
