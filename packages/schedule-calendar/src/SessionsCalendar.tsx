@@ -25,7 +25,6 @@ export interface SessionsCalendarProps {
 
 // ── Breakpoints ───────────────────────────────────────────────────────────────
 const MOBILE_BP = 640;
-const TABLET_BP = 1024;
 
 type DisplayStatusVariant = 'normal' | 'cancelled' | 'extra' | 'free';
 
