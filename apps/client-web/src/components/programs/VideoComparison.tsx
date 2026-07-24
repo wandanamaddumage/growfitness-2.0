@@ -11,7 +11,7 @@ export function VideoComparison() {
         className="mx-auto w-full max-w-7xl overflow-hidden rounded-3xl"
         style={{ border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <div className="relative grid grid-cols-2">
+        <div className="relative grid grid-cols-1 md:grid-cols-2">
           {/* Group Sessions */}
           <div
             className="flex h-[60vh] min-h-[500px] max-h-[750px] flex-col items-center justify-center gap-5 opacity-80"

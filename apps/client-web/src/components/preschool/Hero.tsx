@@ -49,7 +49,7 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
         className="absolute w-[240px] opacity-30 pointer-events-none"
         style={{ left: -40, bottom: -20 }}
       />
-      <div className="mx-auto max-w-7xl px-6 md:px-10 pt-28 grid md:grid-cols-2 gap-14 items-center relative">
+      <div className="mx-auto max-w-7xl px-6 md:px-10 pt-16 sm:pt-20 md:pt-28 grid md:grid-cols-2 gap-8 md:gap-14 items-center relative">
         <div>
           <span
             className="gf-eyebrow inline-block px-4 py-1.5 rounded-full mb-6"
@@ -59,7 +59,7 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
           </span>
 
           <h2 
-            className="text-6xl font-extrabold uppercase leading-[0.95] tracking-tight md:text-8xl text-white"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-extrabold uppercase leading-[0.95] tracking-tight text-white"
             style={{
               marginTop: 8,
               fontFamily: "var(--font-display)",
@@ -74,14 +74,14 @@ export default function Hero({ slide, setSlide }: HeroSectionProps) {
           </h2>
 
           <p
-            className="gf-h-display text-3xl font-semibold my-8"
+            className="gf-h-display text-2xl sm:text-3xl font-semibold my-8"
             style={{ color: "var(--gf-leaf)" }}
           >
             We give you a fourth.
           </p>
 
           <p
-            className="leading-relaxed text-xl"
+            className="leading-relaxed text-lg sm:text-xl"
             style={{ color: "rgba(255,255,255,0.72)" }}
           >
             Grow Fitness runs structured movement programs inside preschools.

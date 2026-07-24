@@ -24,19 +24,21 @@ export function RequestsPage() {
         </div>
 
       <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-4">
-        <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-4 sm:max-w-[700px] gap-2">
-          <TabsTrigger value="free-sessions" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-            Free Sessions
-          </TabsTrigger>
-          <TabsTrigger value="reschedule" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-            Reschedule
-          </TabsTrigger>
-           <TabsTrigger value="extra-sessions" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-            Extra Sessions
-          </TabsTrigger>
-          <TabsTrigger value="user-requests" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-            User Requests
-          </TabsTrigger>
+        <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto w-full sm:max-w-[700px] overflow-x-auto">
+          <div className="flex sm:grid sm:grid-cols-4 gap-2 w-full min-w-max sm:min-w-0">
+            <TabsTrigger value="free-sessions" className="flex items-center gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 px-3 sm:px-4 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] whitespace-nowrap">
+              Free Sessions
+            </TabsTrigger>
+            <TabsTrigger value="reschedule" className="flex items-center gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 px-3 sm:px-4 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] whitespace-nowrap">
+              Reschedule
+            </TabsTrigger>
+            <TabsTrigger value="extra-sessions" className="flex items-center gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 px-3 sm:px-4 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] whitespace-nowrap">
+              Extra Sessions
+            </TabsTrigger>
+            <TabsTrigger value="user-requests" className="flex items-center gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green-deep)] data-[state=active]:text-white rounded-lg py-1.5 px-3 sm:px-4 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] whitespace-nowrap">
+              User Requests
+            </TabsTrigger>
+          </div>
         </TabsList>
         <TabsContent value="free-sessions" className="space-y-4">
           <FreeSessionRequestsTable />

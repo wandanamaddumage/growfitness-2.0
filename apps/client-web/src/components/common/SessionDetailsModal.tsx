@@ -419,7 +419,7 @@ export default function SessionDetailsDialog({
               </div>
             ) : (
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="w-full sm:w-auto">
+                <TabsList className="w-full sm:w-auto gap-2">
                   <TabsTrigger value="overview" className="flex-1 sm:flex-none border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                     Overview
                   </TabsTrigger>

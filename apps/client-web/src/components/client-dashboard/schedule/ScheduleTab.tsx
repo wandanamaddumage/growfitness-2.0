@@ -6,7 +6,6 @@ import {
   type Session,
 } from '@grow-fitness/shared-types';
 import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
-import { formatSessionType } from '@/lib/formatters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -17,10 +16,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar as CalendarIcon, Plus, List, CalendarDays } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Eye } from 'lucide-react';
 import { sessionsService } from '@/services/sessions.service';
 import SessionDetailsModal from '@/components/common/SessionDetailsModal';
-import { SessionSpecialBadges } from '@/components/common/SessionSpecialBadges';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/useAuth';
@@ -29,7 +27,13 @@ import { GoogleCalendarSyncButton } from '@/components/common/GoogleCalendarSync
 import { isGmailAccount } from '@/lib/google-calendar';
 import type { GoogleCalendarOAuthResult } from '@/hooks/useGoogleCalendarSync';
 import BookSessionModal from './BookSessionModal';
+import { usePagination } from '@/hooks/usePagination';
+import { DataTable } from '@/components/common/DataTable';
+import { Pagination } from '@/components/common/Pagination';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { formatSessionType } from '@/lib/formatters';
+import { SessionSpecialBadges } from '@/components/common/SessionSpecialBadges';
+import type { ColumnDef } from '@tanstack/react-table';
 
 type ScheduleView = 'list' | 'calendar';
 
@@ -85,6 +89,7 @@ export default function ScheduleTab() {
   const { toast } = useToast();
   const { selectedKid } = useKid();
   const showGoogleCalendarSync = isGmailAccount(user?.email);
+  const { page, pageSize, setPage, setPageSize } = usePagination();
 
   const handleGoogleCalendarOAuthResult = (result: GoogleCalendarOAuthResult) => {
     if (result === 'success') {
@@ -130,6 +135,8 @@ export default function ScheduleTab() {
       upcomingScope,
       effectiveRange.start,
       effectiveRange.end,
+      page.toString(),
+      pageSize.toString(),
     ],
     () => {
       if (!selectedKid?.id) {
@@ -137,7 +144,7 @@ export default function ScheduleTab() {
           data: [],
           total: 0,
           page: 1,
-          limit: 10,
+          limit: pageSize,
           totalPages: 0,
         });
       }
@@ -146,7 +153,7 @@ export default function ScheduleTab() {
         return fetchAllPagesUpcomingForKid(selectedKid.id);
       }
 
-      return sessionsService.getSessions(1, 100, {
+      return sessionsService.getSessions(page, pageSize, {
         kidId: selectedKid.id,
         startDate: effectiveRange.start,
         endDate: effectiveRange.end,
@@ -184,11 +191,84 @@ export default function ScheduleTab() {
     );
   }, [sessions]);
 
-  const sortedSessions = useMemo(() => {
-    return [...sessions].sort(
-      (a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
-    );
-  }, [sessions]);
+  const columns: ColumnDef<Session>[] = [
+    {
+      accessorKey: 'title',
+      header: 'Title',
+      cell: ({ row }) => {
+        const session = row.original;
+        return (
+          <div className="flex max-w-[220px] flex-wrap items-center gap-2 sm:max-w-none">
+            <span className="min-w-0">
+              {session.title?.trim() || getSessionLabel(session)}
+            </span>
+            <SessionSpecialBadges session={session} className="shrink-0" />
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'dateTime',
+      header: 'Date',
+      cell: ({ row }) => format(new Date(row.original.dateTime), 'dd MMM yyyy'),
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => formatSessionType(row.original.type),
+    },
+    {
+      accessorKey: 'dateTime',
+      header: 'Time',
+      cell: ({ row }) => {
+        const session = row.original;
+        return (
+          <>
+            {format(new Date(session.dateTime), 'hh:mm a')} -{' '}
+            {format(
+              new Date(
+                new Date(session.dateTime).getTime() + session.duration * 60000
+              ),
+              'hh:mm a'
+            )}
+          </>
+        );
+      },
+    },
+    {
+      accessorKey: 'location',
+      header: 'Location',
+      cell: ({ row }) => row.original.location?.name ?? '-',
+    },
+    {
+      accessorKey: 'duration',
+      header: 'Duration',
+      cell: ({ row }) => `${row.original.duration} min`,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const session = row.original;
+        return (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSelectedSession(session)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div>
@@ -207,13 +287,11 @@ export default function ScheduleTab() {
         </CardHeader>
         <CardContent className="pt-6">
           <Tabs value={view} onValueChange={v => setView(v as ScheduleView)}>
-            <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[240px] gap-2 p-1">
-              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-                <List className="h-4 w-4" />
+            <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[400px] gap-2 p-1">
+              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 List
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-                <CalendarDays className="h-4 w-4" />
+              <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 Calendar
               </TabsTrigger>
             </TabsList>
@@ -243,79 +321,18 @@ export default function ScheduleTab() {
             </div>
 
             <TabsContent value="list" className="mt-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                  Loading sessions…
-                </div>
-              ) : sortedSessions.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30 py-12 text-center text-sm text-muted-foreground">
-                  {upcomingScope === 'all_upcoming'
-                    ? 'No upcoming sessions found for this child.'
-                    : `No upcoming sessions in the next ${LIST_VIEW_DAYS} days.`}
-                </div>
-              ) : (
-                <div className="w-full overflow-x-auto rounded-lg border border-border">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-muted/40 text-left text-xs font-semibold uppercase text-muted-foreground">
-                      <tr>
-                        <th className="px-4 py-3">Title</th>
-                        <th className="px-4 py-3">Date</th>
-                        <th className="px-4 py-3">Type</th>
-                        <th className="px-4 py-3">Time</th>
-                        <th className="px-4 py-3">Location</th>
-                        <th className="px-4 py-3">Duration</th>
-                        <th className="px-4 py-3">Status</th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-border bg-white">
-                      {sortedSessions.map(session => (
-                        <tr
-                          key={session.id}
-                          onClick={() => setSelectedSession(session)}
-                          className="cursor-pointer transition-colors hover:bg-muted/50"
-                        >
-                          <td className="px-4 py-3 font-medium text-foreground">
-                            <div className="flex max-w-[220px] flex-wrap items-center gap-2 sm:max-w-none">
-                              <span className="min-w-0">
-                                {session.title?.trim() || getSessionLabel(session)}
-                              </span>
-                              <SessionSpecialBadges session={session} className="shrink-0" />
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-3 text-muted-foreground">
-                            {format(new Date(session.dateTime), 'dd MMM yyyy')}
-                          </td>
-
-                          <td className="px-4 py-3 text-muted-foreground">
-                            {formatSessionType(session.type)}
-                          </td>
-
-                          <td className="px-4 py-3 text-muted-foreground">
-                            {format(new Date(session.dateTime), 'hh:mm a')} -{' '}
-                            {format(
-                              new Date(
-                                new Date(session.dateTime).getTime() + session.duration * 60000
-                              ),
-                              'hh:mm a'
-                            )}
-                          </td>
-
-                          <td className="px-4 py-3 text-muted-foreground">
-                            {session.location?.name ?? '-'}
-                          </td>
-
-                          <td className="px-4 py-3 text-muted-foreground">{session.duration} min</td>
-
-                          <td className="px-4 py-3">
-                            <StatusBadge status={session.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <DataTable
+                columns={columns}
+                data={sessions}
+                isLoading={isLoading}
+                emptyMessage="No sessions found"
+              />
+              {sessionsData && sessionsData.totalPages > 1 && (
+                <Pagination
+                  data={sessionsData}
+                  onPageChange={setPage}
+                  onPageSizeChange={setPageSize}
+                />
               )}
             </TabsContent>
 

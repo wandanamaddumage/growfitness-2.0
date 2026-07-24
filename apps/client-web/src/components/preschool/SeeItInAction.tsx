@@ -15,7 +15,7 @@ export default function SeeItInAction() {
         </p>
 
         <div
-          className="rounded-3xl h-[380px] md:h-[420px] flex flex-col items-center justify-center gap-4"
+          className="rounded-3xl h-[300px] sm:h-[340px] md:h-[380px] lg:h-[420px] flex flex-col items-center justify-center gap-4"
           style={{ background: "rgba(255,255,255,0.05)" }}
         >
           <button

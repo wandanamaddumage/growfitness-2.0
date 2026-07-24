@@ -167,7 +167,6 @@ export function SessionsCalendar({
   const containerWidth = useContainerWidth(containerRef as React.RefObject<HTMLDivElement>);
 
   const isMobile = containerWidth < MOBILE_BP;
-  const isTablet = containerWidth >= MOBILE_BP && containerWidth < TABLET_BP;
 
   const scrollToNow = useCallback(() => {
     const api = calendarRef.current?.getApi();
@@ -203,9 +202,7 @@ export function SessionsCalendar({
 
   const headerToolbar = isMobile
     ? { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
-    : isTablet
-      ? { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }
-      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' };
+    : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' };
 
   const slotLabelFormat = isMobile
     ? { hour: 'numeric' as const, meridiem: 'narrow' as const }
@@ -478,7 +475,7 @@ ${CALENDAR_STYLES}
         selectMirror={editable}
         dayMaxEvents={isMobile ? 2 : true}
         weekends={true}
-        height={isMobile ? 'auto' : isTablet ? '600px' : height}
+        height={isMobile ? 'auto' : height}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         eventResize={handleEventResize}

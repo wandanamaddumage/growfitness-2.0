@@ -68,6 +68,7 @@ interface DataTableProps<TData, TValue> {
   emptyDescription?: string;
   enableSorting?: boolean;
   className?: string;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -78,6 +79,7 @@ export function DataTable<TData, TValue>({
   emptyDescription,
   enableSorting = true,
   className,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -158,6 +160,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="hover:bg-muted/50"
+                onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map(cell => (
                   <TableCell key={cell.id}>

@@ -42,7 +42,7 @@ export default function WhyPartner() {
           </h1>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {cards.map((c) => (
             <div
               key={c.title}

@@ -21,7 +21,7 @@ export function Testimonials() {
         </h2>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-6xl gap-6 md:grid-cols-3">
+      <div className="mx-auto mt-10 grid max-w-6xl gap-6 grid-cols-1 md:grid-cols-3">
         <TestimonialCard
           tag="Personal Training Sessions"
           quote="He is 13 years old, we used to buy T-shirts that fit a 7 year old (before Grow Fitness / growth deficiency). Now we buy clothes that fit a 10 year old."

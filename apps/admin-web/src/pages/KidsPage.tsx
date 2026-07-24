@@ -265,7 +265,7 @@ export function KidsPage() {
               value={gender}
               onValueChange={setGender}
             >
-              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+              <SelectTrigger className="w-full text-sm sm:w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                 <SelectValue placeholder="All Gender" />
               </SelectTrigger>
               <SelectContent>
