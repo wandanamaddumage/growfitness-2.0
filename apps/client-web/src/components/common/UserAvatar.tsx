@@ -43,7 +43,7 @@ export function UserAvatar({
     'relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full',
     className
   );
-  const mergedFallback = cn('text-sm font-bold text-primary', fallbackClassName);
+  const mergedFallback = cn('text-sm font-bold text-[var(--gf-green-deep)]', fallbackClassName);
   const showImage = Boolean(imageSrc) && !imageFailed;
 
   return (

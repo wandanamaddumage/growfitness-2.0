@@ -25,7 +25,7 @@ export default function HearThisALot() {
           >
             FOR PRESCHOOL DIRECTORS
           </span>
-          <p className="gf-h-display text-5xl md:text-6xl leading-tight mb-8 font-bold">
+          <p className="gf-h-display text-3xl sm:text-4xl md:text-5xl md:text-6xl leading-tight mb-8 font-bold">
             If you run a preschool, you already know this feeling.
           </p>
           <p className="text-lg max-w-[500px]" style={{ color: "var(--fg-2)" }}>

@@ -465,7 +465,7 @@ export function SessionsPage() {
           value={coachFilter || 'all'}
           onValueChange={value => setCoachFilter(value === 'all' ? '' : value)}
         >
-          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+          <SelectTrigger className="w-full text-sm sm:w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All coaches" />
           </SelectTrigger>
           <SelectContent>
@@ -482,7 +482,7 @@ export function SessionsPage() {
           value={locationFilter || 'all'}
           onValueChange={value => setLocationFilter(value === 'all' ? '' : value)}
         >
-          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+          <SelectTrigger className="w-full text-sm sm:w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All locations" />
           </SelectTrigger>
           <SelectContent>
@@ -499,7 +499,7 @@ export function SessionsPage() {
           value={statusFilter || 'all'}
           onValueChange={value => setStatusFilter(value === 'all' ? '' : (value as SessionStatus))}
         >
-          <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
+          <SelectTrigger className="w-full text-sm sm:w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>

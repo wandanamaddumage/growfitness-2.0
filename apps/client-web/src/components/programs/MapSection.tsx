@@ -132,7 +132,7 @@ export function MapSection() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
           <div
-            className="relative h-96 overflow-hidden rounded-3xl"
+            className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-3xl"
             style={{ backgroundColor: "#16281f", border: "1px solid rgba(255,255,255,0.06)" }}
           >
             <MapContainer

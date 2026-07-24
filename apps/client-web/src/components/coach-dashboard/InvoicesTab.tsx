@@ -6,6 +6,7 @@ import { DataTable } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { FilterBar } from '@/components/common/FilterBar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, Eye, Pencil } from 'lucide-react';
+import { Download, Eye, Pencil, FileText } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 
@@ -168,49 +169,45 @@ export function InvoicesTab() {
   ];
 
   return (
-    <div className="space-y-6 gf-scope">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
-          Invoices
-        </h1>
-        <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage invoices and payments</p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-end gap-2">
+    <div>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-[var(--gf-green-deep)] text-lg sm:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
+            <FileText className="mr-2 h-5 w-5 text-[var(--gf-green-deep)]" />
+            Invoices
+          </CardTitle>
           <Button variant="outline" onClick={handleExportCSV} className="border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-extrabold hover:bg-[var(--gf-green-50)] transition-all duration-200 shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl h-9">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-        </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <FilterBar>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold text-[var(--gf-green-deep)]">Status:</label>
+              <Select
+                value={statusFilter || 'all'}
+                onValueChange={value =>
+                  setStatusFilter(value === 'all' ? '' : (value as InvoiceStatus))
+                }
+              >
+                <SelectTrigger className="w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-xl">
+                  <SelectValue className="text-[var(--gf-green-deep)] font-semibold" placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent className="bg-[var(--gf-paper)] border border-[var(--line)]">
+                  <SelectItem value="all" className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">All statuses</SelectItem>
+                  <SelectItem value={InvoiceStatus.PENDING} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Pending</SelectItem>
+                  <SelectItem value={InvoiceStatus.PAID} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Paid</SelectItem>
+                  <SelectItem value={InvoiceStatus.OVERDUE} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </FilterBar>
 
-        <FilterBar>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-bold text-[var(--gf-green-deep)]">Status:</label>
-            <Select
-              value={statusFilter || 'all'}
-              onValueChange={value =>
-                setStatusFilter(value === 'all' ? '' : (value as InvoiceStatus))
-              }
-            >
-              <SelectTrigger className="w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent className="bg-[var(--gf-paper)] border border-[var(--line)]">
-                <SelectItem value="all" className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">All statuses</SelectItem>
-                <SelectItem value={InvoiceStatus.PENDING} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Pending</SelectItem>
-                <SelectItem value={InvoiceStatus.PAID} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Paid</SelectItem>
-                <SelectItem value={InvoiceStatus.OVERDUE} className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </FilterBar>
-
-        {error ? (
-          <ErrorState title="Failed to load invoices" onRetry={() => window.location.reload()} />
-        ) : (
-          <>
-            <div className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] rounded-2xl bg-[var(--gf-paper)] overflow-hidden">
+          {error ? (
+            <ErrorState title="Failed to load invoices" onRetry={() => window.location.reload()} />
+          ) : (
+            <>
               <DataTable
                 columns={columns}
                 data={data?.data || []}
@@ -218,25 +215,25 @@ export function InvoicesTab() {
                 emptyMessage="No invoices found"
                 className="border-0 rounded-none shadow-none"
               />
-            </div>
-            {data && (
-              <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />
-            )}
-          </>
-        )}
-      </div>
+              {data && data.totalPages > 1 && (
+                <Pagination data={data} onPageChange={setPage} onPageSizeChange={setPageSize} />
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-     {(selectedInvoice || entityId) && (
+      {(selectedInvoice || entityId) && (
         <>
-            {selectedInvoice && (
+          {selectedInvoice && (
             <InvoiceDetailsDialog
-                open={detailsDialogOpen}
-                onOpenChange={closeModal}
-                invoice={selectedInvoice}
+              open={detailsDialogOpen}
+              onOpenChange={closeModal}
+              invoice={selectedInvoice}
             />
-            )}
+          )}
         </>
-     )}
+      )}
     </div>
   );
 }

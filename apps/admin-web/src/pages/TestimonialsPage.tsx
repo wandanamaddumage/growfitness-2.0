@@ -91,14 +91,6 @@ export function TestimonialsPage() {
     {
       accessorKey: 'content',
       header: 'Content',
-      cell: ({ row }) => {
-        const content = row.original.content;
-        return (
-          <span className="max-w-md truncate block" title={content}>
-            {content.length > 80 ? `${content.slice(0, 80)}...` : content}
-          </span>
-        );
-      },
     },
     {
       accessorKey: 'childName',
