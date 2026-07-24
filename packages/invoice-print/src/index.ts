@@ -12,12 +12,14 @@ export {
   type InvoiceRenderMode,
 } from './InvoiceTemplatePrint';
 export {
-  renderInvoicePrintToFullHtml,
-  type InvoicePrintAssetDataUris,
-} from './render-html';
-export {
   fetchInvoiceAssetDataUris,
   rasterizeDataUriForCanvas,
   INVOICE_LOGO_PUBLIC_PATH,
   INVOICE_MASCOT_PUBLIC_PATH,
 } from './browser-assets';
+
+// Server-only exports - only available in Node.js environment
+export {
+  renderInvoicePrintToFullHtml,
+  type InvoicePrintAssetDataUris,
+} from './render-html';
