@@ -171,28 +171,28 @@ export function InvoicesTab() {
   return (
     <div>
       <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
-        <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
-          <CardTitle className="text-[var(--gf-green-deep)] text-lg sm:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
-            <FileText className="mr-2 h-5 w-5 text-[var(--gf-green-deep)]" />
+        <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between bg-[var(--gf-green-50)]/40 border-b border-[var(--line)] p-4 sm:p-6">
+          <CardTitle className="text-[var(--gf-green-deep)] text-base sm:text-lg md:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
+            <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-[var(--gf-green-deep)]" />
             Invoices
           </CardTitle>
-          <Button variant="outline" onClick={handleExportCSV} className="border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-extrabold hover:bg-[var(--gf-green-50)] transition-all duration-200 shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl h-9">
-            <Download className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={handleExportCSV} className="w-full sm:w-auto border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-extrabold hover:bg-[var(--gf-green-50)] transition-all duration-200 shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] rounded-xl h-9 text-xs sm:text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
             Export CSV
           </Button>
         </CardHeader>
-        <CardContent className="pt-6">
-          <FilterBar>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-bold text-[var(--gf-green-deep)]">Status:</label>
+        <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
+          <FilterBar className="mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label className="text-xs sm:text-sm font-bold text-[var(--gf-green-deep)]">Status:</label>
               <Select
                 value={statusFilter || 'all'}
                 onValueChange={value =>
                   setStatusFilter(value === 'all' ? '' : (value as InvoiceStatus))
                 }
               >
-                <SelectTrigger className="w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-xl">
-                  <SelectValue className="text-[var(--gf-green-deep)] font-semibold" placeholder="All statuses" />
+                <SelectTrigger className="w-full sm:w-[150px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-xl h-9">
+                  <SelectValue className="text-[var(--gf-green-deep)] font-semibold text-xs sm:text-sm" placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent className="bg-[var(--gf-paper)] border border-[var(--line)]">
                   <SelectItem value="all" className="text-[var(--gf-green-deep)] focus:bg-[var(--gf-green-50)] focus:text-[var(--gf-green-deep)]">All statuses</SelectItem>

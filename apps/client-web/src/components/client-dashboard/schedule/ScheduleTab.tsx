@@ -208,6 +208,7 @@ export default function ScheduleTab() {
       },
     },
     {
+      id: 'date',
       accessorKey: 'dateTime',
       header: 'Date',
       cell: ({ row }) => format(new Date(row.original.dateTime), 'dd MMM yyyy'),
@@ -218,6 +219,7 @@ export default function ScheduleTab() {
       cell: ({ row }) => formatSessionType(row.original.type),
     },
     {
+      id: 'time',
       accessorKey: 'dateTime',
       header: 'Time',
       cell: ({ row }) => {
