@@ -1,11 +1,10 @@
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import {
   formatDate, formatEmploymentType, formatSessionType,
@@ -120,36 +119,38 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl p-0 overflow-hidden gap-0 border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
+      <DialogContent className="max-w-[100vw] sm:max-w-5xl h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[90vh] p-0 overflow-hidden gap-0 border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-[4px_4px_0_0_var(--gf-green-deep)] sm:shadow-2xl rounded-none sm:rounded-2xl flex flex-col">
+        <DialogTitle className="sr-only">User Details</DialogTitle>
+        <DialogDescription className="sr-only">View detailed information about this user</DialogDescription>
         {/* Gradient header */}
-        <div className="relative bg-[var(--gf-green-50)] px-8 pt-8 pb-6 border-b-2 border-[var(--gf-green-deep)]/30">
-          <div className="flex items-start gap-5">
-            <Avatar className="h-20 w-20 ring-4 ring-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)]">
+        <div className="relative bg-[var(--gf-green-50)] px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 md:pt-8 pb-3 sm:pb-4 md:pb-6 border-b-2 border-[var(--gf-green-deep)]/30 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
+            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 ring-4 ring-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] flex-shrink-0">
               {photoUrl && <AvatarImage src={photoUrl} alt={userName || ''} />}
-              <AvatarFallback className="bg-[var(--gf-green-deep)] text-white text-xl font-extrabold">
+              <AvatarFallback className="bg-[var(--gf-green-deep)] text-white text-lg sm:text-xl font-extrabold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{userName}</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{userName}</h2>
                 <StatusBadge status={displayUser.status} />
               </div>
-              <div className="mt-1.5 flex items-center gap-4 text-sm text-[var(--fg-2)] font-semibold flex-wrap">
+              <div className="mt-1.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-[var(--fg-2)] font-semibold flex-wrap">
                 <span className="inline-flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5 text-[var(--gf-green-deep)]" />{displayUser.email}
+                  <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--gf-green-deep)]" />{displayUser.email}
                 </span>
                 {displayUser.phone && (
                   <span className="inline-flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5 text-[var(--gf-green-deep)]" />{displayUser.phone}
+                    <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--gf-green-deep)]" />{displayUser.phone}
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-[var(--gf-green-deep)]" />Joined {formatDate(displayUser.createdAt)}
+                  <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--gf-green-deep)]" />Joined {formatDate(displayUser.createdAt)}
                 </span>
               </div>
-              <div className="mt-3">
-                <Badge variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white">
+              <div className="mt-2 sm:mt-3">
+                <Badge variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white text-xs sm:text-sm">
                   {isCoach ? 'Coach Account' : isParent ? 'Parent Account' : 'User'}
                 </Badge>
               </div>
@@ -157,10 +158,10 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
           </div>
         </div>
 
-        <ScrollArea className="max-h-[70vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-0">
-            {/* Sidebar */}
-            <aside className="border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-0 h-full">
+            {/* Sidebar - hidden on mobile, shown on lg */}
+            <aside className="hidden lg:flex lg:flex-col border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto">
               <section>
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-3" style={{ fontFamily: 'var(--font-display)' }}>Contact</h3>
                 <ul className="space-y-3 text-sm">
@@ -207,22 +208,21 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
             </aside>
 
             {/* Main */}
-            <main className="p-6">
+            <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
               {isLoading ? (
                 <div className="flex items-center justify-center py-20 text-muted-foreground">Loading…</div>
               ) : (
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="bg-[var(--gf-green-50)]/30 border-2 border-[var(--gf-green-deep)]/30 h-10">
-                    <TabsTrigger value="overview" className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">Overview</TabsTrigger>
-                    {!isCoach && <TabsTrigger value="kids" className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">Kids {totalKids > 0 && `(${totalKids})`}</TabsTrigger>}
-                    {/* {isCoach && <TabsTrigger value="sessions">Sessions {totalCoachSessions > 0 && `(${totalCoachSessions})`}</TabsTrigger>} */}
+                <Tabs defaultValue="overview" className="w-full flex flex-col">
+                  <TabsList className="bg-[var(--gf-green-50)]/30 h-10 grid grid-cols-2 lg:grid-cols-1 lg:flex w-full lg:w-auto gap-2">
+                    <TabsTrigger value="overview" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white border-2 border-[var(--gf-green-deep)]">Overview</TabsTrigger>
+                    {!isCoach && <TabsTrigger value="kids" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white border-2 border-[var(--gf-green-deep)]">Kids {totalKids > 0 && `(${totalKids})`}</TabsTrigger>}
                   </TabsList>
 
-                  <TabsContent value="overview" className="mt-4 space-y-4">
-                    <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-                      <CardHeader className="pb-3"><CardTitle className="text-base font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>About</CardTitle></CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                  <TabsContent value="overview" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-4 space-y-3 sm:space-y-4">
+                    <Card className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)] rounded-xl sm:rounded-2xl">
+                      <CardHeader className="pb-2 sm:pb-3"><CardTitle className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>About</CardTitle></CardHeader>
+                      <CardContent className="pt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-5">
                           <Field icon={UserIcon} label="Name">
                             {fmt(userName)}
                           </Field>
@@ -281,14 +281,14 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
                   </TabsContent>
 
                   {!isCoach && (
-                    <TabsContent value="kids" className="mt-4">
+                    <TabsContent value="kids" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-4">
                       {totalKids === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-center">
-                          <Baby className="h-10 w-10 text-[var(--gf-green-deep)] mb-3" />
-                          <p className="text-sm text-[var(--fg-2)] font-semibold">No children registered yet</p>
+                        <div className="flex flex-col items-center justify-center py-8 sm:py-16 text-center">
+                          <Baby className="h-8 w-8 sm:h-10 sm:w-10 text-[var(--gf-green-deep)] mb-2 sm:mb-3" />
+                          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold">No children registered yet</p>
                         </div>
                       ) : (
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                           {kids.map(kid => (
                             <Card key={kid.id} className="border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                               <CardHeader className="pb-3">
@@ -391,7 +391,7 @@ export function UserDetailsDialog({ open, onOpenChange, user: userProp }: UserDe
               )}
             </main>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

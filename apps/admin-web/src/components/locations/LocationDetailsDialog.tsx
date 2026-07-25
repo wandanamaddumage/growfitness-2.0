@@ -1,6 +1,8 @@
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Location } from '@grow-fitness/shared-types';
 import { formatDate } from '@/lib/formatters';
@@ -62,19 +64,21 @@ export function LocationDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
+      <DialogContent className="max-w-[100vw] sm:max-w-6xl h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[90vh] p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-[4px_4px_0_0_var(--gf-green-deep)] sm:shadow-2xl rounded-none sm:rounded-2xl">
+        <DialogTitle className="sr-only">Location Details</DialogTitle>
+        <DialogDescription className="sr-only">View detailed information about this location</DialogDescription>
         <div className="flex flex-col flex-1 min-h-0">
           {/* Header */}
-          <div className="px-6 py-4 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
-            <div className="flex items-center gap-4">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{location.name}</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>{location.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={location.isActive ? 'default' : 'secondary'} className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-white">
+                  <Badge variant={location.isActive ? 'default' : 'secondary'} className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-white text-xs sm:text-sm">
                     {location.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
-                <p className="text-xs text-[var(--fg-2)] font-semibold mt-1 flex items-center gap-1">
+                <p className="text-[10px] sm:text-xs text-[var(--fg-2)] font-semibold mt-1 flex items-center gap-1">
                   <Calendar className="h-3 w-3 text-[var(--gf-green-deep)]" />
                   Created {formatDate(location.createdAt)}
                 </p>
@@ -82,9 +86,9 @@ export function LocationDetailsDialog({
             </div>
           </div>
 
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            {/* Left Sidebar */}
-            <div className="w-80 border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-6 overflow-y-auto min-h-0">
+          <div className="flex flex-1 min-h-0 overflow-hidden flex-col lg:flex-row">
+            {/* Left Sidebar - hidden on mobile, shown on lg */}
+            <div className="hidden lg:flex lg:flex-col w-80 border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-4 sm:p-6 overflow-y-auto min-h-0">
               {/* Profile Section */}
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
@@ -135,22 +139,22 @@ export function LocationDetailsDialog({
             </div>
 
             {/* Right Main Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="space-y-6">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* About Section */}
                 <div>
-                  <h3 className="font-extrabold uppercase tracking-wider mb-3 text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Location Information</h3>
-                  <div className="space-y-4">
+                  <h3 className="font-extrabold uppercase tracking-wider mb-3 text-[var(--gf-green-deep)] text-sm sm:text-base" style={{ fontFamily: 'var(--font-display)' }}>Location Information</h3>
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
                       <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">Name</h4>
                       <p className="text-sm font-semibold">{location.name}</p>
                     </div>
                     {location.geo && (
                       <div>
-                        <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
+                        <h4 className="text-xs sm:text-sm font-semibold text-[var(--fg-2)] mb-1">
                           Location Map
                         </h4>
-                        <div className="h-[200px] w-full rounded-xl border-2 border-[var(--gf-green-deep)]/30 overflow-hidden mt-1">
+                        <div className="h-[180px] sm:h-[200px] w-full rounded-xl border-2 border-[var(--gf-green-deep)]/30 overflow-hidden mt-1">
                           <MapPicker
                             value={location.geo}
                             onChange={() => {}}

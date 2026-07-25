@@ -26,7 +26,7 @@ import { useToast } from '@/hooks/useToast';
 import { formatDate, formatSessionType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ErrorState } from '@/components/common/ErrorState';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -271,42 +271,44 @@ export function UserRequestsTable() {
 
       {/* Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
+        <DialogContent className="max-w-[100vw] sm:max-w-6xl h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[90vh] p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-[4px_4px_0_0_var(--gf-green-deep)] sm:shadow-2xl rounded-none sm:rounded-2xl">
+          <DialogTitle className="sr-only">User Registration Details</DialogTitle>
+          <DialogDescription className="sr-only">View detailed information about this user registration request</DialogDescription>
           {parent && (
             <div className="flex flex-col flex-1 min-h-0">
               {/* Header */}
-              <div className="px-6 py-4 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
-                <div className="flex items-center justify-between">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep]" style={{ fontFamily: 'var(--font-display)' }}>
                       {parent.parentProfile?.name || 'N/A'}
                     </h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-[var(--fg-2)] font-semibold">{parent.email}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold">{parent.email}</p>
                       <StatusBadge status={selectedRequest?.status || RequestStatus.PENDING} />
                     </div>
-                    <p className="text-xs text-[var(--fg-2)] font-semibold mt-1 flex items-center gap-1">
+                    <p className="text-[10px] sm:text-xs text-[var(--fg-2)] font-semibold mt-1 flex items-center gap-1">
                       <Calendar className="h-3 w-3 text-[var(--gf-green-deep)]" />
                       Registered {formatDate(parent.createdAt)}
                     </p>
                   </div>
                   {selectedRequest?.status === 'PENDING' && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <Button
                         variant="outline"
                         onClick={() => handleReject(selectedRequest)}
                         disabled={rejectMutation.isPending}
-                        className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
+                        className="flex-1 sm:flex-none rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                         Reject
                       </Button>
                       <Button
                         onClick={() => handleApprove(selectedRequest)}
                         disabled={approveMutation.isPending}
-                        className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
+                        className="flex-1 sm:flex-none rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
                       >
-                        <Check className="h-4 w-4 mr-2" />
+                        <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                         Approve
                       </Button>
                     </div>
@@ -314,9 +316,9 @@ export function UserRequestsTable() {
                 </div>
               </div>
 
-              <div className="flex flex-1 min-h-0 overflow-hidden">
-                {/* Left Sidebar */}
-                <div className="w-80 border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-6 overflow-y-auto min-h-0">
+              <div className="flex flex-1 min-h-0 overflow-hidden flex-col lg:flex-row">
+                {/* Left Sidebar - hidden on mobile, shown on lg */}
+                <div className="hidden lg:flex lg:flex-col w-80 border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-4 sm:p-6 overflow-y-auto min-h-0">
                   {/* Profile Section */}
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center justify-between">
@@ -398,16 +400,16 @@ export function UserRequestsTable() {
                 </div>
 
                 {/* Right Main Content */}
-                <div className="flex-1 overflow-y-auto p-6">
-                  <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="bg-[var(--gf-green-50)]/30 border-2 border-[var(--gf-green-deep)]/30 h-10">
-                      <TabsTrigger value="overview" className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">Overview</TabsTrigger>
-                      <TabsTrigger value="children" className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+                  <Tabs defaultValue="overview" className="w-full flex flex-col">
+                    <TabsList className="bg-[var(--gf-green-50)]/30 border-2 border-[var(--gf-green-deep)]/30 h-10 grid grid-cols-2 lg:grid-cols-1 lg:flex w-full lg:w-auto">
+                      <TabsTrigger value="overview" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">Overview</TabsTrigger>
+                      <TabsTrigger value="children" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">
                         Children {kids.length > 0 && `(${kids.length})`}
                       </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="mt-6 space-y-6">
+                    <TabsContent value="overview" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-6 space-y-3 sm:space-y-6">
                       {/* About Section */}
                       <div>
                         <h3 className="font-extrabold uppercase tracking-wider mb-3 text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>About</h3>
@@ -452,16 +454,16 @@ export function UserRequestsTable() {
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="children" className="mt-6">
+                    <TabsContent value="children" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-6">
                       {kids.length === 0 ? (
-                        <div className="text-center py-12">
-                          <Baby className="h-12 w-12 text-[var(--gf-green-deep)] mx-auto mb-4" />
-                          <p className="text-sm text-[var(--fg-2)] font-semibold">
+                        <div className="text-center py-8 sm:py-12">
+                          <Baby className="h-8 w-8 sm:h-12 sm:w-12 text-[var(--gf-green-deep)] mx-auto mb-2 sm:mb-4" />
+                          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold">
                             No children registered yet
                           </p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {kids.map((kid, index) => (
                             <Card key={kid.id || index} className="overflow-hidden border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                               <CardHeader className="pb-3">
