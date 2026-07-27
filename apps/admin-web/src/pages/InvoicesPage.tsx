@@ -1,7 +1,6 @@
 import { ClearFiltersButton } from '@/components/common/ClearFiltersButton';
 import { DataTable } from '@/components/common/DataTable';
 import { ErrorState } from '@/components/common/ErrorState';
-import { FilterBar } from '@/components/common/FilterBar';
 import { Pagination } from '@/components/common/Pagination';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { CreateInvoiceDialog } from '@/components/invoices/CreateInvoiceDialog';
@@ -278,47 +277,37 @@ export function InvoicesPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Invoices</h1>
-        <p className="text-muted-foreground mt-1">Manage invoices and payments</p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-end gap-2">
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
-          </Button>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Invoices</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Manage invoices and payments</p>
         </div>
 
-        <FilterBar>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Type:</label>
+      <div className="space-y-4">
+       <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               value={typeFilter || 'all'}
               onValueChange={value => setTypeFilter(value === 'all' ? '' : (value as InvoiceType))}
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                 <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                <SelectItem value={InvoiceType.PARENT_INVOICE}>Parent Invoice</SelectItem>
-                <SelectItem value={InvoiceType.COACH_PAYOUT}>Coach Payout</SelectItem>
-              </SelectContent>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value={InvoiceType.PARENT_INVOICE}>Parent Invoice</SelectItem>
+                  <SelectItem value={InvoiceType.COACH_PAYOUT}>Coach Payout</SelectItem>
+                </SelectContent>
             </Select>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Status:</label>
             <Select
               value={statusFilter || 'all'}
               onValueChange={value =>
                 setStatusFilter(value === 'all' ? '' : (value as InvoiceStatus))
               }
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -328,29 +317,39 @@ export function InvoicesPage() {
                 <SelectItem value={InvoiceStatus.OVERDUE}>Overdue</SelectItem>
               </SelectContent>
             </Select>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">PDF emailed:</label>
             <Select
               value={pdfSentFilter || 'all'}
               onValueChange={value =>
                 setPdfSentFilter(value === 'all' ? '' : (value as InvoicePdfSentFilter))
               }
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">Both [Sent/Not Sent]</SelectItem>
                 <SelectItem value="sent">Sent</SelectItem>
                 <SelectItem value="not_sent">Not sent</SelectItem>
               </SelectContent>
             </Select>
-          </div>
 
           <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
-        </FilterBar>
+        </div>
+        <button 
+            onClick={() => openModal(null, 'create')}
+            className="gf-btn-pop relative px-5 py-2 mb-10" 
+            style={{ 
+              marginTop: 36, 
+              background: "var(--fg-2)", 
+              color: "white", 
+              boxShadow: "0 6px 0 var(--gf-green-deep)", 
+              fontSize: 16, 
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Invoice
+            </button>
+            </div>
 
         {error ? (
           <ErrorState title="Failed to load invoices" onRetry={() => window.location.reload()} />
@@ -393,6 +392,7 @@ export function InvoicesPage() {
           />
         </>
       )}
+      </div>
     </div>
   );
 }

@@ -23,9 +23,9 @@ export function TodaysSessions() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Today's Sessions</CardTitle>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Today's Sessions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
@@ -38,9 +38,9 @@ export function TodaysSessions() {
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Today's Sessions</CardTitle>
+      <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+          <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Today's Sessions</CardTitle>
         </CardHeader>
         <CardContent>
           <ErrorState title="Failed to load sessions" />
@@ -52,9 +52,9 @@ export function TodaysSessions() {
   const sessions = data?.data || [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Today's Sessions</CardTitle>
+    <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
+      <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
+        <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Today's Sessions</CardTitle>
       </CardHeader>
       <CardContent>
         {sessions.length === 0 ? (
@@ -77,17 +77,17 @@ export function TodaysSessions() {
               return (
                 <div
                   key={session.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-3 border-2 border-[var(--line)] rounded-xl hover:bg-[var(--gf-green-50)]/40 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate flex flex-wrap items-center gap-2">
+                    <p className="font-extrabold truncate flex flex-wrap items-center gap-2 text-[var(--gf-green-deep)]">
                       <span className="truncate">{session.title || formatDateTime(session.dateTime)}</span>
                       <SessionSpecialBadges session={session} />
                     </p>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-sm text-[var(--fg-2)] font-semibold truncate">
                       {locationName} • {kidNames}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[var(--fg-3)] font-medium mt-1">
                       {session.title ? formatDateTime(session.dateTime) : ''}{' '}
                       {formatSessionType(session.type)} •{' '}
                       {session.duration} min
@@ -97,7 +97,7 @@ export function TodaysSessions() {
               );
             })}
             {sessions.length > 5 && (
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-sm text-[var(--fg-2)] font-semibold text-center">
                 +{sessions.length - 5} more sessions
               </p>
             )}

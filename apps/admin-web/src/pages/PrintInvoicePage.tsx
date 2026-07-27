@@ -26,20 +26,20 @@ export function PrintInvoicePage() {
   }, [invoiceId]);
 
   if (error) {
-    return <div className="p-8 text-destructive">{error}</div>;
+    return <div className="p-8 text-red-600 font-semibold">{error}</div>;
   }
 
   if (!invoice) {
-    return <div className="p-8 text-muted-foreground">Loading…</div>;
+    return <div className="p-8 text-[var(--fg-2)] font-semibold">Loading…</div>;
   }
 
   const viewModel = invoiceToPdfViewModel(invoice);
 
   return (
-    <div className="min-h-screen bg-muted/40 p-6 print:bg-transparent print:p-0">
-      <div className="mx-auto max-w-[210mm] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 print:shadow-none print:ring-0 print:rounded-none">
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope p-6 print:bg-transparent print:p-0">
+      <div className="mx-auto max-w-[210mm] overflow-hidden rounded-xl shadow-[2px_2px_0_0_var(--gf-green-deep)] ring-1 ring-black/10 print:shadow-none print:ring-0 print:rounded-none border-2 border-[var(--gf-green-deep)]">
         <div className="mb-4 flex flex-wrap gap-2 p-4 print:hidden">
-          <Button type="button" onClick={() => window.print()}>
+          <Button type="button" onClick={() => window.print()} className="bg-[var(--gf-green)] text-white font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)]">
             Print / Save as PDF
           </Button>
         </div>

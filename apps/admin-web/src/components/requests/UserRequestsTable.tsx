@@ -26,7 +26,7 @@ import { useToast } from '@/hooks/useToast';
 import { formatDate, formatSessionType } from '@/lib/formatters';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ErrorState } from '@/components/common/ErrorState';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -271,40 +271,44 @@ export function UserRequestsTable() {
 
       {/* Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
+        <DialogContent className="max-w-[100vw] sm:max-w-6xl h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[90vh] p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-[4px_4px_0_0_var(--gf-green-deep)] sm:shadow-2xl rounded-none sm:rounded-2xl">
+          <DialogTitle className="sr-only">User Registration Details</DialogTitle>
+          <DialogDescription className="sr-only">View detailed information about this user registration request</DialogDescription>
           {parent && (
             <div className="flex flex-col flex-1 min-h-0">
               {/* Header */}
-              <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-                <div className="flex items-center justify-between">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-2xl font-semibold">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep]" style={{ fontFamily: 'var(--font-display)' }}>
                       {parent.parentProfile?.name || 'N/A'}
                     </h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-muted-foreground">{parent.email}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold">{parent.email}</p>
                       <StatusBadge status={selectedRequest?.status || RequestStatus.PENDING} />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                    <p className="text-[10px] sm:text-xs text-[var(--fg-2)] font-semibold mt-1 flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-[var(--gf-green-deep)]" />
                       Registered {formatDate(parent.createdAt)}
                     </p>
                   </div>
                   {selectedRequest?.status === 'PENDING' && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <Button
                         variant="outline"
                         onClick={() => handleReject(selectedRequest)}
                         disabled={rejectMutation.isPending}
+                        className="flex-1 sm:flex-none rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                         Reject
                       </Button>
                       <Button
                         onClick={() => handleApprove(selectedRequest)}
                         disabled={approveMutation.isPending}
+                        className="flex-1 sm:flex-none rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
                       >
-                        <Check className="h-4 w-4 mr-2" />
+                        <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                         Approve
                       </Button>
                     </div>
@@ -312,17 +316,17 @@ export function UserRequestsTable() {
                 </div>
               </div>
 
-              <div className="flex flex-1 min-h-0 overflow-hidden">
-                {/* Left Sidebar */}
-                <div className="w-80 border-r bg-muted/20 p-6 overflow-y-auto min-h-0">
+              <div className="flex flex-1 min-h-0 overflow-hidden flex-col lg:flex-row">
+                {/* Left Sidebar - hidden on mobile, shown on lg */}
+                <div className="hidden lg:flex lg:flex-col w-80 border-r border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/30 p-4 sm:p-6 overflow-y-auto min-h-0">
                   {/* Profile Section */}
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-sm">Profile</h3>
+                      <h3 className="font-extrabold uppercase tracking-wider text-sm text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Profile</h3>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-16 w-16 flex-shrink-0">
-                        <AvatarFallback className="text-base">
+                      <Avatar className="h-16 w-16 flex-shrink-0 border-2 border-[var(--gf-green-deep)]">
+                        <AvatarFallback className="text-base bg-[var(--gf-green-deep)] text-white font-extrabold">
                           {(parent.parentProfile?.name || 'N/A')
                             .split(' ')
                             .map(n => n[0])
@@ -332,30 +336,30 @@ export function UserRequestsTable() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">{parent.parentProfile?.name || 'N/A'}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Parent Account</p>
+                        <p className="font-semibold text-sm">{parent.parentProfile?.name || 'N/A'}</p>
+                        <p className="text-xs text-[var(--fg-2)] font-semibold mt-0.5">Parent Account</p>
                       </div>
                     </div>
                   </div>
 
-                  <Separator className="my-6" />
+                  <Separator className="my-6 bg-[var(--gf-green-deep)]/10" />
 
                   {/* Contact Section */}
                   <div className="space-y-4 mb-6">
-                    <h3 className="font-semibold text-sm">Contact</h3>
+                    <h3 className="font-extrabold uppercase tracking-wider text-sm text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Contact</h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-sm">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{parent.email}</span>
+                        <Mail className="h-4 w-4 text-[var(--gf-green-deep)]" />
+                        <span className="text-[var(--fg-2)] font-semibold">{parent.email}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{parent.phone}</span>
+                        <Phone className="h-4 w-4 text-[var(--gf-green-deep)]" />
+                        <span className="text-[var(--fg-2)] font-semibold">{parent.phone}</span>
                       </div>
                       {parent.parentProfile?.location && (
                         <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
+                          <MapPin className="h-4 w-4 text-[var(--gf-green-deep)]" />
+                          <span className="text-[var(--fg-2)] font-semibold">
                             {parent.parentProfile.location}
                           </span>
                         </div>
@@ -363,31 +367,31 @@ export function UserRequestsTable() {
                     </div>
                   </div>
 
-                  <Separator className="my-6" />
+                  <Separator className="my-6 bg-[var(--gf-green-deep)]/10" />
 
                   {/* Highlights Section */}
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-sm">Highlights</h3>
+                    <h3 className="font-extrabold uppercase tracking-wider text-sm text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Highlights</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Total Kids</span>
-                        <span className="text-muted-foreground">{kids.length}</span>
+                        <span className="text-[var(--fg-2)] font-semibold">Total Kids</span>
+                        <span className="text-[var(--fg-2)] font-semibold">{kids.length}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">In Sports</span>
-                        <span className="text-muted-foreground">
+                        <span className="text-[var(--fg-2)] font-semibold">In Sports</span>
+                        <span className="text-[var(--fg-2)] font-semibold">
                           {kids.filter(k => k.currentlyInSports).length}
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Private Sessions</span>
-                        <span className="text-muted-foreground">
+                        <span className="text-[var(--fg-2)] font-semibold">Private Sessions</span>
+                        <span className="text-[var(--fg-2)] font-semibold">
                           {kids.filter(k => k.sessionType === 'INDIVIDUAL').length}
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Group Sessions</span>
-                        <span className="text-muted-foreground">
+                        <span className="text-[var(--fg-2)] font-semibold">Group Sessions</span>
+                        <span className="text-[var(--fg-2)] font-semibold">
                           {kids.filter(k => k.sessionType === 'GROUP').length}
                         </span>
                       </div>
@@ -396,130 +400,130 @@ export function UserRequestsTable() {
                 </div>
 
                 {/* Right Main Content */}
-                <div className="flex-1 overflow-y-auto p-6">
-                  <Tabs defaultValue="overview" className="w-full">
-                    <TabsList>
-                      <TabsTrigger value="overview">Overview</TabsTrigger>
-                      <TabsTrigger value="children">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+                  <Tabs defaultValue="overview" className="w-full flex flex-col">
+                    <TabsList className="bg-[var(--gf-green-50)]/30 border-2 border-[var(--gf-green-deep)]/30 h-10 grid grid-cols-2 lg:grid-cols-1 lg:flex w-full lg:w-auto">
+                      <TabsTrigger value="overview" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">Overview</TabsTrigger>
+                      <TabsTrigger value="children" className="font-extrabold uppercase tracking-wider text-xs sm:text-sm text-[var(--gf-green-deep)] data-[state=active]:bg-[var(--gf-green-deep)] data-[state=active]:text-white">
                         Children {kids.length > 0 && `(${kids.length})`}
                       </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="mt-6 space-y-6">
+                    <TabsContent value="overview" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-6 space-y-3 sm:space-y-6">
                       {/* About Section */}
                       <div>
-                        <h3 className="font-semibold mb-3">About</h3>
+                        <h3 className="font-extrabold uppercase tracking-wider mb-3 text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>About</h3>
                         <div className="space-y-4">
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">Name</h4>
-                            <p className="text-sm">{parent.parentProfile?.name || 'N/A'}</p>
+                            <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">Name</h4>
+                            <p className="text-sm font-semibold">{parent.parentProfile?.name || 'N/A'}</p>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
                               Email
                             </h4>
-                            <p className="text-sm">{parent.email}</p>
+                            <p className="text-sm font-semibold">{parent.email}</p>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
                               Phone
                             </h4>
-                            <p className="text-sm">{parent.phone}</p>
+                            <p className="text-sm font-semibold">{parent.phone}</p>
                           </div>
                           {parent.parentProfile?.location && (
                             <div>
-                              <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                              <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
                                 Location
                               </h4>
-                              <p className="text-sm">{parent.parentProfile.location}</p>
+                              <p className="text-sm font-semibold">{parent.parentProfile.location}</p>
                             </div>
                           )}
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
                               Status
                             </h4>
                             <StatusBadge status={parent.status} />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-semibold text-[var(--fg-2)] mb-1">
                               Member Since
                             </h4>
-                            <p className="text-sm">{formatDate(parent.createdAt)}</p>
+                            <p className="text-sm font-semibold">{formatDate(parent.createdAt)}</p>
                           </div>
                         </div>
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="children" className="mt-6">
+                    <TabsContent value="children" className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-6">
                       {kids.length === 0 ? (
-                        <div className="text-center py-12">
-                          <Baby className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                          <p className="text-sm text-muted-foreground">
+                        <div className="text-center py-8 sm:py-12">
+                          <Baby className="h-8 w-8 sm:h-12 sm:w-12 text-[var(--gf-green-deep)] mx-auto mb-2 sm:mb-4" />
+                          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold">
                             No children registered yet
                           </p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {kids.map((kid, index) => (
-                            <Card key={kid.id || index} className="overflow-hidden">
+                            <Card key={kid.id || index} className="overflow-hidden border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-paper)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                               <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
-                                  <CardTitle className="text-lg flex items-center gap-2">
-                                    <Baby className="h-4 w-4" />
+                                  <CardTitle className="text-lg font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] flex items-center gap-2" style={{ fontFamily: 'var(--font-display)' }}>
+                                    <Baby className="h-4 w-4 text-[var(--gf-green-deep)]" />
                                     {kid.name}
                                   </CardTitle>
-                                  <Badge variant="outline">{kid.gender}</Badge>
+                                  <Badge variant="outline" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)]">{kid.gender}</Badge>
                                 </div>
                               </CardHeader>
                               <CardContent className="space-y-3">
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                   <div>
-                                    <p className="text-muted-foreground text-xs">Birth Date</p>
-                                    <p className="font-medium">{formatDate(kid.birthDate)}</p>
+                                    <p className="text-[var(--fg-2)] font-semibold text-xs">Birth Date</p>
+                                    <p className="font-semibold">{formatDate(kid.birthDate)}</p>
                                   </div>
                                   <div>
-                                    <p className="text-muted-foreground text-xs">Session Type</p>
-                                    <p className="font-medium">
+                                    <p className="text-[var(--fg-2)] font-semibold text-xs">Session Type</p>
+                                    <p className="font-semibold">
                                       {formatSessionType(kid.sessionType)}
                                     </p>
                                   </div>
                                 </div>
 
                                 {kid.goal && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
-                                    <Target className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                  <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
+                                    <Target className="h-4 w-4 text-[var(--gf-green-deep)] mt-0.5 flex-shrink-0" />
                                     <div>
-                                      <p className="text-xs text-muted-foreground mb-1">Goal</p>
-                                      <p className="text-sm">{kid.goal}</p>
+                                      <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Goal</p>
+                                      <p className="text-sm font-semibold">{kid.goal}</p>
                                     </div>
                                   </div>
                                 )}
 
-                                <div className="flex items-center gap-4 pt-2 border-t">
+                                <div className="flex items-center gap-4 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                   <div className="flex items-center gap-2">
                                     <Activity
                                       className={`h-4 w-4 ${
                                         kid.currentlyInSports
-                                          ? 'text-green-600'
-                                          : 'text-muted-foreground'
+                                          ? 'text-[var(--gf-green-deep)]'
+                                          : 'text-[var(--fg-2)]'
                                       }`}
                                     />
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-xs font-semibold text-[var(--fg-2)]">
                                       {kid.currentlyInSports ? 'In Sports' : 'Not in Sports'}
                                     </span>
                                   </div>
                                 </div>
 
                                 {kid.medicalConditions && kid.medicalConditions.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
+                                  <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                     <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                     <div>
-                                      <p className="text-xs text-muted-foreground mb-1">
+                                      <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                                         Medical Conditions
                                       </p>
                                       <div className="flex flex-wrap gap-1">
                                         {kid.medicalConditions.map((condition, idx) => (
-                                          <Badge key={idx} variant="secondary" className="text-xs">
+                                          <Badge key={idx} variant="secondary" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] bg-[var(--gf-green-deep)] text-white text-xs">
                                             {condition}
                                           </Badge>
                                         ))}
@@ -529,13 +533,13 @@ export function UserRequestsTable() {
                                 )}
 
                                 {kid.achievements && kid.achievements.length > 0 && (
-                                  <div className="flex items-start gap-2 pt-2 border-t">
+                                  <div className="flex items-start gap-2 pt-2 border-t border-[var(--gf-green-deep)]/10">
                                     <Award className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                                     <div>
-                                      <p className="text-xs text-muted-foreground mb-1">
+                                      <p className="text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                                         Achievements
                                       </p>
-                                      <p className="text-xs">
+                                      <p className="text-xs font-semibold">
                                         {kid.achievements.length} achievement(s)
                                       </p>
                                     </div>

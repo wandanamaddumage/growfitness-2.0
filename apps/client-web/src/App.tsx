@@ -19,7 +19,8 @@ import { Toaster } from "./components/ui/toaster";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProgramsPage from "./pages/ProgramsPage";
 import AboutPage from "./pages/AboutPage";
-import PreschoolPage from "./pages/ PreschoolPage";
+import PreschoolPage from "./pages/PreschoolPage";
+
 
 // Dashboard wrapper (unchanged)
 function DashboardWrapper() {

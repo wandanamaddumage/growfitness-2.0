@@ -22,7 +22,8 @@
       "@shared/types": ["../../packages/shared-types/src/index.ts"],
       "@shared/schemas": ["../../packages/shared-schemas/src/index.ts"],
       "@grow-fitness/shared-types": ["../../packages/shared-types/src/index.ts"],
-      "@grow-fitness/shared-schemas": ["../../packages/shared-schemas/src/index.ts"]
+      "@grow-fitness/shared-schemas": ["../../packages/shared-schemas/src/index.ts"],
+      "@grow-fitness/invoice-print": ["../../packages/invoice-print/src/index-browser.ts"]
     }
   },
   "include": ["src"],

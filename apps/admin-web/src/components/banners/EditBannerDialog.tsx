@@ -105,13 +105,13 @@ export function EditBannerDialog({ open, onOpenChange, banner: bannerProp }: Edi
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="p-0 flex flex-col max-h-[90vh]">
+      <DialogContent className="p-0 flex flex-col max-h-[90vh] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Sticky Header */}
-          <div className="pb-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="pb-3 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
             <DialogHeader className="space-y-1 px-6 pt-6">
-              <DialogTitle className="text-xl">Edit Banner</DialogTitle>
-              <DialogDescription className="text-sm">Update banner information</DialogDescription>
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Edit Banner</DialogTitle>
+              <DialogDescription className="text-sm text-[var(--fg-2)] font-semibold">Update banner information</DialogDescription>
             </DialogHeader>
           </div>
 
@@ -155,12 +155,12 @@ export function EditBannerDialog({ open, onOpenChange, banner: bannerProp }: Edi
           </div>
 
           {/* Sticky Footer */}
-          <div className="px-6 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 flex-shrink-0">
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                 Cancel
               </Button>
-              <Button type="submit" form="edit-banner-form" disabled={updateMutation.isPending}>
+              <Button type="submit" form="edit-banner-form" disabled={updateMutation.isPending} className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200">
                 {updateMutation.isPending ? 'Updating...' : 'Update'}
               </Button>
             </div>

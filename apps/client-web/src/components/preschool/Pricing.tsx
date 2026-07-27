@@ -10,7 +10,7 @@ export default function Pricing() {
   
   return (
     <section style={{ background: "var(--gf-cream)" }}>
-      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20 grid md:grid-cols-2 gap-14 items-center">
+      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-20 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
         <div>
           <span
             className="gf-eyebrow inline-block text-md font-bold mb-8"

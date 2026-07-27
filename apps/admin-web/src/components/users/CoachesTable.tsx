@@ -230,13 +230,13 @@ export function CoachesTable() {
             key={`coach-search-${searchInputKey}`}
             placeholder="Search coaches..."
             onSearch={setSearch}
-            className="max-w-sm"
+            className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl"
           />
           <Select
             value={statusFilter}
             onValueChange={value => setStatusFilter(value as UserStatus | 'ALL')}
           >
-            <SelectTrigger className="w-[150px]">
+             <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -249,7 +249,7 @@ export function CoachesTable() {
             value={employmentTypeFilter}
             onValueChange={value => setEmploymentTypeFilter(value as EmploymentType | 'ALL')}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full text-sm sm:w-[200px] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] text-[var(--gf-green-deep)] font-semibold rounded-xl">
               <SelectValue placeholder="Employment Type" />
             </SelectTrigger>
             <SelectContent>
@@ -264,10 +264,19 @@ export function CoachesTable() {
           <ClearFiltersButton onClear={clearAllFilters} disabled={!hasActiveFilters} />
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => openModal(null, 'create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Coach
-          </Button>
+          <button 
+              onClick={() => openModal(null, 'create')}
+              className="gf-btn-pop relative px-5 py-2 mb-10" 
+              style={{ 
+                marginTop: 36, 
+                background: "var(--fg-2)", 
+                color: "white", 
+                boxShadow: "0 6px 0 var(--gf-green-deep)", 
+                fontSize: 16, 
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Coach
+            </button>
         </div>
       </div>
 

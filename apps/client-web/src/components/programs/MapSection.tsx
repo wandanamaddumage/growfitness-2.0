@@ -132,13 +132,13 @@ export function MapSection() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
           <div
-            className="relative h-96 overflow-hidden rounded-3xl"
+            className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-3xl"
             style={{ backgroundColor: "#16281f", border: "1px solid rgba(255,255,255,0.06)" }}
           >
             <MapContainer
               center={[6.89, 79.87]}
               zoom={13}
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: '100%', width: '100%', zIndex: 0 }}
               zoomControl={false}
               attributionControl={false}
             >
@@ -199,19 +199,41 @@ export function MapSection() {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            {locations.map((location) => (
-              <a href={location.link} target="_blank" rel="noopener noreferrer">
-              <div key={location.id} id={location.id}>
-                <LocationRow 
-                  name={location.label} 
-                  sub={location.sub} 
-                  sessionType={location.sessionType}
-                />
-                <div className="text-right">
-                </div>
-              </div>
-              </a>
-            ))}
+            {/* Group Training Section */}
+            <p className="text-lg font-extrabold mb-1 uppercase" style={{ color: "var(--gf-sun)" }}>Group Training</p>
+            {locations
+              .filter((location) => location.sessionType === "group")
+              .map((location) => (
+                <a key={location.id} href={location.link} target="_blank" rel="noopener noreferrer">
+                  <div id={location.id}>
+                    <LocationRow 
+                      name={location.label} 
+                      sub={location.sub} 
+                      sessionType={location.sessionType}
+                    />
+                    <div className="text-right"></div>
+                  </div>
+                </a>
+              ))}
+
+            {/* Personal Training Section */}
+             <p className="text-lg font-extrabold my-1 uppercase mt-2"  style={{
+              color: "var(--gf-leaf)",
+            }}>Personal Training</p>
+            {locations
+              .filter((location) => location.sessionType === "personal")
+              .map((location) => (
+                <a key={location.id} href={location.link} target="_blank" rel="noopener noreferrer">
+                  <div id={location.id}>
+                    <LocationRow 
+                      name={location.label} 
+                      sub={location.sub} 
+                      sessionType={location.sessionType}
+                    />
+                    <div className="text-right"></div>
+                  </div>
+                </a>
+              ))}
           </div>
         </div>
       </div>

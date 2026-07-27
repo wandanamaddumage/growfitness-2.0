@@ -60,6 +60,7 @@ import { EmptyState } from './EmptyState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Card } from '../ui/card';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -126,6 +127,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
+    <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden p-6">
     <div className={cn('rounded-md border', className)}>
       <Table>
         <TableHeader>
@@ -190,5 +192,6 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
+    </Card>
   );
 }

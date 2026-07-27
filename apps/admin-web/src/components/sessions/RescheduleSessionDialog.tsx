@@ -43,26 +43,26 @@ function getCoachLabel(session: Session): string {
 
 function SessionSummaryCard({ session }: { session: Session }) {
   return (
-    <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <CalendarClock className="h-4 w-4 text-muted-foreground shrink-0" />
+    <div className="rounded-xl border-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)]/30 p-4 space-y-3">
+      <div className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+        <CalendarClock className="h-4 w-4 text-[var(--gf-green-deep)] shrink-0" />
         Current schedule
       </div>
       <dl className="grid gap-2.5 text-sm">
         <div className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1">
-          <dt className="text-muted-foreground">Session</dt>
-          <dd className="font-medium text-foreground">{session.title || 'Untitled session'}</dd>
+          <dt className="text-[var(--fg-2)] font-semibold">Session</dt>
+          <dd className="font-semibold text-[var(--fg-2)]">{session.title || 'Untitled session'}</dd>
         </div>
         <div className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1">
-          <dt className="text-muted-foreground flex items-center gap-1">
-            <User className="h-3.5 w-3.5 shrink-0" />
+          <dt className="text-[var(--fg-2)] font-semibold flex items-center gap-1">
+            <User className="h-3.5 w-3.5 text-[var(--gf-green-deep)] shrink-0" />
             Coach
           </dt>
-          <dd className="font-medium text-foreground">{getCoachLabel(session)}</dd>
+          <dd className="font-semibold text-[var(--fg-2)]">{getCoachLabel(session)}</dd>
         </div>
         <div className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1">
-          <dt className="text-muted-foreground">When</dt>
-          <dd className="font-medium text-foreground">{formatDateTime(session.dateTime)}</dd>
+          <dt className="text-[var(--fg-2)] font-semibold">When</dt>
+          <dd className="font-semibold text-[var(--fg-2)]">{formatDateTime(session.dateTime)}</dd>
         </div>
       </dl>
     </div>
@@ -161,12 +161,12 @@ export function RescheduleSessionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg p-0 flex flex-col">
+      <DialogContent className="max-w-lg p-0 flex flex-col border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         <div className="flex flex-col flex-1 min-h-0">
-          <div className="border-b bg-muted/30 flex-shrink-0 pb-3">
+          <div className="border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0 pb-3">
             <DialogHeader className="space-y-1 px-6 pt-6 pr-12">
-              <DialogTitle className="text-xl">Reschedule Session</DialogTitle>
-              <DialogDescription className="text-sm">
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Reschedule Session</DialogTitle>
+              <DialogDescription className="text-sm text-[var(--fg-2)] font-semibold">
                 Update the session date and time. Coach and parents will be notified immediately.
               </DialogDescription>
             </DialogHeader>
@@ -206,13 +206,14 @@ export function RescheduleSessionDialog({
             </form>
           </div>
 
-          <div className="px-6 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 flex-shrink-0">
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
                 disabled={rescheduleMutation.isPending}
+                className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
               >
                 Cancel
               </Button>
@@ -225,6 +226,7 @@ export function RescheduleSessionDialog({
                   isSameDateTime ||
                   rescheduleMutation.isPending
                 }
+                className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
               >
                 {rescheduleMutation.isPending ? 'Saving…' : 'Reschedule'}
               </Button>

@@ -149,15 +149,15 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[90vh] border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Sticky Header */}
-          <div className="pb-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="pb-3 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] flex-shrink-0">
             <DialogHeader className="space-y-1 px-6 pt-6">
-              <DialogTitle className="text-xl">
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
                 {step === 1 ? 'Create Parent - Step 1' : 'Create Parent - Step 2'}
               </DialogTitle>
-              <DialogDescription className="text-sm">
+              <DialogDescription className="text-sm text-[var(--fg-2)] font-semibold">
                 {step === 1 ? 'Enter parent information' : 'Enter kids information'}
               </DialogDescription>
             </DialogHeader>
@@ -243,15 +243,16 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
             ) : (
               <>
                 {fields.map((field, index) => (
-                  <div key={field.id} className="space-y-4 p-4 border rounded-lg">
+                  <div key={field.id} className="space-y-4 p-4 border-2 border-[var(--gf-green-deep)]/30 rounded-xl bg-[var(--gf-green-50)]/30">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium">Kid {index + 1}</h3>
+                      <h3 className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Kid {index + 1}</h3>
                       {fields.length > 1 && (
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
                           onClick={() => remove(index)}
+                          className="hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -429,6 +430,7 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
                       sessionType: SessionType.INDIVIDUAL,
                     })
                   }
+                  className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)] transition-all duration-200"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Another Kid
@@ -440,19 +442,19 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
           </div>
 
           {/* Sticky Footer */}
-          <div className="px-6 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 flex-shrink-0">
             <div className="flex justify-between">
               {step === 2 && (
-                <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                   Back
                 </Button>
               )}
               <div className="flex gap-2 ml-auto">
-                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200">
                   Cancel
                 </Button>
                 {step === 1 ? (
-                  <Button type="button" onClick={handleNext}>
+                  <Button type="button" onClick={handleNext} className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200">
                     Next
                   </Button>
                 ) : (
@@ -460,6 +462,7 @@ export function CreateParentDialog({ open, onOpenChange }: CreateParentDialogPro
                     type="submit"
                     form="create-parent-form"
                     disabled={createMutation.isPending}
+                    className="rounded-xl px-4 py-2 text-sm text-white font-extrabold uppercase tracking-wider bg-[var(--gf-green-deep)] border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_var(--gf-green-deep)] active:translate-y-[1px] active:shadow-[0_0_0_0_var(--gf-green-deep)] transition-all duration-200"
                   >
                     {createMutation.isPending ? 'Creating...' : 'Create Parent'}
                   </Button>

@@ -116,7 +116,7 @@ export default function WhatWeActuallyDo() {
         </div>
 
         {/* Outcomes */}
-        <div className="grid md:grid-cols-[280px_1fr] gap-16 items-start mt-32">
+        <div className="grid md:grid-cols-[280px_1fr] gap-8 md:gap-16 items-start mt-16 md:mt-32">
           <div>
             <span
               className="gf-eyebrow inline-block mb-5 font-bold text-sm"

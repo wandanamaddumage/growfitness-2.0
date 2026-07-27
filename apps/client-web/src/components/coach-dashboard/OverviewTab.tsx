@@ -48,7 +48,7 @@ export function OverviewTab() {
       <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
         <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
           <CardTitle className="text-[var(--gf-green-deep)] text-lg sm:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
-            <Calendar className="mr-2 h-5 w-5 text-[var(--gf-green)]" />
+            <Calendar className="mr-2 h-5 w-5 text-[var(--gf-green-deep)]" />
             Upcoming Sessions
           </CardTitle>
         </CardHeader>
@@ -60,7 +60,7 @@ export function OverviewTab() {
       <Card className="border-2 border-[var(--gf-green-deep)] shadow-[4px_4px_0_0_var(--gf-green-deep)] bg-[var(--gf-paper)] rounded-2xl overflow-hidden">
         <CardHeader className="bg-[var(--gf-green-50)]/40 border-b border-[var(--line)]">
           <CardTitle className="text-[var(--gf-green-deep)] text-lg sm:text-xl flex items-center font-extrabold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
-            <UserIcon className="mr-2 h-5 w-5 text-[var(--gf-green)]" />
+            <UserIcon className="mr-2 h-5 w-5 text-[var(--gf-green-deep)]" />
             Coach Profile Summary
           </CardTitle>
         </CardHeader>
@@ -78,10 +78,10 @@ export function OverviewTab() {
                     <img
                       src={coach.coachProfile.photoUrl}
                       alt=""
-                      className="h-12 w-12 rounded-full border-2 border-[var(--gf-green-deep)] object-cover shadow-sm"
+                      className="h-12 w-12 rounded-full border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] object-cover"
                     />
                   ) : (
-                    <div className="h-12 w-12 bg-[var(--gf-green-50)] rounded-full flex items-center justify-center border-2 border-[var(--gf-green-deep)]">
+                    <div className="h-12 w-12 bg-[var(--gf-green-50)] rounded-full flex items-center justify-center border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                       <UserIcon className="h-6 w-6 text-[var(--gf-green)]" />
                     </div>
                   )}
@@ -94,7 +94,7 @@ export function OverviewTab() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
+                <div className="flex flex-wrap gap-2">
                   <Badge
                     className={
                       coach?.status === 'ACTIVE'

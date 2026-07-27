@@ -34,31 +34,31 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Grow Fitness Platform Overview</p>
+    <div className="min-h-screen bg-[var(--gf-cream)] gf-scope pb-8 pt-5 sm:px-6 sm:pt-5">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="text-start space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Dashboard</h1>
+          <p className="text-xs sm:text-sm text-[var(--fg-2)] font-semibold mt-0.5">Grow Fitness Platform Overview</p>
         </div>
-      </div>
 
-      {stats && <DashboardStatsCards stats={stats} />}
+        {stats && <DashboardStatsCards stats={stats} />}
 
-      <div className="grid gap-6 grid-cols-1">
-        <TodaysSessions />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <WeeklySessionsChart data={weeklySessions || []} isLoading={weeklyLoading} />
+        <div className="grid gap-6 grid-cols-1">
+          <TodaysSessions />
         </div>
-        <div className="space-y-6">
-          <RecentStudents />
-        </div>
-      </div>
 
-      <div className="grid gap-6 grid-cols-1">
-        <RecentActivity />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <WeeklySessionsChart data={weeklySessions || []} isLoading={weeklyLoading} />
+          </div>
+          <div className="space-y-6">
+            <RecentStudents />
+          </div>
+        </div>
+
+        <div className="grid gap-6 grid-cols-1">
+          <RecentActivity />
+        </div>
       </div>
     </div>
   );

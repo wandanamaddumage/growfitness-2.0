@@ -5,7 +5,7 @@ export default function Testimonial() {
     <section style={{ background: "var(--gf-green)" }}>
       <div className="mx-auto max-w-4xl px-6 py-16 text-center">
         <Circle size={54} className="mx-auto mb-6 text-white" fill="#fff" />
-        <p className="gf-h-display text-white text-4xl md:text-4xl font-bold leading-snug mb-7">
+        <p className="gf-h-display text-white text-3xl sm:text-4xl md:text-4xl font-bold leading-snug mb-7">
           &ldquo;I was nervous to introduce something new mid-term. Within two
           sessions, kids were asking when Grow was coming back.&rdquo;
         </p>

@@ -20,7 +20,8 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@grow-fitness/invoice-print": ["../../packages/invoice-print/src/index-browser.ts"]
     },
 
     /* Linting */

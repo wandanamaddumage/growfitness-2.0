@@ -40,10 +40,10 @@ export function ReadOnlyProfilePhoto({
   const showImage = Boolean(imageSrc) && !imageFailed;
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start rounded-lg border bg-muted/30 p-4">
+    <div className="flex flex-col items-center gap-4 rounded-xl bg-[var(--gf-green-50)]/30 border border-[var(--line)] p-6">
       <div
         className={cn(
-          'relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-background bg-muted shadow-sm'
+          'relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] bg-[var(--gf-green-50)]'
         )}
       >
         {showImage ? (
@@ -55,12 +55,14 @@ export function ReadOnlyProfilePhoto({
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <span className="text-lg font-medium text-muted-foreground">{fallback}</span>
+          <span className="text-lg font-extrabold text-[var(--gf-green-deep)]">{fallback}</span>
         )}
       </div>
-      <div className="flex-1 space-y-1 w-full sm:w-auto text-center sm:text-left">
-        <Label className="text-base">Profile photo</Label>
-        <p className="text-sm text-muted-foreground">{helperText}</p>
+      <div className="flex-1 space-y-1 w-full text-center">
+        <Label className="text-base font-extrabold text-[var(--gf-green-deep)] uppercase tracking-wider block" style={{ fontFamily: 'var(--font-display)' }}>
+          Profile photo
+        </Label>
+        <p className="text-sm font-semibold text-[var(--fg-2)]">{helperText}</p>
       </div>
     </div>
   );

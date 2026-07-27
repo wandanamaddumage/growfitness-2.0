@@ -235,7 +235,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                       photoUrl={headerPhotoUrl}
                       displayName={headerDisplayName}
                       email={user?.email}
-                      className="size-9 cursor-pointer border-2 border-solid border-[var(--gf-green)]"
+                      className="size-9 border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)] object-cover"
                     />
                   </button>
 
@@ -349,6 +349,22 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                     }}
                   >
                     Dashboard
+                  </Button>
+
+                   <Button
+                    variant="outline"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/payments');
+                    }}
+                    className="rounded-full"
+                    style={{
+                      borderColor: 'var(--line)',
+                      color: 'var(--fg-1)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    Invoice
                   </Button>
 
                   <Button

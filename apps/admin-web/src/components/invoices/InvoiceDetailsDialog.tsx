@@ -111,11 +111,11 @@ export function InvoiceDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <div className="flex flex-col gap-3 border-b pl-6 pr-14 py-4 shrink-0">
+      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col gap-0 p-0 overflow-hidden border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl rounded-2xl">
+        <div className="flex flex-col gap-3 border-b-2 border-[var(--gf-green-deep)]/30 bg-[var(--gf-green-50)] pl-6 pr-14 py-4 shrink-0">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 sm:justify-start">
             <DialogHeader className="space-y-1 text-left m-0 p-0 flex-1 min-w-0">
-              <DialogTitle>Invoice</DialogTitle>
+              <DialogTitle className="text-xl font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>Invoice</DialogTitle>
             </DialogHeader>
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Button
@@ -124,6 +124,7 @@ export function InvoiceDetailsDialog({
                 size="sm"
                 disabled={isDownloading || isSending}
                 onClick={() => void handleDownload()}
+                className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
               >
                 <Download className="h-4 w-4 mr-2" />
                 {isDownloading ? 'Downloading…' : 'Download PDF'}
@@ -143,6 +144,7 @@ export function InvoiceDetailsDialog({
                       : `Send PDF to ${recipientEmail}`
                 }
                 onClick={() => void handleSendEmail()}
+                className="rounded-xl px-4 py-2 text-sm text-[var(--gf-green-deep)] font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] hover:bg-[var(--fg-6)] transition-all duration-200"
               >
                 <Mail className="h-4 w-4 mr-2" />
                 {isSending ? 'Sending…' : pdfAlreadySent ? 'Sent' : 'Send'}
@@ -150,28 +152,28 @@ export function InvoiceDetailsDialog({
             </div>
           </div>
           {recipientEmail ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[var(--fg-2)] font-semibold">
               Invoice PDF will be sent to {recipientEmail}
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[var(--fg-2)] font-semibold">
               No email on file for this invoice recipient. Send is unavailable.
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">PDF email:</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--fg-2)] font-semibold">
+            <span className="font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>PDF email:</span>
             {invoice.pdfEmailedAt ? (
               <span>Sent {formatDateTime(invoice.pdfEmailedAt)}</span>
             ) : (
-              <Badge variant="outline" className="font-normal text-xs">
+              <Badge variant="outline" className="font-extrabold uppercase tracking-wider border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)] text-xs">
                 Not sent yet
               </Badge>
             )}
           </div>
         </div>
 
-        <div className="flex flex-1 min-h-0 flex-col overflow-auto bg-muted/40 p-4">
-          <div className="mx-auto w-full max-w-[210mm] shrink-0 overflow-hidden rounded-md shadow-md ring-1 ring-black/10">
+        <div className="flex flex-1 min-h-0 flex-col overflow-auto bg-[var(--gf-green-50)]/30 p-4">
+          <div className="mx-auto w-full max-w-[210mm] shrink-0 overflow-hidden rounded-xl border-2 border-[var(--gf-green-deep)]/30 shadow-[2px_2px_0_0_var(--gf-green-deep)] ring-1 ring-[var(--gf-green-deep)]/20">
             <InvoiceTemplatePrint data={pdfViewModel} />
           </div>
         </div>

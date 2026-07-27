@@ -35,24 +35,24 @@ export function ProgramCards() {
              <img
               src="/images/Grow VI Elements/Icons/Heart g.png"
               alt="Mix Abs"
-              className="absolute w-[90px] pointer-events-none"
+              className="absolute w-[60px] sm:w-[90px] pointer-events-none"
               style={{ right: 20, top: 20 }}
             />
             <p className="text-xs font-bold uppercase tracking-widest text-white/80">Group Sessions</p>
             <h3
-              className="mt-2 text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
+              className="mt-2 text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               For kids who want a fun way to start fitness.
             </h3>
-            <div className="mt-4 flex gap-2">
-              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>Ages 4 to 12</div>
-              <div className="px-4 py-1 font-bold bg-green-100/10 rounded-full" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>1 hr per session</div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <div className="px-3 py-1 sm:px-4 sm:py-1 font-bold bg-green-100/10 rounded-full text-sm" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>Ages 4 to 12</div>
+              <div className="px-3 py-1 sm:px-4 sm:py-1 font-bold bg-green-100/10 rounded-full text-sm" style={{ backgroundColor: "var(--fg-4)", color: "var(--gf-cream)", position: 'relative', zIndex: 1}}>1 hr per session</div>
             </div>
             <img
               src="/images/Grow VI Elements/Icons/Mix abs 2.png"
               alt="Mix Abs"
-              className="absolute w-[200px] opacity-30 pointer-events-none"
+              className="absolute w-[150px] sm:w-[200px] opacity-30 pointer-events-none"
               style={{ right: 10, bottom: -20 }}
             />
           </div>
@@ -138,29 +138,29 @@ export function ProgramCards() {
             <img
               src="/images/Grow VI Elements/Icons/Cup y.png"
               alt="Mix Abs"
-              className="absolute w-[90px] pointer-events-none"
+              className="absolute w-[60px] sm:w-[90px] pointer-events-none"
               style={{ right: 20, top: 20 }}
             />
             <Pill variant="sun" className="mb-3">
               <Plus size={12} strokeWidth={3} /> 1-ON-1
             </Pill>
              <h3
-              className="mt-2 text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
+              className="mt-2 text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase leading-tight text-white text-left w-2/3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               For kids who need individual attention
             </h3>
             <div className="mt-4 flex flex-wrap gap-2">
-              <div className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>Weekday sessions</div>
-              <div className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>1 hr / session</div>
+              <div className="px-3 py-1 rounded-full text-xs sm:text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>Weekday sessions</div>
+              <div className="px-3 py-1 rounded-full text-xs sm:text-sm font-bold" style={{ backgroundColor: "var(--fg-2)", color: "var(--gf-leaf)" }}>1 hr / session</div>
             </div>
             <div className="mt-3 text-md">
-              <Pill variant="sun" className="text-md">Under 4 or over 18? Start here.</Pill>
+              <Pill variant="sun" className="text-xs sm:text-md">Under 4 or over 18? Start here.</Pill>
             </div>
             <img
               src="/images/Grow VI Elements/Icons/Mix abs.png"
               alt="Mix Abs"
-              className="absolute w-[200px] opacity-30 pointer-events-none"
+              className="absolute w-[150px] sm:w-[200px] opacity-30 pointer-events-none"
               style={{ right: -30, bottom: -30 }}
             />
           </div>

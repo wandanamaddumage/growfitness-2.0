@@ -14,9 +14,12 @@ export default defineConfig({
       '@grow-fitness/shared-schemas': path.resolve(__dirname, '../../packages/shared-schemas/src/index.ts'),
       '@grow-fitness/invoice-print': path.resolve(
         __dirname,
-        '../../packages/invoice-print/src/index.ts'
+        '../../packages/invoice-print/src/index-browser.ts'
       ),
     },
+  },
+  build: {
+    chunkSizeWarningLimit: 3000,
   },
   optimizeDeps: {
     include: ['@grow-fitness/shared-types'],

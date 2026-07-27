@@ -297,12 +297,12 @@ export function NotificationBell() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-10 w-10 rounded-full hover:bg-emerald-50 transition-colors"
+            className="relative h-10 w-10 rounded-full hover:bg-[var(--gf-green-50)] transition-colors"
             aria-label="Notifications"
           >
-            <Bell className="h-5 w-5 text-emerald-700" />
+            <Bell className="h-5 w-5 text-[var(--gf-green-deep)]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-semibold text-white ring-2 ring-white shadow-sm">
+              <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--gf-green-deep)] px-1 text-[10px] font-extrabold text-white ring-2 ring-white shadow-sm">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -312,17 +312,17 @@ export function NotificationBell() {
         <DropdownMenuContent
           align="end"
           sideOffset={8}
-          className="w-[380px] p-0 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-xl shadow-emerald-900/10"
+          className="w-[380px] p-0 overflow-hidden rounded-2xl border-2 border-[var(--gf-green-deep)] bg-[var(--gf-paper)] shadow-2xl"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-50 to-white border-b border-emerald-100">
+          <div className="flex items-center justify-between px-5 py-4 bg-[var(--gf-green-50)] border-b-2 border-[var(--gf-green-deep)]/30">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--gf-green-deep)] text-white shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 <Bell className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-emerald-900 leading-none">Notifications</h3>
-                <p className="text-[11px] text-emerald-700/70 mt-1">
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] leading-none" style={{ fontFamily: 'var(--font-display)' }}>Notifications</h3>
+                <p className="text-[11px] text-[var(--fg-2)] font-semibold mt-1">
                   {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
                 </p>
               </div>
@@ -333,7 +333,7 @@ export function NotificationBell() {
                 <button
                   type="button"
                   onClick={() => markAllReadMutation.mutate(undefined!)}
-                  className="rounded-md px-2 py-1 font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+                  className="rounded-xl px-2 py-1 font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)] transition-colors"
                 >
                   Mark all read
                 </button>
@@ -344,7 +344,7 @@ export function NotificationBell() {
                   onClick={() => {
                     void handleClearAll();
                   }}
-                  className="rounded-md px-2 py-1 font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="rounded-xl px-2 py-1 font-extrabold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors"
                 >
                   Clear all
                 </button>
@@ -353,14 +353,14 @@ export function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="max-h-[60vh] overflow-y-auto divide-y divide-emerald-50">
+          <div className="max-h-[60vh] overflow-y-auto divide-y divide-[var(--gf-green-deep)]/10">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 mb-3">
-                  <Bell className="h-6 w-6 text-emerald-400" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gf-green-50)] mb-3">
+                  <Bell className="h-6 w-6 text-[var(--gf-green-deep)]" />
                 </div>
-                <p className="text-sm font-medium text-emerald-900">You're all caught up</p>
-                <p className="text-xs text-emerald-700/60 mt-1">New notifications will appear here</p>
+                <p className="text-sm font-extrabold text-[var(--gf-green-deep)]" style={{ fontFamily: 'var(--font-display)' }}>You're all caught up</p>
+                <p className="text-xs text-[var(--fg-2)] font-semibold mt-1">New notifications will appear here</p>
               </div>
             ) : (
               notifications.map(n => (
@@ -369,8 +369,8 @@ export function NotificationBell() {
                   role="button"
                   tabIndex={0}
                   className={cn(
-                    'group relative flex gap-3 px-5 py-4 transition-colors cursor-pointer hover:bg-emerald-50/60',
-                    !n.read && 'bg-emerald-50/30'
+                    'group relative flex gap-3 px-5 py-4 transition-colors cursor-pointer hover:bg-[var(--gf-green-50)]',
+                    !n.read && 'bg-[var(--gf-green-50)]/50'
                   )}
                   onClick={() => handleNotificationClick(n)}
                   onKeyDown={e => {
@@ -385,7 +385,7 @@ export function NotificationBell() {
                     <span
                       className={cn(
                         'block h-2 w-2 rounded-full',
-                        !n.read ? 'bg-emerald-600 ring-4 ring-emerald-100' : 'bg-transparent'
+                        !n.read ? 'bg-[var(--gf-green-deep)] ring-4 ring-[var(--gf-green-50)]' : 'bg-transparent'
                       )}
                     />
                   </div>
@@ -394,15 +394,15 @@ export function NotificationBell() {
                     <p
                       className={cn(
                         'text-sm leading-snug break-words',
-                        !n.read ? 'font-semibold text-emerald-950' : 'font-medium text-gray-800'
+                        !n.read ? 'font-extrabold text-[var(--gf-green-deep)]' : 'font-semibold text-[var(--fg-2)]'
                       )}
                     >
                       {n.title}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap break-words leading-relaxed">
+                    <p className="text-sm text-[var(--fg-2)] mt-1 whitespace-pre-wrap break-words leading-relaxed">
                       {n.body}
                     </p>
-                    <p className="text-[11px] text-emerald-700/60 mt-2">
+                    <p className="text-[11px] text-[var(--fg-3)] font-semibold mt-2">
                       {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                     </p>
                   </div>
@@ -414,7 +414,7 @@ export function NotificationBell() {
                       deleteOneMutation.mutate(n.id);
                     }}
                     aria-label="Clear notification"
-                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
+                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-[var(--fg-3)] opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -425,13 +425,13 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t border-emerald-100 bg-emerald-50/40 px-5 py-3">
+            <div className="border-t border-[var(--gf-green-deep)]/10 bg-[var(--gf-green-50)]/40 px-5 py-3">
               <button
                 onClick={() => {
                   navigate('/notifications');
                   setOpen(false);
                 }}
-                className="w-full text-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors"
+                className="w-full text-center text-xs font-extrabold uppercase tracking-wider text-[var(--gf-green-deep)] hover:text-[var(--gf-green-deep)] transition-colors"
               >
                 View all notifications →
               </button>

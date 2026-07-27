@@ -10,7 +10,7 @@ export default function StatsBar() {
   className="relative -mt-16"
   style={{ background: "var(--gf-green)" }}
 >
-  <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-9 grid grid-cols-3 divide-x divide-white/25 rounded-3xl shadow-2xl">
+  <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-9 grid grid-cols-1 sm:grid-cols-3 divide-x divide-white/25 sm:divide-x divide-y sm:divide-y-0 divide-white/25 rounded-3xl shadow-2xl">
     {stats.map((s) => (
       <div key={s.l} className="text-center px-2">
         <h2 className="gf-h-display text-white text-5xl md:text-6xl font-bold">

@@ -17,7 +17,7 @@ export default function FinalCTA() {
           RUNNING AT 7 PRESCHOOL — 2 NEW SLOTS OPEN
         </p>
 
-        <h2 className="gf-h-display text-7xl md:text-8xl leading-[1.05] mb-5">
+        <h2 className="gf-h-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] mb-5">
           We&rsquo;ll run your
           <br />
           first session
