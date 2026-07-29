@@ -53,6 +53,11 @@ export interface RegistrationApprovedData {
   parentName?: string;
 }
 
+export interface RegistrationEmailData {
+  email?: string;
+  parentName?: string;
+}
+
 export interface CoachAccountCreatedData {
   email: string;
   phone: string;
@@ -70,6 +75,28 @@ export interface NewInvoiceData {
   email?: string;
   phone: string;
   recipientName?: string;
+}
+
+export interface ParentPaymentReceiptData {
+  email?: string;
+  parentName?: string;
+  invoiceId: string;
+  status: string;
+  totalAmount?: number;
+  paidAt?: Date;
+}
+
+export interface AdminPaymentReceivedData {
+  email?: string;
+  parentName: string;
+  invoiceId: string;
+}
+
+export interface UrgentSessionCancellationData {
+  email?: string;
+  phone?: string;
+  title: string;
+  date: string;
 }
 
 export interface SendInvoicePdfEmailParams {
@@ -193,6 +220,36 @@ export class NotificationService {
     if (tasks.length) await Promise.all(tasks);
   }
 
+  async sendRegistrationReceived(data: RegistrationEmailData) {
+    if (!data.email) return;
+    const name = data.parentName?.trim() || 'there';
+    const message = `Hello ${name}, we have received your request to join. Our team will review it shortly.`;
+    await this.emailProvider
+      .send({
+        to: data.email,
+        subject: 'Registration Request Received',
+        body: message,
+      })
+      .catch(err =>
+        this.logger.error(`Failed to send registration received email to ${data.email}`, err)
+      );
+  }
+
+  async sendRegistrationRejected(data: RegistrationEmailData) {
+    if (!data.email) return;
+    const name = data.parentName?.trim() || 'there';
+    const message = `Hello ${name}, your account registration request could not be approved at this time. Please contact support.`;
+    await this.emailProvider
+      .send({
+        to: data.email,
+        subject: 'Registration Request Not Approved',
+        body: message,
+      })
+      .catch(err =>
+        this.logger.error(`Failed to send registration rejection email to ${data.email}`, err)
+      );
+  }
+
   /**
    * Welcome email + SMS when an admin creates a coach account (mirrors registration approval flow).
    */
@@ -279,26 +336,73 @@ Grow Fitness Team`;
     });
   }
 
-  async sendNewInvoiceToParent(data: NewInvoiceData) {
+  async sendNewInvoiceSmsToParent(data: NewInvoiceData) {
     const name = data.recipientName ?? 'there';
     const message = `Hello ${name}, you have a new invoice from Grow Fitness. Please log in to view and pay.`;
+    if (data.phone) {
+      await this.textLkProvider
+        .send({ to: data.phone, message })
+        .catch(err => this.logger.error(`Failed to send new invoice SMS to ${data.phone}`, err));
+    }
+  }
+
+  async sendPaymentReceiptToParent(data: ParentPaymentReceiptData) {
+    if (!data.email) return;
+    const details = [
+      `Invoice: #${data.invoiceId}`,
+      `Status: ${data.status}`,
+      data.totalAmount !== undefined ? `Amount: ${data.totalAmount}` : undefined,
+      data.paidAt ? `Paid at: ${data.paidAt.toISOString()}` : undefined,
+    ].filter(Boolean);
+    const body = `Thank you! We have received your payment. Your receipt details are enclosed.
+
+${details.join('\n')}`;
+    await this.emailProvider
+      .send({
+        to: data.email,
+        subject: `Payment Receipt for Invoice #${data.invoiceId}`,
+        body,
+      })
+      .catch(err => this.logger.error(`Failed to send payment receipt email to ${data.email}`, err));
+  }
+
+  async sendAdminPaymentReceived(data: AdminPaymentReceivedData) {
+    if (!data.email) return;
+    const message = `Parent ${data.parentName} has successfully paid Invoice #${data.invoiceId}.`;
+    await this.emailProvider
+      .send({
+        to: data.email,
+        subject: 'Payment Received',
+        body: message,
+      })
+      .catch(err =>
+        this.logger.error(`Failed to send admin payment received email to ${data.email}`, err)
+      );
+  }
+
+  async sendUrgentSessionCancellation(data: UrgentSessionCancellationData) {
+    const message = `URGENT: Session '${data.title}' scheduled on ${data.date} has been cancelled.`;
     const tasks: Promise<void>[] = [];
     if (data.email) {
       tasks.push(
         this.emailProvider
           .send({
             to: data.email,
-            subject: 'New Invoice',
+            subject: 'URGENT: Session Cancelled',
             body: message,
           })
-          .catch(err => this.logger.error(`Failed to send new invoice email to ${data.email}`, err))
+          .catch(err =>
+            this.logger.error(`Failed to send urgent cancellation email to ${data.email}`, err)
+          )
       );
     }
     if (data.phone) {
       tasks.push(
         this.textLkProvider
           .send({ to: data.phone, message })
-          .catch(err => this.logger.error(`Failed to send new invoice SMS to ${data.phone}`, err))
+          .catch(err =>
+            this.logger.error(`Failed to send urgent cancellation SMS to ${data.phone}`, err)
+          )
       );
     }
     if (tasks.length) await Promise.all(tasks);
