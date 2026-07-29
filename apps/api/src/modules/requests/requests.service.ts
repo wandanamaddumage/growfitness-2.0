@@ -1272,6 +1272,8 @@ export class RequestsService {
       });
     }
 
+    const previousStatus = request.status;
+
     // Get parentId - handle both ObjectId and populated object
     if (!request.parentId) {
       throw new NotFoundException({
@@ -1336,14 +1338,23 @@ export class RequestsService {
 
     await request.save();
 
-    await this.notificationService.createNotification({
-      userId: parentIdString,
-      type: NotificationType.REGISTRATION_REJECTED,
-      title: 'Registration not approved',
-      body: 'Your account registration was not approved. Please contact support if you have questions.',
-      entityType: 'UserRegistrationRequest',
-      entityId: id,
-    });
+    const transitionedToDenied =
+      previousStatus !== RequestStatus.DENIED && request.status === RequestStatus.DENIED;
+    if (transitionedToDenied) {
+      await this.notificationService.createNotification({
+        userId: parentIdString,
+        type: NotificationType.REGISTRATION_REJECTED,
+        title: 'Registration not approved',
+        body: 'Your account registration was not approved. Please contact support if you have questions.',
+        entityType: 'UserRegistrationRequest',
+        entityId: id,
+      });
+
+      await this.notificationService.sendRegistrationRejected({
+        email: parent.email,
+        parentName: parent.parentProfile?.name,
+      });
+    }
 
     await this.auditService.log({
       actorId: actorId instanceof Types.ObjectId ? actorId.toString() : actorId,

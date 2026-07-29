@@ -379,6 +379,10 @@ export class UsersService {
         .exec();
       const requestId = registrationRequest._id.toString();
       const parentName = parent.parentProfile?.name ?? parent.email;
+      await this.notificationService.sendRegistrationReceived({
+        email: parent.email,
+        parentName,
+      });
       for (const a of admins) {
         const adminId = (a as any)._id?.toString?.();
         if (adminId) {

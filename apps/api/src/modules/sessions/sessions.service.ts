@@ -22,6 +22,7 @@ import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { GoogleCalendarSyncService } from '../google-calendar/google-calendar-sync.service';
 import type { SessionSortField } from './dto/get-sessions-query.dto';
+import { formatSessionNotificationDate } from '../../common/utils/notification-date.util';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -675,6 +676,9 @@ export class SessionsService {
           sessionPopulated.coachId?.toString?.();
         const parentIds = await this.getParentIdsFromKidIds(sessionPopulated.kids ?? []);
         const recipientIds = [coachIdStr, ...parentIds].filter(Boolean);
+        const sendUrgentCancellation =
+          previousStatus !== SessionStatus.CANCELLED && session.status === SessionStatus.CANCELLED;
+        const urgentCancellationDate = formatSessionNotificationDate(session.dateTime);
 
         for (const userId of recipientIds) {
           await this.notificationService.createNotification({
@@ -697,6 +701,14 @@ export class SessionsService {
             sessionId: id,
             changes: changesStr,
           });
+          if (sendUrgentCancellation) {
+            await this.notificationService.sendUrgentSessionCancellation({
+              email: (coachUser as any).email,
+              phone: (coachUser as any).phone ?? '',
+              title: session.title,
+              date: urgentCancellationDate,
+            });
+          }
         }
         for (const parentId of parentIds) {
           const parent = await this.userModel
@@ -711,6 +723,14 @@ export class SessionsService {
               sessionId: id,
               changes: changesStr,
             });
+            if (sendUrgentCancellation) {
+              await this.notificationService.sendUrgentSessionCancellation({
+                email: (parent as any).email,
+                phone: (parent as any).phone ?? '',
+                title: session.title,
+                date: urgentCancellationDate,
+              });
+            }
           }
         }
       }
