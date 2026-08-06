@@ -3,9 +3,10 @@ import { addDays, endOfDay, startOfDay, startOfWeek, endOfWeek } from 'date-fns'
 import { sessionsService } from '@/services/sessions.service';
 import type { PaginatedResponse, Session } from '@grow-fitness/shared-types';
 import { SessionsCalendar, sessionToCalendarEvent } from '@grow-fitness/schedule-calendar';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Maximize2, X } from 'lucide-react';
 import SessionDetailsModal from '@/components/common/SessionDetailsModal';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/hooks/use-toast';
@@ -56,6 +57,7 @@ export default function ScheduleTab() {
   };
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [view, setView] = useState<ScheduleView>('calendar');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const listRange = useMemo(() => {
     const start = startOfDay(new Date());
@@ -140,18 +142,43 @@ export default function ScheduleTab() {
             </TabsContent>
 
             <TabsContent value="calendar" className="mt-0 space-y-4">
-              {showGoogleCalendarSync && (
-                <GoogleCalendarSyncButton
-                  enabled
-                  onOAuthResult={handleGoogleCalendarOAuthResult}
+              <div className="flex items-center justify-between">
+                {showGoogleCalendarSync && (
+                  <GoogleCalendarSyncButton
+                    enabled
+                    onOAuthResult={handleGoogleCalendarOAuthResult}
+                  />
+                )}
+                <Button
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  variant="outline"
+                  className="ml-auto border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/30 font-extrabold uppercase tracking-wide shadow-[2px_2px_0_0_var(--gf-green-deep)] transition-all rounded-lg text-xs"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  <Maximize2 className="h-4 w-4 mr-2" />
+                  Fullscreen
+                </Button>
+              </div>
+              <div className={isFullscreen ? 'fixed inset-0 z-50 bg-white p-4 overflow-hidden' : ''}>
+                {isFullscreen && (
+                  <Button
+                    onClick={() => setIsFullscreen(false)}
+                    variant="outline"
+                    className="absolute bottom-4 left-4 z-10 border-2 border-[var(--gf-green-deep)] text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/30 font-extrabold uppercase tracking-wide shadow-[2px_2px_0_0_var(--gf-green-deep)] transition-all rounded-lg text-xs"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Exit
+                  </Button>
+                )}
+                <SessionsCalendar
+                  events={events}
+                  onSessionClick={setSelectedSession}
+                  onDatesSet={(start, end) => setDateRange({ start, end })}
+                  loading={isLoading}
+                  height={isFullscreen ? 'calc(100vh - 100px)' : undefined}
                 />
-              )}
-              <SessionsCalendar
-                events={events}
-                onSessionClick={setSelectedSession}
-                onDatesSet={(start, end) => setDateRange({ start, end })}
-                loading={isLoading}
-              />
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

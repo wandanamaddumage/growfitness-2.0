@@ -391,11 +391,81 @@ export function SessionsCalendar({
     margin-top: 2px;
   }
 
-  /* Compact event text on mobile */
-  .fc-custom-title   { font-size: 11px; }
-  .fc-custom-time    { font-size: 9px; }
-  .fc-custom-event--time { padding: 3px 4px; }
+  /* ── MOBILE WEEKLY/DAY VIEW - Improve readability ── */
+  .calendar-container .fc-timegrid-event {
+    margin: 1px !important;
+  }
+  .fc-custom-event--time {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 4px 6px !important;
+    min-height: auto !important;
+  }
+  .fc-custom-event--time .fc-custom-dot {
+    display: none !important;
+  }
+  .fc-custom-event--time .fc-custom-body {
+    width: 100% !important;
+  }
+  .fc-custom-event--time .fc-custom-time {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    margin-bottom: 2px !important;
+    line-height: 1.2 !important;
+  }
+  .fc-custom-event--time .fc-custom-title {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow: visible !important;
+  }
 
+  /* ── MOBILE WEEKLY/DAY VIEW - Improve readability ── */
+  .calendar-container .fc-timegrid-event {
+    margin: 1px !important;
+    height: auto !important;
+    min-height: 40px !important;
+  }
+  .fc-custom-event--time {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 6px 8px !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+  .fc-custom-event--time .fc-custom-dot {
+    display: none !important;
+  }
+  .fc-custom-event--time .fc-custom-body {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .fc-custom-event--time .fc-custom-time {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-bottom: 3px !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+  }
+  .fc-custom-event--time .fc-custom-title {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: 100% !important;
+  }
+  .calendar-container .fc-timegrid-slot {
+    height: 50px !important;
+  }
+  .calendar-container .fc-timegrid-slots {
+    min-height: 400px !important;
+  }
   /* Ensure week view is also responsive */
   .calendar-container .fc-col-header {
     padding: 4px 0 !important;
