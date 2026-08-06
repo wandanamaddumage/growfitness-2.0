@@ -17,7 +17,7 @@ import { SessionsTable } from '@/components/schedule/SessionsTable';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/common/Pagination';
 
-type ScheduleView = 'list' | 'calendar';
+type ScheduleView =  'calendar' | 'list';
 
 const getSessionLabel = (session: Session): string => {
   switch (session.type) {
@@ -55,7 +55,7 @@ export default function ScheduleTab() {
     }
   };
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  const [view, setView] = useState<ScheduleView>('list');
+  const [view, setView] = useState<ScheduleView>('calendar');
 
   const listRange = useMemo(() => {
     const start = startOfDay(new Date());
@@ -116,11 +116,11 @@ export default function ScheduleTab() {
         <CardContent className="pt-6">
           <Tabs value={view} onValueChange={(v) => setView(v as ScheduleView)}>
             <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[400px] gap-2">
-              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-                List
-              </TabsTrigger>
               <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 Calendar
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
+                List
               </TabsTrigger>
             </TabsList>
 

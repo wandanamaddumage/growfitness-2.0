@@ -353,13 +353,13 @@ export default function SessionDetailsDialog({
                   <h3 className="font-extrabold text-sm text-[var(--gf-green-deep)] uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>Session Info</h3>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 md:h-16 md:w-16 rounded-lg bg-[var(--gf-green-50)]/30 flex items-center justify-center flex-shrink-0 border border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
+                  {/* <div className="h-12 w-12 md:h-16 md:w-16 rounded-lg bg-[var(--gf-green-50)]/30 flex items-center justify-center flex-shrink-0 border border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                     {displaySession.type === SessionType.GROUP ? (
                       <Users className="h-6 w-6 md:h-8 md:w-8 text-[var(--gf-green-deep)]" />
                     ) : (
                       <User className="h-6 w-6 md:h-8 md:w-8 text-[var(--gf-green-deep)]" />
                     )}
-                  </div>
+                  </div> */}
                   <div className="flex-1 min-w-0">
                     <p className="font-extrabold text-sm truncate text-[var(--gf-green-deep)] uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
                       {formatSessionType(displaySession.type)}

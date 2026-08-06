@@ -35,7 +35,7 @@ import { formatSessionType } from '@/lib/formatters';
 import { SessionSpecialBadges } from '@/components/common/SessionSpecialBadges';
 import type { ColumnDef } from '@tanstack/react-table';
 
-type ScheduleView = 'list' | 'calendar';
+type ScheduleView = 'calendar' | 'list';
 
 type UpcomingSessionsScope = 'ninety_days' | 'all_upcoming';
 
@@ -290,11 +290,11 @@ export default function ScheduleTab() {
         <CardContent className="pt-6">
           <Tabs value={view} onValueChange={v => setView(v as ScheduleView)}>
             <TabsList className="mb-4 bg-[var(--gf-paper)] rounded-xl p-1 h-auto grid w-full grid-cols-2 sm:max-w-[400px] gap-2 p-1">
-              <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
-                List
-              </TabsTrigger>
               <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
                 Calendar
+              </TabsTrigger>
+               <TabsTrigger value="list" className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-[var(--fg-2)] hover:text-[var(--gf-green-deep)] hover:bg-[var(--gf-green-50)]/40 data-[state=active]:!bg-[var(--gf-green)] data-[state=active]:text-white rounded-lg py-1.5 transition-all border-2 border-[var(--gf-green-deep)] shadow-[2px_2px_0_0_var(--gf-green-deep)]">
+                List
               </TabsTrigger>
             </TabsList>
 
