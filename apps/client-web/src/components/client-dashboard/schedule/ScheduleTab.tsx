@@ -107,7 +107,7 @@ export default function ScheduleTab() {
     }
   };
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  const [view, setView] = useState<ScheduleView>('list');
+  const [view, setView] = useState<ScheduleView>('calendar');
   const [openBooking, setOpenBooking] = useState(false);
   const [upcomingScope, setUpcomingScope] = useState<UpcomingSessionsScope>('ninety_days');
 
